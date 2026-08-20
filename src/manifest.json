@@ -1,0 +1,18 @@
+{
+  "name": "KYOTO EYEWEAR",
+  "appid": "",
+  "description": "KYOTO EYEWEAR — Japanese-inspired frames and prescription lenses",
+  "versionName": "0.3.0",
+  "versionCode": "030",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3,
+    "splashscreen": { "alwaysShowBeforeRender": true, "waiting": true, "autoclose": true, "delay": 0 }
+  },
+  "h5": { "title": "KYOTO EYEWEAR", "router": { "mode": "hash" } },
+  "mp-weixin": { "appid": "", "setting": { "urlCheck": false }, "usingComponents": true },
+  "mp-xhs": { "appid": "" },
+  "vueVersion": "3"
+}

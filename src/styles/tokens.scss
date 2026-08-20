@@ -1,0 +1,17 @@
+/* KYOTO design tokens — single source of truth. Do not hard-code brand values in components. */
+$sakura:#FF4F8B; $sunrise:#FF6A3D; $gold:#FFC83D; $teal:#0B7C6E; $teal-deep:#045A4E;
+$night:#0D1B2A; $ink:#0D1B2A; $paper:#FFF5E6; $mist:#F6E9D9; $card:#FFFFFF;
+$line:rgba(13,27,42,.12); $muted:rgba(13,27,42,.55);
+$tint-sakura:#FDE2EB; $tint-sunrise:#FFE6DB; $tint-gold:#FFF1C7; $tint-teal:#D6EDE8; $tint-teal2:#E6F3F0;
+/* typography */
+$font-ui:'Sora','Inter','Noto Sans SC',-apple-system,sans-serif;
+$fs-xs:20rpx; $fs-sm:24rpx; $fs-md:28rpx; $fs-lg:32rpx; $fs-xl:40rpx; $fs-h1:48rpx;
+$fw-reg:400; $fw-med:500; $fw-semi:600; $fw-bold:700;
+$lh:1.6;
+/* spacing / radii / misc */
+$sp-1:8rpx; $sp-2:16rpx; $sp-3:24rpx; $sp-4:32rpx; $sp-5:44rpx; $sp-6:64rpx;
+$r-sm:16rpx; $r-md:24rpx; $r-lg:32rpx; $r-pill:999rpx;
+$shadow-card:0 16rpx 40rpx -24rpx rgba(13,27,42,.28);
+$dur:.2s;
+$z-nav:50; $z-sheet:90; $z-toast:120;
+$safe-b:env(safe-area-inset-bottom);
