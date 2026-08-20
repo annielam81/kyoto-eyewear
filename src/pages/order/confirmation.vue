@@ -15,8 +15,8 @@
     <view v-if="order?.status==='rx_needed'" class="rx-warn-box">
       <text>⚠ {{$t('order.rxNeededNote')}}</text>
     </view>
-    <KyotoButton variant="pink" @click="uni.reLaunch({url:'/pages/home/index'})">{{$t('order.backHome')}}</KyotoButton>
-    <KyotoButton variant="ghost" style="margin-top:14rpx" @click="uni.navigateTo({url:'/pages/order/list'})">{{$t('order.myOrders')}}</KyotoButton>
+    <KyotoButton variant="pink" @click="goHome">{{$t('order.backHome')}}</KyotoButton>
+    <KyotoButton variant="ghost" style="margin-top:14rpx" @click="goOrders">{{$t('order.myOrders')}}</KyotoButton>
   </view>
 </template>
 <script setup lang="ts">
@@ -27,9 +27,13 @@ import KyotoButton from '@/components/KyotoButton.vue';
 import { OrderService } from '@/services/OrderService';
 import type { Order } from '@/models';
 const order = ref<Order|null>(null);
-const all = ['received','rx_verification','lens_production','quality_check','shipped','delivered'];
+const goHome=()=>uni.reLaunch({url:'/pages/home/index'});
+const goOrders=()=>uni.navigateTo({url:'/pages/order/list'});
+const base = ['received','rx_verification','lens_production','quality_check','shipped','delivered'];
 const statuses = computed(()=>{
   const cur = order.value?.status ?? 'received';
+  // insert rx_needed into the track when the order is waiting for a prescription
+  const all = cur === 'rx_needed' ? ['received','rx_needed','rx_verification','lens_production','quality_check','shipped','delivered'] : base;
   const idx = all.indexOf(cur);
   return all.map((k,i)=>({k,done:i<idx,cur:i===idx}));
 });

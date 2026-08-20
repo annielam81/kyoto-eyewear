@@ -7,35 +7,52 @@ import { useProductStore } from './product';
 import { uid } from '@/utils/storage';
 import type { LensConfiguration } from '@/models';
 
-const fresh = (): LensConfiguration & { frameId: string|null; colorKey: string|null; sizeKey: string|null; step: number } => ({
-  configurationId: uid(), frameId: null, colorKey: null, sizeKey: null, step: 1,
+export type WizardState = LensConfiguration & { frameId: string|null; colorKey: string|null; sizeKey: string|null; step: number; editCartItemId: string|null };
+const fresh = (): WizardState => ({
+  configurationId: uid(), frameId: null, colorKey: null, sizeKey: null, step: 1, editCartItemId: null,
   use: null, type: null, strengthBand: null, preference: null,
   materialId: null, treatmentIds: [], prescriptionMethod: null, prescriptionId: null,
 });
 export const useLensWizardStore = defineStore('lensWizard', {
-  state: () => ({ w: load('kyoto.wizard', fresh()) }),
+  state: (): { w: WizardState } => ({ w: load<WizardState>('kyoto.wizard', fresh()) }),
   getters: {
-    frame(s) { return s.w.frameId ? useProductStore().byId(s.w.frameId) ?? null : null; },
-    material(s) { return LENS_MATERIALS.find(m => m.id === s.w.materialId) ?? null; },
-    recommendation(s): string | null {
-      return LensRecommendationService.recommend({
-        strengthBand: s.w.strengthBand, preference: s.w.preference, use: s.w.use,
-        frame: this.frame, sizeKey: s.w.sizeKey });
+    frame(state): import('@/models').Frame | null {
+      return state.w.frameId ? useProductStore().byId(state.w.frameId) ?? null : null;
     },
-    lensPrice(s): number {
+    material(state): import('@/models').LensMaterial | null {
+      return LENS_MATERIALS.find(m => m.id === state.w.materialId) ?? null;
+    },
+    recommendation(state): string | null {
+      return LensRecommendationService.recommend({
+        strengthBand: state.w.strengthBand, preference: state.w.preference, use: state.w.use,
+        frame: this.frame, sizeKey: state.w.sizeKey });
+    },
+    lensPrice(state): number {
       let p = this.material?.price ?? 0;
-      p += TYPE_PRICES[s.w.type ?? ''] ?? 0;
-      for (const id of s.w.treatmentIds) p += TREATMENTS.find(t => t.id === id)?.price ?? 0;
+      p += TYPE_PRICES[state.w.type ?? ''] ?? 0;
+      for (const id of state.w.treatmentIds) p += TREATMENTS.find(t => t.id === id)?.price ?? 0;
       return p;
     },
-    includedTreatmentIds: () => TREATMENTS.filter(t => t.group === 'included').map(t => t.id),
+    includedTreatmentIds: (): string[] => TREATMENTS.filter(t => t.group === 'included').map(t => t.id),
   },
   actions: {
     start(frameId: string, colorKey: string, sizeKey: string) {
       this.w = { ...fresh(), frameId, colorKey, sizeKey };
       this.persist();
     },
-    set<K extends keyof typeof this.w>(k: K, v: (typeof this.w)[K]) { (this.w as any)[k] = v; this.persist(); },
+    /** Restore a cart item's configuration for editing (preserves compatible selections). */
+    startFromCartItem(item: import('@/models').CartItem) {
+      const c = item.config;
+      this.w = { ...fresh(), frameId: item.frameId, colorKey: item.colorKey, sizeKey: item.sizeKey,
+        editCartItemId: item.cartItemId,
+        use: c?.use ?? null, type: c?.type ?? null, strengthBand: c?.strengthBand ?? null,
+        preference: c?.preference ?? null, materialId: c?.materialId ?? null,
+        treatmentIds: (c?.treatmentIds ?? []).filter(id => !this.includedTreatmentIds.includes(id)),
+        prescriptionMethod: c?.prescriptionMethod ?? null, prescriptionId: c?.prescriptionId ?? null,
+        step: 6 };
+      this.persist();
+    },
+    set<K extends keyof WizardState>(k: K, v: WizardState[K]) { (this.w as any)[k] = v; this.persist(); },
     toggleTreatment(id: string) {
       const t = TREATMENTS.find(x => x.id === id);
       if (!t || t.group === 'included') return;      // included are locked; paid default OFF

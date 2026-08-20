@@ -4,7 +4,7 @@
     <text class="h1">{{$t('cart.title')}}</text>
     <view v-if="!cart.items.length">
       <EmptyState :text="$t('cart.empty')" emoji="🛍">
-        <KyotoButton variant="pink" @click="uni.reLaunch({url:'/pages/frames/index'})">{{$t('cart.shop')}}</KyotoButton>
+        <KyotoButton variant="pink" @click="goShop">{{$t('cart.shop')}}</KyotoButton>
       </EmptyState>
     </view>
     <view v-else>
@@ -34,8 +34,8 @@
       </view>
       <text class="note">{{$t('cart.note')}}</text>
     </view>
-    <view class="sticky-cta" v-if="cart.items.length">
-      <KyotoButton variant="pink" @click="uni.navigateTo({url:'/pages/checkout/index'})">
+    <view class="sticky-cta cta-above-nav" v-if="cart.items.length">
+      <KyotoButton variant="pink" @click="goCheckout">
         {{$t('cart.checkout')}} · ${{cart.subtotal+cart.shipping}}
       </KyotoButton>
     </view>
@@ -54,15 +54,22 @@ import FrameArt from '@/components/FrameArt.vue';
 import { useCartStore } from '@/stores/cart';
 import { useProductStore } from '@/stores/product';
 import { LENS_MATERIALS } from '@/config/lens-materials.config';
+import { useLensWizardStore } from '@/stores/lensWizard';
 import type { CartItem, Locale } from '@/models';
 import { onShow } from '@dcloudio/uni-app';
 const { locale } = useI18n(); const loc = computed(()=>locale.value as Locale);
-const cart = useCartStore(); const products = useProductStore();
+const cart = useCartStore(); const products = useProductStore(); const wizard = useLensWizardStore();
 onShow(()=>products.ensure());
 const frameOf = (i:CartItem)=>products.byId(i.frameId);
 const colorOf = (i:CartItem)=>frameOf(i)?.colors.find(c=>c.key===i.colorKey);
 const matName = (id:string)=>LENS_MATERIALS.find(m=>m.id===id)?.name[loc.value]??id;
-const editItem = (_i:CartItem)=>uni.navigateTo({url:'/pages/wizard/index'});
+const goShop=()=>uni.reLaunch({url:'/pages/frames/index'});
+const goCheckout=()=>uni.navigateTo({url:'/pages/checkout/index'});
+const editItem = (i:CartItem)=>{
+  if(!i.config){ uni.navigateTo({url:`/pages/product/detail?id=${i.frameId}`}); return; }
+  wizard.startFromCartItem(i);
+  uni.navigateTo({url:'/pages/wizard/index'});
+};
 </script>
 <style lang="scss" scoped>
 .top{display:flex;align-items:center;justify-content:space-between;padding:16rpx 0 22rpx}
@@ -83,4 +90,6 @@ const editItem = (_i:CartItem)=>uni.navigateTo({url:'/pages/wizard/index'});
 .srow:last-child{border:none}
 .sk{color:$muted}.sv{font-weight:$fw-semi}
 .note{font-size:$fs-xs;color:$muted;text-align:center}
+/* lift CTA above the fixed bottom nav */
+.cta-above-nav{bottom:calc(150rpx + #{$safe-b});padding-bottom:10rpx;z-index:51}
 </style>

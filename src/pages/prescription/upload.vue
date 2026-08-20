@@ -48,7 +48,7 @@ async function doUpload(){
   await UploadService.upload('file');
   clearInterval(t); progress.value=100; uploading.value=false; uploaded.value=true;
 }
-const use = ()=>{ wizard.set('prescriptionMethod','upload'); uni.navigateBack(); };
+const use = ()=>{ wizard.set('prescriptionMethod','upload'); wizard.set('step',6); uni.navigateBack(); };
 </script>
 <style lang="scss" scoped>
 .drop{border:3rpx dashed $teal;background:$tint-teal2;border-radius:$r-lg;padding:60rpx 30rpx;text-align:center;margin-top:14rpx}

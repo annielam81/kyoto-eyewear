@@ -3,9 +3,9 @@
     <KyotoHeader back />
     <text class="h1">{{$t('order.myOrders')}}</text>
     <EmptyState v-if="!orders.length" :text="$t('common.empty')" emoji="📦">
-      <KyotoButton variant="pink" @click="uni.reLaunch({url:'/pages/frames/index'})">{{$t('home.hero.cta')}}</KyotoButton>
+      <KyotoButton variant="pink" @click="goShop">{{$t('home.hero.cta')}}</KyotoButton>
     </EmptyState>
-    <view v-for="o in orders" :key="o.orderId" class="ord" @click="uni.navigateTo({url:`/pages/order/detail?id=${o.orderId}`})">
+    <view v-for="o in orders" :key="o.orderId" class="ord" @click="openOrder(o.orderId)">
       <view class="ord-top"><text class="ord-n">#{{o.number}}</text><text :class="['ord-st',o.status]">{{$t('order.status.'+o.status)}}</text></view>
       <text class="ord-date">{{new Date(o.createdAt).toLocaleDateString()}}</text>
       <text class="ord-total">${{o.total}}</text>
@@ -23,6 +23,8 @@ import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import { OrderService } from '@/services/OrderService';
 import type { Order } from '@/models';
 const orders = ref<Order[]>([]);
+const goShop=()=>uni.reLaunch({url:'/pages/frames/index'});
+const openOrder=(id:string)=>uni.navigateTo({url:`/pages/order/detail?id=${id}`});
 onShow(async()=>{ orders.value=await OrderService.list(); });
 </script>
 <style lang="scss" scoped>

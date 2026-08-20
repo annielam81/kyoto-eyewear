@@ -11,7 +11,7 @@
       </view>
       <view v-for="eye in eyes" :key="eye.k" class="rrow">
         <view class="rlab"><text class="rlk">{{$t('prescription.manual.'+eye.k)}}</text><text class="rls">{{$t('prescription.manual.'+eye.k+'S')}}</text></view>
-        <picker v-for="col in cols" :key="col" mode="selector" :range="ranges[col]" :value="getIdx(eye.k,col)" @change="e=>pick(eye.k,col,e)">
+        <picker v-for="col in cols" :key="col" mode="selector" :range="ranges[col]" :value="getIdx(eye.k,col)" @change="(e:any)=>pick(eye.k,col,e)">
           <view class="rxcell"><text>{{vals[eye.k][col]||'—'}}</text></view>
         </picker>
       </view>
@@ -23,7 +23,7 @@
         <text :class="['pdt',{on:pdMode==='single'}]" @click="pdMode='single'">{{$t('prescription.manual.pdSingle')}}</text>
         <text :class="['pdt',{on:pdMode==='dual'}]" @click="pdMode='dual'">{{$t('prescription.manual.pdDual')}}</text>
       </view>
-      <picker v-if="pdMode==='single'" mode="selector" :range="pdRange" :value="pdIdx" @change="e=>pdIdx=e.detail.value">
+      <picker v-if="pdMode==='single'" mode="selector" :range="pdRange" :value="pdIdx" @change="(e:any)=>pdIdx=Number(e.detail.value)">
         <view class="rxcell wide"><text>{{pdRange[pdIdx]}} mm</text></view>
       </picker>
       <view v-else style="display:flex;gap:14rpx">
@@ -32,7 +32,7 @@
       </view>
     </view>
     <label class="save-chk">
-      <switch :checked="saveAcc" @change="e=>saveAcc=e.detail.value" color="#0B7C6E" style="transform:scale(.8)"/>
+      <switch :checked="saveAcc" @change="(e:any)=>saveAcc=!!e.detail.value" color="#0B7C6E" style="transform:scale(.8)"/>
       <text class="save-tx">{{$t('prescription.manual.saveToAccount')}}</text>
     </label>
     <view class="sticky-cta">
@@ -59,7 +59,7 @@ const pdIdx = ref(13);
 const vals = ref<Record<string,Record<string,string>>>({od:{SPH:'-3.25',CYL:'-0.50',AXIS:'180',ADD:'—'},os:{SPH:'-3.00',CYL:'—',AXIS:'—',ADD:'—'}});
 const getIdx = (eye:string,col:string)=>{ const v=vals.value[eye][col]||'—'; const i=ranges[col].indexOf(v); return i>=0?i:0; };
 const pick = (eye:string,col:string,e:any)=>{ vals.value[eye][col]=ranges[col][e.detail.value]; };
-const use = ()=>{ wizard.set('prescriptionMethod','manual'); uni.navigateBack(); };
+const use = ()=>{ wizard.set('prescriptionMethod','manual'); wizard.set('step',6); uni.navigateBack(); };
 </script>
 <style lang="scss" scoped>
 .help-lnk{font-size:$fs-xs;color:$teal;font-weight:$fw-semi;display:inline-block;margin:6rpx 0 16rpx}

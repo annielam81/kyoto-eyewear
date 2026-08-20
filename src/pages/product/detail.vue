@@ -1,7 +1,7 @@
 <template>
   <view class="pd">
     <view class="hdr-abs">
-      <view class="ib" @click="uni.navigateBack()">
+      <view class="ib" @click="goBack">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
       </view>
       <KyotoWordmark :height="16"/>
@@ -9,7 +9,7 @@
         <view class="ib" :class="{on:fav.has(frame?.id??'')}" @click="toggleFav">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.6-9.3-8.6C.8 9 2.4 4.8 6.3 4.2c2.1-.3 4 .8 5.7 2.6 1.7-1.8 3.6-2.9 5.7-2.6 3.9.6 5.5 4.8 3.6 8.2C19 16.4 12 21 12 21z"/></svg>
         </view>
-        <view class="ib" @click="uni.navigateTo({url:'/pages/cart/index'})">
+        <view class="ib" @click="goCart">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12zM6 6L5 3H2"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>
         </view>
       </view>
@@ -137,6 +137,8 @@ const { locale } = useI18n();
 const loc = computed(()=>locale.value as Locale);
 const products = useProductStore(); const fav = useFavoritesStore();
 const cart = useCartStore(); const wizard = useLensWizardStore();
+const goBack=()=>uni.navigateBack({fail:()=>uni.reLaunch({url:'/pages/home/index'})});
+const goCart=()=>uni.navigateTo({url:'/pages/cart/index'});
 const frameId = ref('arashiyama'); const colorIdx = ref(0); const sizeIdx = ref(0);
 const viewIdx = ref(0); const openAcc = ref<string|null>(null);
 const views = ['front','side','deg'] as const;
@@ -147,10 +149,11 @@ const selSize = computed(()=>frame.value?.sizes[sizeIdx.value]??{key:'M',lensWid
 const related = computed(()=>products.frames.filter(f=>f.id!==frameId.value).slice(0,4));
 const accs = [{k:'ship',title:'product.shippingTitle',body:'product.shipping'},{k:'war',title:'product.warrantyTitle',body:'product.warranty'}];
 const reviews = [{who:'Maya K. · M · Night',body:'Light as air, the keyhole bridge never slips. Got the 1.60 blue-light — zero glare on calls.'},{who:'Wen L. · S · Sakura',body:'Bought for my daughter. Fit guide was spot on. Love the sakura pink.'}];
-onLoad((opts:any)=>{ if(opts?.id) frameId.value=opts.id; products.ensure(); });
+function initSize(){ const f=products.byId(frameId.value); if(f){ const i=f.sizes.findIndex(x=>x.key===f.defaultSize); sizeIdx.value=i>=0?i:0; } }
+onLoad(async (opts:any)=>{ if(opts?.id) frameId.value=opts.id; await products.ensure(); initSize(); });
 const toggleFav = ()=>{ const added=fav.toggle(frame.value?.id??''); uni.showToast({title:added?'Saved':'Removed',icon:'none'}); };
 const goTryOn = ()=>uni.navigateTo({url:`/pages/tryon/index?frame=${frameId.value}`});
-const switchFrame = (id:string)=>{ frameId.value=id; colorIdx.value=0; sizeIdx.value=0; viewIdx.value=0; };
+const switchFrame = (id:string)=>{ frameId.value=id; colorIdx.value=0; viewIdx.value=0; initSize(); };
 const addFrameOnly = ()=>{ if(!frame.value) return; cart.addFrameOnly(frame.value.id,frame.value.sku,selColor.value.key,selSize.value.key,frame.value.price); uni.showToast({title:'Added to cart',icon:'none'}); };
 const startWizard = ()=>{ if(!frame.value) return; wizard.start(frame.value.id,selColor.value.key,selSize.value.key); uni.navigateTo({url:'/pages/wizard/index'}); };
 </script>

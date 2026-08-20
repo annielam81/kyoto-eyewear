@@ -3,7 +3,7 @@
     <view class="feed" v-html="faceSvg"></view>
     <!-- top bar -->
     <view class="top-bar">
-      <view class="cb" @click="uni.navigateBack()">
+      <view class="cb" @click="exitCam">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </view>
       <KyotoWordmark :height="14" color="#fff"/>
@@ -19,7 +19,7 @@
       <text class="h1" style="margin-top:20rpx">{{$t('tryon.permTitle')}}</text>
       <text class="sub" style="margin:16rpx 0 32rpx">{{$t('tryon.permBody')}}</text>
       <KyotoButton variant="pink" @click="grantCam">{{$t('tryon.allow')}}</KyotoButton>
-      <KyotoButton variant="ghost" style="margin-top:14rpx" @click="uni.navigateBack()">{{$t('tryon.notNow')}}</KyotoButton>
+      <KyotoButton variant="ghost" style="margin-top:14rpx" @click="exitCam">{{$t('tryon.notNow')}}</KyotoButton>
     </view>
     <!-- camera live view -->
     <view v-else>
@@ -60,6 +60,22 @@
         </view>
       </view>
       <view v-if="snapSaved" class="snap-saved">📸 {{$t('tryon.saved')}}</view>
+      <!-- A/B compare (split screen) -->
+      <view v-if="comparing" class="cmp">
+        <view class="cmp-half">
+          <view class="feed" v-html="faceSvg"></view>
+          <view class="cmp-frame"><FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex" style="width:330rpx"/></view>
+          <view class="cmp-lab"><text class="cmp-ab">A</text><text>{{selFrame?.name['en-US']}} · ${{selFrame?.price}}</text></view>
+          <view class="cmp-pick" @click="chooseCmp(0)">{{$t('tryon.chooseThis')}}</view>
+        </view>
+        <view class="cmp-half">
+          <view class="feed" v-html="faceSvg"></view>
+          <view class="cmp-frame"><FrameArt :art="cmpB?.art??'round'" :hex="cmpB?.colors[0].hex" style="width:330rpx"/></view>
+          <view class="cmp-lab"><text class="cmp-ab">B</text><text>{{cmpB?.name['en-US']}} · ${{cmpB?.price}}</text></view>
+          <view class="cmp-pick" @click="chooseCmp(1)">{{$t('tryon.chooseThis')}}</view>
+        </view>
+        <view class="cb cmp-close" @click="comparing=false">✕</view>
+      </view>
     </view>
   </view>
 </template>
@@ -74,9 +90,11 @@ import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { VirtualTryOnService } from '@/services/VirtualTryOnService';
 const products = useProductStore(); const fav = useFavoritesStore(); const cart = useCartStore();
+const exitCam=()=>uni.navigateBack({fail:()=>uni.reLaunch({url:'/pages/home/index'})});
 const frameIdx = ref(0); const colorIdx = ref(0);
 const granted = ref(false); const aligned = ref(false);
 const adjusting = ref(false); const dx = ref(0); const dy = ref(0); const snapSaved = ref(false);
+const comparing = ref(false);
 const frames = computed(()=>products.frames.length?products.frames:[]);
 const selFrame = computed(()=>frames.value[frameIdx.value]);
 const selColor = computed(()=>selFrame.value?.colors[colorIdx.value]??selFrame.value?.colors[0]);
@@ -90,7 +108,9 @@ async function grantCam(){
 }
 const setFrame = (i:number)=>{ frameIdx.value=i; colorIdx.value=0; };
 const toggleFav = ()=>fav.toggle(selFrame.value?.id??'');
-const compare = ()=>uni.showToast({title:'A/B Compare',icon:'none'});
+const compare = ()=>{ if(frames.value.length>1) comparing.value=true; };
+const cmpB = computed(()=>frames.value[(frameIdx.value+1)%frames.value.length]);
+function chooseCmp(i:number){ if(i===1){ frameIdx.value=(frameIdx.value+1)%frames.value.length; colorIdx.value=0; } comparing.value=false; }
 function snap(){ snapSaved.value=true; setTimeout(()=>snapSaved.value=false,1500); }
 function addToCart(){
   const f=selFrame.value; if(!f) return;
@@ -128,4 +148,12 @@ const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx">
 .snap-saved{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(13,27,42,.88);color:#fff;padding:24rpx 36rpx;border-radius:$r-md;font-size:$fs-sm;z-index:20;text-align:center}
 .perm{position:absolute;inset:0;background:$paper;color:$night;display:flex;flex-direction:column;padding:calc(80rpx + env(safe-area-inset-top)) 48rpx calc(60rpx + #{$safe-b});align-items:flex-start}
 .perm-art{align-self:center;max-width:520rpx;width:100%;margin-bottom:30rpx}
+.cmp{position:absolute;top:0;left:0;right:0;bottom:0;background:$night;z-index:30;display:flex;flex-direction:column}
+.cmp-half{flex:1;position:relative;overflow:hidden;border-bottom:3rpx solid rgba(255,255,255,.15)}
+.cmp-half .feed{position:absolute;top:0;left:0;right:0;bottom:0;transform:scale(1.25) translateY(6%)}
+.cmp-frame{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:2;filter:drop-shadow(0 6rpx 12rpx rgba(0,0,0,.4))}
+.cmp-lab{position:absolute;left:24rpx;bottom:20rpx;background:rgba(13,27,42,.6);backdrop-filter:blur(6px);padding:10rpx 20rpx;border-radius:$r-pill;font-size:20rpx;display:flex;gap:12rpx;align-items:center;color:#fff;z-index:3}
+.cmp-ab{color:$gold;font-weight:$fw-bold}
+.cmp-pick{position:absolute;right:24rpx;bottom:20rpx;background:$sakura;border-radius:$r-pill;padding:12rpx 22rpx;font-size:20rpx;font-weight:$fw-semi;color:#fff;z-index:3}
+.cmp-close{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:30rpx;z-index:31}
 </style>

@@ -2,7 +2,7 @@
   <view class="page-pad">
     <KyotoHeader back />
     <text class="h1">{{$t('myrx.title')}}</text>
-    <KyotoButton variant="night" size="sm" style="margin:16rpx 0 28rpx" @click="uni.navigateTo({url:'/pages/prescription/upload'})">+ {{$t('myrx.addNew')}}</KyotoButton>
+    <KyotoButton variant="night" size="sm" style="margin:16rpx 0 28rpx" @click="goUpload">+ {{$t('myrx.addNew')}}</KyotoButton>
     <view v-for="p in rxStore.saved" :key="p.prescriptionId" class="rxcard">
       <view class="rxh">
         <text class="rxn">{{p.label||'Prescription'}}</text>
@@ -10,7 +10,7 @@
       </view>
       <text v-if="p.od" class="rxd">OD {{p.od.sph}} · OS {{p.os?.sph}}</text>
       <text v-if="p.expirationDate" class="rxexp">{{$t('myrx.expires')}} {{p.expirationDate}}</text>
-      <text class="use-lnk" @click="uni.navigateTo({url:'/pages/wizard/index'})">{{$t('myrx.useForOrder')}} ›</text>
+      <text class="use-lnk" @click="goWizard">{{$t('myrx.useForOrder')}} ›</text>
     </view>
     <KyotoBottomNav active="account"/>
   </view>
@@ -21,6 +21,8 @@ import KyotoButton from '@/components/KyotoButton.vue';
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import { usePrescriptionStore } from '@/stores/prescription';
 const rxStore = usePrescriptionStore();
+const goUpload=()=>uni.navigateTo({url:'/pages/prescription/upload'});
+const goWizard=()=>uni.navigateTo({url:'/pages/wizard/index'});
 </script>
 <style lang="scss" scoped>
 .rxcard{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:24rpx;margin-bottom:16rpx}

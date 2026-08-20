@@ -11,7 +11,7 @@
 import KyotoWordmark from './KyotoWordmark.vue';
 import LanguageSelector from './LanguageSelector.vue';
 defineProps<{ back?: boolean }>();
-const goBack = () => uni.navigateBack({ fail: () => uni.switchTab?.({ url: '/pages/home/index' }) });
+const goBack = () => uni.navigateBack({ fail: () => uni.reLaunch({ url: '/pages/home/index' }) });
 </script>
 <style lang="scss" scoped>
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:$sp-2 $sp-3;position:sticky;top:0;z-index:$z-nav;background:rgba(255,245,230,.95);backdrop-filter:blur(10px)}

@@ -93,7 +93,7 @@
       <view class="rx-methods">
         <view class="rxm" @click="goRx('upload')"><text class="rmic">📄</text><text class="rmn">{{$t('wizard.s5.upload')}}</text><text class="rms">{{$t('wizard.s5.uploadS')}}</text></view>
         <view class="rxm" @click="goRx('photo')"><text class="rmic">📷</text><text class="rmn">{{$t('wizard.s5.photo')}}</text><text class="rms">{{$t('wizard.s5.photoS')}}</text></view>
-        <view class="rxm" @click="uni.navigateTo({url:'/pages/prescription/manual'})"><text class="rmic">⌨️</text><text class="rmn">{{$t('wizard.s5.manual')}}</text><text class="rms">{{$t('wizard.s5.manualS')}}</text></view>
+        <view class="rxm" @click="goManual"><text class="rmic">⌨️</text><text class="rmn">{{$t('wizard.s5.manual')}}</text><text class="rms">{{$t('wizard.s5.manualS')}}</text></view>
         <view class="rxm wide" @click="setLater"><text class="rmic">⏱</text><view><text class="rmn">{{$t('wizard.s5.later')}}</text><text class="rms">{{$t('wizard.s5.laterS')}}</text></view></view>
       </view>
     </view>
@@ -109,7 +109,7 @@
     <!-- footer -->
     <view class="sticky-cta">
       <KyotoButton variant="pink" :disabled="!canContinue" @click="advance">
-        {{w.step===6?$t('wizard.s6.addToCart')+' · $'+(frame?.price??0+wizard.lensPrice):$t('common.continue')}}
+        {{w.step===6?$t('wizard.s6.addToCart')+' · $'+((frame?.price??0)+wizard.lensPrice):$t('common.continue')}}
       </KyotoButton>
     </view>
   </view>
@@ -139,7 +139,8 @@ const selColor = computed(()=>frame.value?.colors.find(c=>c.key===w.value.colorK
 const whyOpen = ref(false); const showOther = ref(false);
 onShow(()=>{ products.ensure(); });
 const s1opts=[{k:'rx',ic:'👓'},{k:'readers',ic:'📖'},{k:'nonrx',ic:'💻'},{k:'sun',ic:'🕶️'}];
-const s2opts=[{k:'single',ic:'◐',pr:''},{k:'progressive',ic:'◑',pr:'+$120'},{k:'readers',ic:'＋',pr:''}];
+const s2optsAll=[{k:'single',ic:'◐',pr:''},{k:'progressive',ic:'◑',pr:'+$120'},{k:'readers',ic:'＋',pr:''}];
+const s2opts=computed(()=>w.value.use==='readers'?s2optsAll.filter(o=>o.k==='readers'):s2optsAll);
 const prefs=[{k:'balanced',ic:'⚖️'},{k:'thin',ic:'▭'},{k:'weight',ic:'🪶'},{k:'durable',ic:'🛡️'}];
 const recMat = computed(()=>LENS_MATERIALS.find(m=>m.id===wizard.recommendation));
 const otherMats = computed(()=>LENS_MATERIALS.filter(m=>m.id!==wizard.recommendation));
@@ -177,10 +178,12 @@ const canContinue = computed(()=>{
 });
 function setUse(k:string){ wizard.set('use',k as PrescriptionUse); }
 function setType(k:string){ wizard.set('type',k as PrescriptionType); }
-function setBand(i:number){ wizard.set('strengthBand',i); wizard.set('materialId',null as any); whyOpen.value=false; showOther.value=false; }
-function setPref(k:string){ wizard.set('preference',k as LensPreference); wizard.set('materialId',null as any); whyOpen.value=false; showOther.value=false; }
+function setBand(i:number){ wizard.set('strengthBand',i); wizard.set('materialId',null as any); whyOpen.value=false; showOther.value=false; autoPick(); }
+function setPref(k:string){ wizard.set('preference',k as LensPreference); wizard.set('materialId',null as any); whyOpen.value=false; showOther.value=false; autoPick(); }
+function autoPick(){ const r=wizard.recommendation; if(r) wizard.set('materialId',r); }
 function setLater(){ wizard.set('prescriptionMethod','later'); wizard.set('step',6); }
 function useSaved(){ wizard.set('prescriptionMethod','saved'); wizard.set('step',6); }
+const goManual=()=>{ wizard.set('prescriptionMethod','manual'); uni.navigateTo({url:'/pages/prescription/manual'}); };
 function goRx(src:string){
   wizard.set('prescriptionMethod',src as any);
   if(src==='upload'||src==='photo') uni.navigateTo({url:'/pages/prescription/upload'});
@@ -195,16 +198,15 @@ function goBack(){
 }
 function advance(){
   const s=w.value.step;
-  if(s===3&&!w.value.materialId&&wizard.recommendation){ wizard.set('materialId',wizard.recommendation); return; }
   if(s===5&&w.value.use==='nonrx'){ wizard.set('step',6); return; }
   if(s===6){
     if(!frame.value) return;
     const f=frame.value; const c=w.value;
-    cart.addConfigured(f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',f.price,{
-      configurationId:c.configurationId,use:c.use,type:c.type,strengthBand:c.strengthBand,
+    const cfg={configurationId:c.configurationId,use:c.use,type:c.type,strengthBand:c.strengthBand,
       preference:c.preference,materialId:c.materialId,treatmentIds:[...wizard.includedTreatmentIds,...c.treatmentIds],
-      prescriptionMethod:c.prescriptionMethod,prescriptionId:c.prescriptionId,
-    });
+      prescriptionMethod:c.prescriptionMethod,prescriptionId:c.prescriptionId};
+    if(c.editCartItemId) cart.replaceConfigured(c.editCartItemId,f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',f.price,cfg);
+    else cart.addConfigured(f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',f.price,cfg);
     wizard.reset();
     uni.navigateTo({url:'/pages/cart/index'});
     return;

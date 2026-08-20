@@ -33,7 +33,7 @@
   </view>
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
 import { useCartStore } from '@/stores/cart';
@@ -47,7 +47,9 @@ const addr = ref<Address>({name:'',street:'',city:'',state:'CA',zip:''});
 const payMethod = ref('apple'); const busy = ref(false); const tax = ref(0);
 const methods = [{k:'applePay',ic:'',fsa:false},{k:'card',ic:'💳',fsa:false},{k:'fsa',ic:'🏥',fsa:true}];
 const canPlace = computed(()=>!!addr.value.name&&!!addr.value.street&&!!addr.value.city&&!!addr.value.zip);
-onMounted(async()=>{ tax.value=await TaxService.estimate(cart.subtotal,addr.value); });
+async function refreshTax(){ tax.value=await TaxService.estimate(cart.subtotal,addr.value); }
+onMounted(refreshTax);
+watch(()=>addr.value.state, refreshTax);   // tax follows shipping state (mock)
 async function place(){
   if(!canPlace.value) return;
   busy.value=true;

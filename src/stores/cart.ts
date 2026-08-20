@@ -28,6 +28,17 @@ export const useCartStore = defineStore('cart', {
         typePrice, quantity: 1, subtotal });
     },
     push(i: CartItem) { this.items.push(i); this.persist(); },
+    replaceConfigured(cartItemId: string, frameId: string, sku: string, colorKey: string, sizeKey: string, framePrice: number, config: LensConfiguration) {
+      const idx = this.items.findIndex(x => x.cartItemId === cartItemId);
+      if (idx < 0) { this.addConfigured(frameId, sku, colorKey, sizeKey, framePrice, config); return; }
+      const keepQty = this.items[idx].quantity;
+      this.items.splice(idx, 1);
+      this.addConfigured(frameId, sku, colorKey, sizeKey, framePrice, config);
+      this.items[this.items.length-1].quantity = keepQty;
+      // keep position stable
+      const it = this.items.pop()!; this.items.splice(idx, 0, it);
+      this.persist();
+    },
     setQty(id: string, q: number) {
       const it = this.items.find(x=>x.cartItemId===id); if (!it) return;
       q <= 0 ? this.items.splice(this.items.indexOf(it),1) : it.quantity = q; this.persist();
