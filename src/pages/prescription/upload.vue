@@ -55,9 +55,11 @@ onLoad((opts:any)=>{ if(opts?.mock) mockExt = opts.mock; });   // QA hook: ?mock
 async function doUpload(){
   uploading.value=true; progress.value=0;
   const t=setInterval(()=>{ progress.value=Math.min(95,progress.value+15); if(progress.value>=95) clearInterval(t); },150);
-  const r = await UploadService.upload('file', mockExt);
-  fileMeta.value = { name:r.name, ext:r.ext, size:r.size, previewable:r.previewable };
-  clearInterval(t); progress.value=100; uploading.value=false; uploaded.value=true;
+  try {
+    const r = await UploadService.upload('file', mockExt);
+    fileMeta.value = { name:r.name, ext:r.ext, size:r.size, previewable:r.previewable };
+    clearInterval(t); progress.value=100; uploading.value=false; uploaded.value=true;
+  } catch { clearInterval(t); uploading.value=false; }   // cancelled: keep prior state
 }
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
 const use = ()=>{ wizard.set('prescriptionMethod','upload'); wizard.set('step',6); navBack(FALLBACK.rx); };

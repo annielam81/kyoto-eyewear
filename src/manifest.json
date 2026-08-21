@@ -1,15 +1,52 @@
 {
-  "name": "KYOTO EYEWEAR",
+  "name": "KYOTO",
   "appid": "",
   "description": "KYOTO EYEWEAR — Japanese-inspired frames and prescription lenses",
-  "versionName": "0.3.0",
-  "versionCode": "030",
+  "versionName": "0.4.0",
+  "versionCode": "040",
   "transformPx": false,
+  "locale": "en",
   "app-plus": {
     "usingComponents": true,
     "nvueStyleCompiler": "uni-app",
     "compilerVersion": 3,
-    "splashscreen": { "alwaysShowBeforeRender": true, "waiting": true, "autoclose": true, "delay": 0 }
+    "screenOrientation": ["portrait-primary"],
+    "safearea": { "bottom": { "offset": "none" } },
+    "softinput": { "auto": true, "mode": "adjustResize" },
+    "statusbar": { "immersed": "supportedDevice", "style": "dark", "background": "#FFF5E6" },
+    "splashscreen": {
+      "alwaysShowBeforeRender": true, "waiting": true, "autoclose": true, "delay": 0,
+      "ios": { "storyboard": "static/app/splash/CustomStoryboard.zip" },
+      "android": { "hdpi": "static/app/splash/splash-480.png", "xhdpi": "static/app/splash/splash-720.png", "xxhdpi": "static/app/splash/splash-1080.png" }
+    },
+    "icons": {
+      "android": { "hdpi": "static/app/icons/72.png", "xhdpi": "static/app/icons/96.png", "xxhdpi": "static/app/icons/144.png", "xxxhdpi": "static/app/icons/192.png" },
+      "ios": { "appstore": "static/app/icons/1024.png", "iphone": { "app@2x": "static/app/icons/120.png", "app@3x": "static/app/icons/180.png" } }
+    },
+    "distribute": {
+      "android": {
+        "packagename": "com.kyoto.eyewear.dev",
+        "permissions": [
+          "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+          "<uses-permission android:name=\"android.permission.READ_MEDIA_IMAGES\"/>",
+          "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" android:maxSdkVersion=\"32\"/>",
+          "<uses-permission android:name=\"android.permission.INTERNET\"/>"
+        ],
+        "minSdkVersion": 23,
+        "targetSdkVersion": 34,
+        "abiFilters": ["arm64-v8a"]
+      },
+      "ios": {
+        "appid": "com.kyoto.eyewear.dev",
+        "privacyDescription": {
+          "NSCameraUsageDescription": "KYOTO uses the camera for virtual frame try-on and to photograph your prescription.",
+          "NSPhotoLibraryUsageDescription": "KYOTO needs photo access so you can upload a picture of your prescription.",
+          "NSPhotoLibraryAddUsageDescription": "Allows saving try-on snapshots to your photos."
+        },
+        "deploymentTarget": "13.0",
+        "dSYMs": false
+      }
+    }
   },
   "h5": { "title": "KYOTO EYEWEAR", "router": { "mode": "hash" } },
   "mp-weixin": { "appid": "", "setting": { "urlCheck": false }, "usingComponents": true },

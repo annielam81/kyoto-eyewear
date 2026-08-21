@@ -5,6 +5,8 @@ export const VirtualTryOnService = {
     // H5 (incl. 小红书 in-app browser): camera may be restricted → graceful fallback handled by UI.
     return true;
   },
+  /** H5: mock grant. APP-PLUS: hook point for real permission —
+   *  actual native prompt fires on first camera use; shell remains mock (no AR). */
   async requestPermission(): Promise<'granted' | 'denied'> {
     // PRODUCTION-INTEGRATION-REQUIRED: real camera permission per platform.
     await new Promise(r => setTimeout(r, 300));
