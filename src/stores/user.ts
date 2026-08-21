@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { AuthService, type AuthProvider } from '@/services/AuthService';
 import { load, save } from '@/utils/storage';
+import { ProfileService, type Profile } from '@/services/ProfileService';
 export const useUserStore = defineStore('user', {
-  state: () => ({ userId: load<string|null>('kyoto.userId', null), name: load<string>('kyoto.userName','') }),
+  state: () => ({ userId: load<string|null>('kyoto.userId', null), name: load<string>('kyoto.userName',''), profile: ProfileService.get() }),
   getters: { signedIn: s => !!s.userId },
   actions: {
     async signIn(p: AuthProvider, payload?: any) {
@@ -11,5 +12,6 @@ export const useUserStore = defineStore('user', {
       return r;
     },
     async signOut() { await AuthService.signOut(); this.userId = null; this.name=''; save('kyoto.userId',''); },
+    updateProfile(p: Profile) { this.profile = ProfileService.update(p); if (p.firstName) { this.name = p.firstName; save('kyoto.userName', this.name); } },
   },
 });

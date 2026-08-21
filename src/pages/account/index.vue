@@ -28,7 +28,7 @@ import KyotoButton from '@/components/KyotoButton.vue';
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import { useUserStore } from '@/stores/user';
 const user = useUserStore();
-const items=[{k:'orders',ic:'📦',url:'/pages/order/list'},{k:'prescriptions',ic:'📋',url:'/pages/account/prescriptions'},{k:'favorites',ic:'♡',url:'/pages/account/favorites'},{k:'addresses',ic:'📍',url:null},{k:'payment',ic:'💳',url:null},{k:'help',ic:'💬',url:null}];
+const items=[{k:'profile',ic:'👤',url:'/pages/account/profile'},{k:'orders',ic:'📦',url:'/pages/order/list'},{k:'prescriptions',ic:'📋',url:'/pages/account/prescriptions'},{k:'favorites',ic:'♡',url:'/pages/account/favorites'},{k:'addresses',ic:'📍',url:'/pages/account/addresses'},{k:'payment',ic:'💳',url:null},{k:'help',ic:'💬',url:null}];
 const go=(m:any)=>{ if(m.url) uni.navigateTo({url:m.url}); else uni.showToast({title:'Coming soon',icon:'none'}); };
 const signOut=async()=>{ await user.signOut(); uni.reLaunch({url:'/pages/welcome/index'}); };
 </script>

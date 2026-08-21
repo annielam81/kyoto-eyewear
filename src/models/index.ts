@@ -42,7 +42,8 @@ export interface Prescription {
   pdMode: 'single' | 'dual'; pd: number | null; pdOd: number | null; pdOs: number | null;
   fileReference: string | null; uploadStatus: 'none' | 'uploading' | 'done' | 'failed';
   verificationStatus: 'pending' | 'verified' | 'rejected' | 'n/a';
-  uploadedAt: string | null; expirationDate: string | null; label: string;
+  uploadedAt: string | null; issueDate: string | null; expirationDate: string | null; label: string;
+  prescriberName?: string; lastUsedOrder?: string;
 }
 export interface LensConfiguration {
   configurationId: string;
@@ -63,5 +64,12 @@ export interface Order {
   orderId: string; number: string; createdAt: string; items: CartItem[];
   subtotal: number; shipping: number; tax: number; total: number;
   paymentMethod: string; status: OrderStatus; shippingAddress: Address;
+  shippingMethodId: string;
 }
-export interface Address { name: string; street: string; city: string; state: string; zip: string }
+export interface Address {
+  id: string; firstName: string; lastName: string;
+  line1: string; line2: string; city: string; stateCode: string; zip: string;
+  phone: string; email?: string; isDefault?: boolean;
+}
+export type RxCustomerStatus = 'received' | 'needed' | 'verifying' | 'verified' | 'issue' | 'expired' | 'waiting';
+export type RxValidity = 'valid' | 'expiringSoon' | 'expired' | 'unknown';

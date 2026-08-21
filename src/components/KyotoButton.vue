@@ -10,7 +10,9 @@ withDefaults(defineProps<{ variant?: 'night'|'pink'|'ghost'|'gold'; size?: 'md'|
 defineEmits(['click']);
 </script>
 <style lang="scss" scoped>
-.kb{display:flex;align-items:center;justify-content:center;text-align:center;border-radius:28rpx;font-weight:$fw-semi;transition:opacity $dur;min-height:88rpx;padding:24rpx 28rpx;font-size:$fs-md;line-height:1.35}
+.kb{display:flex;align-items:center;justify-content:center;text-align:center;border-radius:28rpx;font-weight:$fw-semi;transition:opacity $dur;min-height:88rpx;height:auto;padding:22rpx 24rpx;font-size:$fs-md;line-height:1.3;word-break:break-word}
+/* extra-long localized CTAs (e.g. es-US) get slightly smaller text instead of clipping */
+.kb.long{font-size:$fs-sm;padding:20rpx 18rpx}
 .kb.sm{min-height:64rpx;padding:14rpx 24rpx;font-size:$fs-sm;border-radius:20rpx}
 .night{background:$night;color:#fff}
 .pink{background:$sakura;color:#fff}

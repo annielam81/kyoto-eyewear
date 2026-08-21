@@ -115,7 +115,7 @@
     <view class="sticky-cta">
       <view class="cta2">
         <KyotoButton variant="ghost" size="sm" @click="addFrameOnly">{{$t('product.frameOnly')}}<br/><text style="font-weight:500;font-size:20rpx;opacity:.7">${{frame?.price}}</text></KyotoButton>
-        <KyotoButton variant="pink" @click="startWizard">{{$t('product.addLenses')}} →</KyotoButton>
+        <KyotoButton variant="pink" :class="{long:$t('product.addLenses').length>22}" @click="startWizard">{{$t('product.addLenses')}} →</KyotoButton>
       </view>
     </view>
   </view>

@@ -89,7 +89,15 @@
     <view v-else-if="w.step===5&&w.use!=='nonrx'">
       <text class="h1">{{$t('wizard.s5.title')}}</text>
       <text class="sub" style="display:block;margin:10rpx 0 24rpx">{{$t('wizard.s5.subtitle')}}</text>
-      <view class="rx-saved" @click="useSaved"><text class="rx-s-ic">✓</text><view><text class="rx-s-name">{{$t('wizard.s5.saved')}}</text><text class="rx-s-sub">Dr. Chen · Mar 2026 · OD −3.25</text></view></view>
+      <view class="rx-saved" :class="{expired:savedRxValidity==='expired'}" @click="useSaved">
+        <text class="rx-s-ic">{{savedRxValidity==='expired'?'⚠':'✓'}}</text>
+        <view>
+          <text class="rx-s-name">{{$t('wizard.s5.saved')}}</text>
+          <text class="rx-s-sub">{{savedRx?.label}} · OD {{savedRx?.od?.sph}}</text>
+          <text v-if="savedRxValidity==='expired'" class="rx-s-exp">{{$t('c3.rxs.expired')}} — {{$t('c3.myrx.expWarn')}}</text>
+          <text v-else-if="savedRxValidity==='expiringSoon'" class="rx-s-exp soon">{{$t('c3.myrx.soonWarn')}}</text>
+        </view>
+      </view>
       <view class="rx-methods">
         <view class="rxm" @click="goRx('upload')"><text class="rmic">📄</text><text class="rmn">{{$t('wizard.s5.upload')}}</text><text class="rms">{{$t('wizard.s5.uploadS')}}</text></view>
         <view class="rxm" @click="goRx('photo')"><text class="rmic">📷</text><text class="rmn">{{$t('wizard.s5.photo')}}</text><text class="rms">{{$t('wizard.s5.photoS')}}</text></view>
@@ -129,10 +137,15 @@ import { useProductStore } from '@/stores/product';
 import { LENS_MATERIALS } from '@/config/lens-materials.config';
 import { TREATMENTS, TYPE_PRICES } from '@/config/treatments.config';
 import { LensRecommendationService, LENS_WHY } from '@/services/LensRecommendationService';
+import { usePrescriptionStore } from '@/stores/prescription';
+import { PrescriptionService } from '@/services/PrescriptionService';
 import type { Locale, LensPreference, PrescriptionUse, PrescriptionType } from '@/models';
 import { money } from '@/utils/format';
 const { locale,t } = useI18n(); const loc = computed(()=>locale.value as Locale);
 const wizard = useLensWizardStore(); const cart = useCartStore(); const products = useProductStore();
+const rxStore = usePrescriptionStore();
+const savedRx = computed(()=>rxStore.saved[0] ?? null);
+const savedRxValidity = computed(()=>savedRx.value?PrescriptionService.validity(savedRx.value):'unknown');
 const w = computed(()=>wizard.w);
 const frame = computed(()=>wizard.frame);
 const selColor = computed(()=>frame.value?.colors.find(c=>c.key===w.value.colorKey)??frame.value?.colors[0]);
@@ -182,7 +195,10 @@ function setBand(i:number){ wizard.set('strengthBand',i); wizard.set('materialId
 function setPref(k:string){ wizard.set('preference',k as LensPreference); wizard.set('materialId',null as any); whyOpen.value=false; showOther.value=false; autoPick(); }
 function autoPick(){ const r=wizard.recommendation; if(r) wizard.set('materialId',r); }
 function setLater(){ wizard.set('prescriptionMethod','later'); wizard.set('step',6); }
-function useSaved(){ wizard.set('prescriptionMethod','saved'); wizard.set('step',6); }
+function useSaved(){
+  if(savedRxValidity.value==='expired'){ uni.showToast({title:t('c3.myrx.expWarn'),icon:'none',duration:3200}); return; }
+  wizard.set('prescriptionMethod','saved'); wizard.set('prescriptionId', savedRx.value?.prescriptionId ?? null); wizard.set('step',6);
+}
 const goManual=()=>{ wizard.set('prescriptionMethod','manual'); uni.navigateTo({url:'/pages/prescription/manual'}); };
 function goRx(src:string){
   wizard.set('prescriptionMethod',src as any);
@@ -251,6 +267,9 @@ function advance(){
 .sw::after{content:"";position:absolute;top:6rpx;left:6rpx;width:36rpx;height:36rpx;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 2rpx 6rpx rgba(0,0,0,.2)}
 .sw.on{background:$teal}.sw.on::after{left:38rpx}
 .rx-saved{display:flex;align-items:center;gap:18rpx;border:3rpx solid $teal;background:$tint-teal2;border-radius:$r-md;padding:24rpx;margin-bottom:16rpx}
+.rx-saved.expired{border-color:$sunrise;background:#FFF1EB;opacity:.85}
+.rx-s-exp{display:block;font-size:$fs-xs;color:$sunrise;margin-top:6rpx;line-height:1.5}
+.rx-s-exp.soon{color:$night}
 .rx-s-ic{font-size:36rpx;width:60rpx;text-align:center;flex-shrink:0;color:$teal}
 .rx-s-name{display:block;font-size:$fs-sm;font-weight:$fw-semi}
 .rx-s-sub{display:block;font-size:$fs-xs;color:$muted}

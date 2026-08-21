@@ -17,6 +17,8 @@
     { "path": "pages/order/detail",   "style": { "navigationStyle": "custom" } },
     { "path": "pages/account/index",  "style": { "navigationStyle": "custom" } },
     { "path": "pages/account/prescriptions", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/account/addresses", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/account/profile",   "style": { "navigationStyle": "custom" } },
     { "path": "pages/account/favorites",      "style": { "navigationStyle": "custom" } }
   ],
   "globalStyle": { "navigationStyle": "custom", "backgroundColor": "#FFF5E6" }

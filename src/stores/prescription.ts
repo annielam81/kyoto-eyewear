@@ -7,5 +7,6 @@ export const usePrescriptionStore = defineStore('prescription', {
   actions: {
     add(p: Prescription) { this.saved.unshift(p); save('kyoto.prescriptions', [...this.saved]); },
     byId(id: string) { return this.saved.find(p => p.prescriptionId === id); },
+    remove(id: string) { this.saved = this.saved.filter(p => p.prescriptionId !== id); save('kyoto.prescriptions', [...this.saved]); },
   },
 });
