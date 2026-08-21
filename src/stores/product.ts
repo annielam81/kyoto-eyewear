@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ProductService } from '@/services/ProductService';
+import { ProductsApi } from '@/api/products.api';
 import type { Frame } from '@/models';
 export const useProductStore = defineStore('product', {
   state: () => ({ frames: [] as Frame[], loaded: false, filter: 'all' as string }),
@@ -9,7 +9,7 @@ export const useProductStore = defineStore('product', {
     },
   },
   actions: {
-    async ensure() { if (!this.loaded) { this.frames = await ProductService.list(); this.loaded = true; } },
+    async ensure() { if (!this.loaded) { const page = await ProductsApi.list({ limit: 100 }); this.frames = page.items; this.loaded = true; } },
     byId(id: string) { return this.frames.find(f => f.id === id); },
   },
 });

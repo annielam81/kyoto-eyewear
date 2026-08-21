@@ -1,7 +1,7 @@
 import type { Frame, LocalizedText } from '@/models';
 const L = (en: string, zh: string, es: string): LocalizedText => ({ 'en-US': en, 'zh-CN': zh, 'es-US': es });
 /** Mock catalog. Swap `list()` implementation for REST later without touching screens. */
-const CATALOG: Frame[] = [
+export const FRAMES: Frame[] = [
   { id:'arashiyama', sku:'KY-AR-001', slug:'arashiyama', collectionName:'Arashiyama', nameZH:'岚山',
     name:L('Arashiyama','岚山','Arashiyama'), price:95, category:'optical', frameShape:'round',
     frameMaterial:L('Acetate','板材','Acetato'),
@@ -70,6 +70,6 @@ const CATALOG: Frame[] = [
     tags:['new'], inventoryStatus:'in_stock', newArrival:true, fsaEligible:true, rating:4.5, reviewCount:23 },
 ];
 export const ProductService = {
-  async list(): Promise<Frame[]> { return CATALOG; },
-  async byId(id: string): Promise<Frame | undefined> { return CATALOG.find(f => f.id === id); },
+  async list(): Promise<Frame[]> { return FRAMES; },
+  async byId(id: string): Promise<Frame | undefined> { return FRAMES.find(f => f.id === id); },
 };

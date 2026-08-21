@@ -1,4 +1,12 @@
 export default {
+  c4: { err: {
+    VALIDATION_ERROR:'Revisa los campos marcados.', UNAUTHORIZED:'Inicia sesión para continuar.',
+    NOT_FOUND:'No encontramos ese artículo.', OUT_OF_STOCK:'Este artículo se acaba de agotar.',
+    INCOMPATIBLE_LENS:'Ese lente no es compatible con esta montura. Te sugerimos una alternativa.',
+    PRESCRIPTION_REQUIRED:'Este pedido requiere receta.', PRESCRIPTION_EXPIRED:'Esta receta está vencida.',
+    PAYMENT_REQUIRED:'No se pudo completar el pago.', NETWORK_ERROR:'Parece que no hay conexión. Tu carrito está a salvo — reintenta.',
+    TIMEOUT:'Tardó demasiado. Tu carrito está a salvo — reintenta.', SERVER_ERROR:'Algo salió mal de nuestro lado. No se hizo ningún cargo.' } },
+
   c3: {
     addr: { title:'Dirección de envío', first:'Nombre', last:'Apellido', line1:'Dirección línea 1',
       line2:'Dirección línea 2 (opcional)', city:'Ciudad', state:'Estado', zip:'Código postal', phone:'Teléfono',

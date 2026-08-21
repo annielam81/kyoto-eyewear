@@ -1,4 +1,6 @@
 import { createSSRApp } from 'vue';
+import { runMigrations } from '@/utils/migrate';
+runMigrations();
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import { i18n } from './i18n';

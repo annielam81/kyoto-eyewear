@@ -120,6 +120,7 @@ const tax = ref(0);
 const touched = ref<Record<string,boolean>>({});
 /** Card fields are intentionally NOT persisted anywhere. */
 const card = ref({ name:'', number:'', expiry:'', cvc:'', billingSame:true });
+let idemKey: string | null = null;   // one key per checkout attempt-set
 const shipMethods = ShippingService.methods();
 import { applePayUiAllowed } from '@/utils/platform';
 const methods = [{k:'applePay',ic:''},{k:'card',ic:'💳'},{k:'fsa',ic:'🏥'}].filter(m=>m.k!=='applePay'||applePayUiAllowed());
@@ -195,14 +196,18 @@ async function place(){
   checkout.placeState='processing';
   try {
     await PaymentService.pay(d.value.payMethod as any, cart.subtotal+shipCost.value+tax.value);
+    if (!idemKey) idemKey = `co-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
     const order = await OrderService.place([...cart.items],
       { subtotal:cart.subtotal, shipping:shipCost.value, tax:tax.value },
-      d.value.payMethod, JSON.parse(JSON.stringify(activeAddr.value)), cart.rxNeeded, d.value.shippingMethodId);
+      d.value.payMethod, JSON.parse(JSON.stringify(activeAddr.value)), cart.rxNeeded, d.value.shippingMethodId, idemKey);
     orderStore.lastOrderId = order.orderId;
+    idemKey = null;
     cart.clear(); checkout.placeState='success'; checkout.reset();
     uni.reLaunch({ url:`/pages/order/confirmation?id=${order.orderId}` });
-  } catch {
-    checkout.placeState='failure';
+  } catch (e:any) {
+    checkout.placeState='failure';   // cart intentionally NOT cleared on failure
+    const key = e?.code ? `c4.err.${e.code}` : 'c4.err.SERVER_ERROR';
+    uni.showToast({ title: t(key), icon:'none', duration: 2600 });
   }
 }
 </script>

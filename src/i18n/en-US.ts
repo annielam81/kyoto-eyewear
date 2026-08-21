@@ -1,4 +1,12 @@
 export default {
+  c4: { err: {
+    VALIDATION_ERROR:'Please check the highlighted fields.', UNAUTHORIZED:'Please sign in to continue.',
+    NOT_FOUND:'We couldn\'t find that item.', OUT_OF_STOCK:'This item just sold out.',
+    INCOMPATIBLE_LENS:'That lens doesn\'t fit this frame. We\'ve suggested an alternative.',
+    PRESCRIPTION_REQUIRED:'A prescription is needed for this order.', PRESCRIPTION_EXPIRED:'This prescription has expired.',
+    PAYMENT_REQUIRED:'Payment couldn\'t be completed.', NETWORK_ERROR:'You seem to be offline. Your cart is safe — try again.',
+    TIMEOUT:'That took too long. Your cart is safe — try again.', SERVER_ERROR:'Something went wrong on our side. Nothing was charged.' } },
+
   c3: {
     addr: { title:'Shipping address', first:'First name', last:'Last name', line1:'Address line 1',
       line2:'Address line 2 (optional)', city:'City', state:'State', zip:'ZIP code', phone:'Phone',

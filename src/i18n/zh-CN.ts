@@ -1,4 +1,12 @@
 export default {
+  c4: { err: {
+    VALIDATION_ERROR:'请检查标出的字段。', UNAUTHORIZED:'请先登录。',
+    NOT_FOUND:'未找到该内容。', OUT_OF_STOCK:'该商品刚刚售罄。',
+    INCOMPATIBLE_LENS:'该镜片与此镜框不兼容,已为你推荐替代。',
+    PRESCRIPTION_REQUIRED:'此订单需要处方。', PRESCRIPTION_EXPIRED:'该处方已过期。',
+    PAYMENT_REQUIRED:'支付未能完成。', NETWORK_ERROR:'网络似乎已断开。购物车已保留,请重试。',
+    TIMEOUT:'请求超时。购物车已保留,请重试。', SERVER_ERROR:'我们这边出了点问题,未产生任何扣款。' } },
+
   c3: {
     addr: { title:'收货地址', first:'名', last:'姓', line1:'地址第 1 行',
       line2:'地址第 2 行(选填)', city:'城市', state:'州', zip:'邮编', phone:'电话',
