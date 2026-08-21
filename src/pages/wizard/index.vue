@@ -141,6 +141,7 @@ import { usePrescriptionStore } from '@/stores/prescription';
 import { PrescriptionService } from '@/services/PrescriptionService';
 import type { Locale, LensPreference, PrescriptionUse, PrescriptionType } from '@/models';
 import { money } from '@/utils/format';
+import { goBack as navBack, FALLBACK } from '@/utils/nav';
 const { locale,t } = useI18n(); const loc = computed(()=>locale.value as Locale);
 const wizard = useLensWizardStore(); const cart = useCartStore(); const products = useProductStore();
 const rxStore = usePrescriptionStore();
@@ -150,7 +151,9 @@ const w = computed(()=>wizard.w);
 const frame = computed(()=>wizard.frame);
 const selColor = computed(()=>frame.value?.colors.find(c=>c.key===w.value.colorKey)??frame.value?.colors[0]);
 const whyOpen = ref(false); const showOther = ref(false);
-onShow(()=>{ products.ensure(); });
+onShow(async ()=>{ await products.ensure();
+  if (!wizard.w.frameId) uni.reLaunch({ url: FALLBACK.wizard });   // refresh/direct-entry guard
+});
 const s1opts=[{k:'rx',ic:'👓'},{k:'readers',ic:'📖'},{k:'nonrx',ic:'💻'},{k:'sun',ic:'🕶️'}];
 const s2optsAll=[{k:'single',ic:'◐',pr:''},{k:'progressive',ic:'◑',pr:'+$120'},{k:'readers',ic:'＋',pr:''}];
 const s2opts=computed(()=>w.value.use==='readers'?s2optsAll.filter(o=>o.k==='readers'):s2optsAll);
@@ -210,7 +213,7 @@ function editStep(key:string){
 }
 function goBack(){
   if(w.value.step>1){ wizard.set('step',w.value.step-1); }
-  else uni.navigateBack();
+  else { const f = wizard.w.frameId ? `/pages/product/detail?id=${wizard.w.frameId}` : FALLBACK.wizard; navBack(f); }
 }
 function advance(){
   const s=w.value.step;

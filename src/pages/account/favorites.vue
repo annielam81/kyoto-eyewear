@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <KyotoHeader back />
+    <KyotoHeader back fallback="/pages/account/index" />
     <text class="h1">{{$t('favorites.title')}}</text>
     <EmptyState v-if="!favFrames.length" :text="$t('favorites.empty')" emoji="♡">
       <KyotoButton variant="pink" @click="goShop">{{$t('home.hero.cta')}}</KyotoButton>

@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
+    <view class="top safe-top"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
     <text class="h1">{{$t('cart.title')}}</text>
     <view v-if="!cart.items.length">
       <EmptyState :text="$t('cart.empty')" emoji="🛍">

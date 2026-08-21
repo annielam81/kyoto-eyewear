@@ -14,7 +14,7 @@ const pick = (c: Locale) => app.setLocale(c);
 </script>
 <style lang="scss" scoped>
 .lang{display:inline-flex;border:2rpx solid $line;border-radius:$r-pill;overflow:hidden;background:#fff}
-.opt{padding:8rpx 20rpx;font-size:$fs-xs;color:$muted}
+.opt{padding:14rpx 22rpx;font-size:$fs-xs;color:$muted;min-height:56rpx;display:flex;align-items:center}
 .opt.on{background:$night;color:#fff}
-.compact .opt{padding:6rpx 14rpx}
+.compact .opt{padding:10rpx 16rpx}
 </style>

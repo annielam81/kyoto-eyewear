@@ -7,6 +7,9 @@ onLaunch(() => { useProductStore().ensure(); });
 @font-face{font-family:'Sora';src:local('Sora');font-display:swap}
 page, body{background:$paper;color:$night;font-family:$font-ui;line-height:$lh;-webkit-font-smoothing:antialiased}
 .page-pad{padding:0 $sp-3 220rpx}
+.safe-top{padding-top:env(safe-area-inset-top)}
+/* unified clearance for content above fixed bottom nav / CTA */
+.above-nav{padding-bottom:calc(170rpx + env(safe-area-inset-bottom))}
 h1,.h1{font-size:$fs-h1;font-weight:$fw-bold;line-height:1.22;letter-spacing:-.01em}
 .h2{font-size:$fs-lg;font-weight:$fw-bold}
 .sub{color:$muted;font-size:$fs-sm;line-height:1.6}

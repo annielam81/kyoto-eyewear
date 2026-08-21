@@ -59,7 +59,8 @@ const pdIdx = ref(13);
 const vals = ref<Record<string,Record<string,string>>>({od:{SPH:'-3.25',CYL:'-0.50',AXIS:'180',ADD:'—'},os:{SPH:'-3.00',CYL:'—',AXIS:'—',ADD:'—'}});
 const getIdx = (eye:string,col:string)=>{ const v=vals.value[eye][col]||'—'; const i=ranges[col].indexOf(v); return i>=0?i:0; };
 const pick = (eye:string,col:string,e:any)=>{ vals.value[eye][col]=ranges[col][e.detail.value]; };
-const use = ()=>{ wizard.set('prescriptionMethod','manual'); wizard.set('step',6); uni.navigateBack(); };
+import { goBack as navBack, FALLBACK } from '@/utils/nav';
+const use = ()=>{ wizard.set('prescriptionMethod','manual'); wizard.set('step',6); navBack(FALLBACK.rx); };
 </script>
 <style lang="scss" scoped>
 .help-lnk{font-size:$fs-xs;color:$teal;font-weight:$fw-semi;display:inline-block;margin:6rpx 0 16rpx}

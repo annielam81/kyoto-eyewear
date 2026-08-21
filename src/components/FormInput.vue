@@ -1,7 +1,7 @@
 <template>
   <view class="fi">
     <text v-if="label" class="fi-lb">{{ label }}</text>
-    <input class="fi-in" :class="{ err: !!error }" :type="inputType" :password="type==='password'"
+    <input class="fi-in" :class="{ err: !!error }" :type="inputType" :password="type==='password'" :adjust-position="true" cursor-spacing="30"
       :value="modelValue" :placeholder="placeholder" @input="onInput" @blur="$emit('blur')"/>
     <text v-if="error" class="fi-err">⚠ {{ error }}</text>
   </view>
@@ -18,7 +18,7 @@ const onInput = (e:any)=>emit('update:modelValue', e.detail.value);
 <style lang="scss" scoped>
 .fi{display:flex;flex-direction:column;gap:10rpx;min-width:0}
 .fi-lb{font-size:$fs-xs;color:$muted;font-weight:$fw-med}
-.fi-in{background:#fff;border:3rpx solid $line;border-radius:$r-sm;padding:26rpx;font-size:$fs-md;min-height:88rpx;box-sizing:border-box;width:100%}
+.fi-in{background:#fff;border:3rpx solid $line;border-radius:$r-sm;padding:26rpx;font-size:32rpx;min-height:88rpx;box-sizing:border-box;width:100%}
 .fi-in.err{border-color:$sunrise;background:#FFF8F5}
 .fi-err{font-size:$fs-xs;color:$sunrise;font-weight:$fw-med}
 </style>

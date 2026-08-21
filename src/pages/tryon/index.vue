@@ -16,10 +16,20 @@
     <view v-if="!granted" class="perm">
       <view class="perm-art" v-html="permArt"></view>
       <KyotoWordmark :height="20"/>
-      <text class="h1" style="margin-top:20rpx">{{$t('tryon.permTitle')}}</text>
-      <text class="sub" style="margin:16rpx 0 32rpx">{{$t('tryon.permBody')}}</text>
-      <KyotoButton variant="pink" @click="grantCam">{{$t('tryon.allow')}}</KyotoButton>
-      <KyotoButton variant="ghost" style="margin-top:14rpx" @click="exitCam">{{$t('tryon.notNow')}}</KyotoButton>
+      <template v-if="perm==='denied'||perm==='unsupported'">
+        <text class="h1" style="margin-top:20rpx">{{$t('tryon.permTitle')}}</text>
+        <text class="sub" style="margin:16rpx 0 12rpx">{{ perm==='denied' ? $t('tryon.denied') : $t('tryon.unsupported') }}</text>
+        <text class="sub" style="margin:0 0 28rpx">{{$t('tryon.fallbackHint')}}</text>
+        <KyotoButton v-if="perm==='denied'" variant="ghost" style="margin-bottom:14rpx" @click="grantCam">{{$t('common.retry')}}</KyotoButton>
+        <KyotoButton variant="pink" @click="goUploadFallback">{{$t('tryon.fallbackCta')}}</KyotoButton>
+        <KyotoButton variant="ghost" style="margin-top:14rpx" @click="exitCam">{{$t('common.back')}}</KyotoButton>
+      </template>
+      <template v-else>
+        <text class="h1" style="margin-top:20rpx">{{$t('tryon.permTitle')}}</text>
+        <text class="sub" style="margin:16rpx 0 32rpx">{{$t('tryon.permBody')}}</text>
+        <KyotoButton variant="pink" :loading="perm==='requesting'" @click="grantCam">{{$t('tryon.allow')}}</KyotoButton>
+        <KyotoButton variant="ghost" style="margin-top:14rpx" @click="exitCam">{{$t('tryon.notNow')}}</KyotoButton>
+      </template>
     </view>
     <!-- camera live view -->
     <view v-else>
@@ -89,10 +99,14 @@ import { useProductStore } from '@/stores/product';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { VirtualTryOnService } from '@/services/VirtualTryOnService';
+import { cameraLikelyAvailable } from '@/utils/platform';
 const products = useProductStore(); const fav = useFavoritesStore(); const cart = useCartStore();
-const exitCam=()=>uni.navigateBack({fail:()=>uni.reLaunch({url:'/pages/home/index'})});
+import { goBack as navBack, FALLBACK } from '@/utils/nav';
+const exitCam=()=>navBack(FALLBACK.pdp);
 const frameIdx = ref(0); const colorIdx = ref(0);
-const granted = ref(false); const aligned = ref(false);
+type PermState = 'notRequested'|'requesting'|'granted'|'denied'|'unsupported';
+const perm = ref<PermState>(cameraLikelyAvailable()?'notRequested':'unsupported');
+const granted = computed(()=>perm.value==='granted'); const aligned = ref(false);
 const adjusting = ref(false); const dx = ref(0); const dy = ref(0); const snapSaved = ref(false);
 const comparing = ref(false);
 const frames = computed(()=>products.frames.length?products.frames:[]);
@@ -100,13 +114,19 @@ const selFrame = computed(()=>frames.value[frameIdx.value]);
 const selColor = computed(()=>selFrame.value?.colors[colorIdx.value]??selFrame.value?.colors[0]);
 onLoad(async (opts:any)=>{
   await products.ensure();
+  if(opts?.mockperm==='denied'){ perm.value='denied'; }        // QA hook
+  if(opts?.mockperm==='unsupported'){ perm.value='unsupported'; }
   if(opts?.frame){ const i=frames.value.findIndex(f=>f.id===opts.frame); if(i>=0) frameIdx.value=i; }
 });
 async function grantCam(){
+  if(perm.value==='unsupported') return;
+  perm.value='requesting';
   const r = await VirtualTryOnService.requestPermission();
-  if(r==='granted'){ granted.value=true; VirtualTryOnService.startMockAlignment(s=>{ aligned.value=s.aligned; }); }
+  if(r==='granted'){ perm.value='granted'; VirtualTryOnService.startMockAlignment(s=>{ aligned.value=s.aligned; }); }
+  else perm.value='denied';
 }
 const setFrame = (i:number)=>{ frameIdx.value=i; colorIdx.value=0; };
+const goUploadFallback = ()=>uni.navigateTo({url:'/pages/prescription/upload'});
 const toggleFav = ()=>fav.toggle(selFrame.value?.id??'');
 const compare = ()=>{ if(frames.value.length>1) comparing.value=true; };
 const cmpB = computed(()=>frames.value[(frameIdx.value+1)%frames.value.length]);

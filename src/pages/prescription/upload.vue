@@ -17,11 +17,17 @@
       <text class="sub">{{$t('prescription.upload.progress')}}</text>
     </view>
     <view v-if="uploaded" class="preview-box">
-      <view class="prev-img">
-        <view v-for="i in 5" :key="i" class="prev-line" :style="{top:(i*14)+'rpx',width:i%2?'100%':'60%'}"></view>
+      <view class="prev-img" :class="{ph:!fileMeta?.previewable}">
+        <template v-if="fileMeta?.previewable">
+          <view v-for="i in 5" :key="i" class="prev-line" :style="{top:(i*14)+'rpx',width:i%2?'100%':'60%'}"></view>
+        </template>
+        <template v-else>
+          <text class="ph-ext">{{fileMeta?.ext?.toUpperCase()}}</text>
+          <text class="ph-note">{{$t('prescription.upload.noPreview')}}</text>
+        </template>
       </view>
       <view class="prev-info">
-        <text class="prev-name">prescription_dr_chen.jpg</text>
+        <text class="prev-name">{{fileMeta?.name}}</text>
         <text class="prev-sub">{{$t('prescription.upload.uploaded')}} · 2.1 MB</text>
         <text class="prev-sub">{{$t('prescription.upload.expires')}}: Mar 2028</text>
         <text class="verify">✓ {{$t('prescription.upload.verify')}}</text>
@@ -42,13 +48,19 @@ import { useLensWizardStore } from '@/stores/lensWizard';
 import { UploadService } from '@/services/UploadService';
 const wizard = useLensWizardStore();
 const uploaded = ref(false); const uploading = ref(false); const progress = ref(0);
+const fileMeta = ref<{name:string;ext:string;size:string;previewable:boolean}|null>(null);
+let mockExt = 'jpg';
+import { onLoad } from '@dcloudio/uni-app';
+onLoad((opts:any)=>{ if(opts?.mock) mockExt = opts.mock; });   // QA hook: ?mock=heic
 async function doUpload(){
   uploading.value=true; progress.value=0;
   const t=setInterval(()=>{ progress.value=Math.min(95,progress.value+15); if(progress.value>=95) clearInterval(t); },150);
-  await UploadService.upload('file');
+  const r = await UploadService.upload('file', mockExt);
+  fileMeta.value = { name:r.name, ext:r.ext, size:r.size, previewable:r.previewable };
   clearInterval(t); progress.value=100; uploading.value=false; uploaded.value=true;
 }
-const use = ()=>{ wizard.set('prescriptionMethod','upload'); wizard.set('step',6); uni.navigateBack(); };
+import { goBack as navBack, FALLBACK } from '@/utils/nav';
+const use = ()=>{ wizard.set('prescriptionMethod','upload'); wizard.set('step',6); navBack(FALLBACK.rx); };
 </script>
 <style lang="scss" scoped>
 .drop{border:3rpx dashed $teal;background:$tint-teal2;border-radius:$r-lg;padding:60rpx 30rpx;text-align:center;margin-top:14rpx}
@@ -61,6 +73,9 @@ const use = ()=>{ wizard.set('prescriptionMethod','upload'); wizard.set('step',6
 .preview-box{display:flex;gap:20rpx;align-items:center;background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:24rpx;margin-top:24rpx}
 .prev-img{width:130rpx;height:170rpx;border-radius:16rpx;background:linear-gradient(#fff,#eee);border:2rpx solid $line;position:relative;overflow:hidden;flex-shrink:0}
 .prev-line{position:absolute;left:14rpx;height:6rpx;background:rgba(13,27,42,.15);border-radius:3rpx}
+.prev-img.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8rpx;background:$mist}
+.ph-ext{font-size:$fs-sm;font-weight:$fw-bold;color:$muted}
+.ph-note{font-size:16rpx;color:$muted;text-align:center;line-height:1.3;padding:0 8rpx}
 .prev-name{display:block;font-size:$fs-xs;font-weight:$fw-semi}
 .prev-sub{display:block;font-size:$fs-xs;color:$muted;line-height:1.5}
 .verify{display:block;font-size:$fs-xs;color:$teal;font-weight:$fw-semi;margin-top:8rpx}

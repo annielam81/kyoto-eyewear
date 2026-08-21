@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top"><KyotoWordmark :height="19" /><LanguageSelector compact /></view>
+    <view class="top safe-top"><KyotoWordmark :height="19" /><LanguageSelector compact /></view>
     <text class="h1">{{ $t('frames.title') }}</text>
     <text class="sub" style="display:block;margin:6rpx 0 18rpx">{{ products.filtered.length }} {{ $t('frames.styles') }}</text>
     <scroll-view scroll-x class="chips"><view class="chips-in">

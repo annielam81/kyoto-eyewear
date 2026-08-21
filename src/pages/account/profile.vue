@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <KyotoHeader back />
+    <KyotoHeader back fallback="/pages/account/index" />
     <text class="h1">{{$t('c3.profile.title')}}</text>
     <view class="pf">
       <view class="frow">

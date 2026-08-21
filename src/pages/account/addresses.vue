@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <KyotoHeader back />
+    <KyotoHeader back fallback="/pages/account/index" />
     <text class="h1">{{$t('c3.addr.savedTitle')}}</text>
     <KyotoButton variant="night" size="sm" style="margin:16rpx 0 24rpx" @click="startAdd">+ {{$t('c3.addr.addNew')}}</KyotoButton>
     <EmptyState v-if="!addrStore.list.length && !editing" :text="$t('c3.addr.empty')" emoji="📍"/>

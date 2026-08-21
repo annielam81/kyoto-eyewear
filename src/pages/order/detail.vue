@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <KyotoHeader back />
+    <KyotoHeader back fallback="/pages/order/list" />
     <template v-if="order">
       <text class="h1">{{$t('order.number')}} #{{order.number}}</text>
       <text class="sub" style="display:block;margin:6rpx 0 20rpx">{{new Date(order.createdAt).toLocaleDateString()}}</text>
@@ -71,7 +71,9 @@ const { locale, t } = useI18n();
 const loc = computed(()=>locale.value as Locale);
 const products = useProductStore();
 const order = ref<Order|null>(null);
-onLoad(async(opts:any)=>{ await products.ensure(); if(opts?.id) order.value=await OrderService.byId(opts.id)??null; });
+onLoad(async(opts:any)=>{ await products.ensure(); if(opts?.id) order.value=await OrderService.byId(opts.id)??null;
+  if(!order.value) uni.reLaunch({url:'/pages/order/list'});   // missing-order guard
+});
 const frameOf=(it:CartItem)=>products.byId(it.frameId);
 const colorHex=(it:CartItem)=>frameOf(it)?.colors.find(c=>c.key===it.colorKey)?.hex??'#0D1B2A';
 const matOf=(it:CartItem)=>LENS_MATERIALS.find(m=>m.id===it.config?.materialId);

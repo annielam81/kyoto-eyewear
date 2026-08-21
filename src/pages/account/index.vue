@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
+    <view class="top safe-top"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
     <view class="profile">
       <view class="avatar">{{user.name?user.name[0]:'?'}}</view>
       <text class="name">{{user.signedIn?$t('account.title').replace('{name}',user.name):$t('account.guest')}}</text>

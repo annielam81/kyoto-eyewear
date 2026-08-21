@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <KyotoHeader back />
+    <KyotoHeader back fallback="/pages/account/index" />
     <text class="h1">{{$t('myrx.title')}}</text>
     <KyotoButton variant="night" size="sm" style="margin:16rpx 0 24rpx" @click="goUpload">+ {{$t('myrx.addNew')}}</KyotoButton>
     <view v-for="p in rxStore.saved" :key="p.prescriptionId" class="rxcard">

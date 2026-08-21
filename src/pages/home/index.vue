@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top">
+    <view class="top safe-top">
       <KyotoWordmark :height="19" />
       <LanguageSelector compact />
     </view>

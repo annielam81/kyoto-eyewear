@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <KyotoHeader back />
+    <KyotoHeader back fallback="/pages/cart/index" />
     <text class="h1">{{$t('checkout.title')}}</text>
 
     <!-- ============ 地址 ============ -->
@@ -121,10 +121,13 @@ const touched = ref<Record<string,boolean>>({});
 /** Card fields are intentionally NOT persisted anywhere. */
 const card = ref({ name:'', number:'', expiry:'', cvc:'', billingSame:true });
 const shipMethods = ShippingService.methods();
-const methods = [{k:'applePay',ic:''},{k:'card',ic:'💳'},{k:'fsa',ic:'🏥'}];
+import { applePayUiAllowed } from '@/utils/platform';
+const methods = [{k:'applePay',ic:''},{k:'card',ic:'💳'},{k:'fsa',ic:'🏥'}].filter(m=>m.k!=='applePay'||applePayUiAllowed());
 const busy = computed(()=>checkout.placeState==='validating'||checkout.placeState==='processing');
 
 onShow(()=>{ products.ensure();
+  if (!methods.some(m=>m.k===d.value.payMethod)) { d.value.payMethod='card'; checkout.persist(); }
+  if (!cart.items.length) { uni.reLaunch({ url:'/pages/cart/index' }); return; }   // direct-entry guard
   if (d.value.mode==='saved' && !d.value.savedId && addrStore.def) { d.value.savedId = addrStore.def.id; checkout.persist(); }
   if (!addrStore.list.length) { d.value.mode='new'; }
   refreshTax();

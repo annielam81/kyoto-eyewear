@@ -38,7 +38,7 @@ async function doSignIn(p: any) {
 <style lang="scss" scoped>
 .field{display:flex;flex-direction:column;gap:10rpx;margin-bottom:24rpx}
 .lb{font-size:$fs-xs;color:$muted;font-weight:$fw-med}
-.in{padding:26rpx;border:3rpx solid $line;border-radius:$r-sm;background:#fff;font-size:$fs-md;min-height:88rpx;box-sizing:border-box}
+.in{padding:26rpx;border:3rpx solid $line;border-radius:$r-sm;background:#fff;font-size:32rpx;min-height:88rpx;box-sizing:border-box}
 .forgot{display:block;text-align:right;font-size:$fs-xs;color:$teal;margin:-6rpx 0 30rpx;font-weight:$fw-semi}
 .or{display:block;text-align:center;font-size:$fs-xs;color:$muted;margin:30rpx 0 16rpx}
 .social{display:flex;gap:16rpx}
