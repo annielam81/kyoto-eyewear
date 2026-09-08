@@ -14,4 +14,4 @@ $r-sm:16rpx; $r-md:24rpx; $r-lg:32rpx; $r-pill:999rpx;
 $shadow-card:0 16rpx 40rpx -24rpx rgba(13,27,42,.28);
 $dur:.2s;
 $z-nav:50; $z-sheet:90; $z-toast:120;
-$safe-b:env(safe-area-inset-bottom);
+$safe-b:env(safe-area-inset-bottom); $safe-t:env(safe-area-inset-top);

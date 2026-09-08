@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top safe-top">
+    <view class="top-bar">
       <KyotoWordmark :height="19" />
       <LanguageSelector compact />
     </view>
@@ -70,7 +70,6 @@ const heroBg = `<svg viewBox="0 0 350 200" preserveAspectRatio="xMidYMid slice" 
 const promoBg = `<svg viewBox="0 0 350 130" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect width="350" height="130" fill="#0D1B2A"/><g fill="none" stroke="rgba(255,245,230,.14)" stroke-width="1.4"><circle cx="260" cy="130" r="46"/><circle cx="260" cy="130" r="32"/><circle cx="316" cy="108" r="46"/><circle cx="316" cy="108" r="32"/></g><circle cx="300" cy="32" r="26" fill="#FF6A3D"/><path d="M280 38Q300 24 320 38" fill="none" stroke="#0D1B2A" stroke-width="3"/></svg>`;
 </script>
 <style lang="scss" scoped>
-.top{display:flex;align-items:center;justify-content:space-between;padding:16rpx 0 22rpx}
 .hero{position:relative;border-radius:$r-lg;overflow:hidden;min-height:380rpx;color:$paper}
 .bg{position:absolute;top:0;left:0;right:0;bottom:0}
 .in{position:relative;padding:40rpx 36rpx;display:flex;flex-direction:column;gap:12rpx;max-width:62%}

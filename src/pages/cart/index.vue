@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top safe-top"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
+    <view class="top-bar"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
     <text class="h1">{{$t('cart.title')}}</text>
     <view v-if="!cart.items.length">
       <EmptyState :text="$t('cart.empty')" emoji="🛍">
@@ -72,7 +72,6 @@ const editItem = (i:CartItem)=>{
 };
 </script>
 <style lang="scss" scoped>
-.top{display:flex;align-items:center;justify-content:space-between;padding:16rpx 0 22rpx}
 .item{display:flex;gap:20rpx;background:#fff;border:2rpx solid $line;border-radius:$r-md;overflow:hidden;margin-bottom:18rpx}
 .item-art{width:200rpx;flex-shrink:0}
 .item-info{flex:1;padding:22rpx 20rpx 22rpx 0;display:flex;flex-direction:column;gap:6rpx;min-width:0}

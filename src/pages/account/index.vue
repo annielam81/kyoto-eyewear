@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top safe-top"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
+    <view class="top-bar"><KyotoWordmark :height="19"/><LanguageSelector compact/></view>
     <view class="profile">
       <view class="avatar">{{user.name?user.name[0]:'?'}}</view>
       <text class="name">{{user.signedIn?$t('account.title').replace('{name}',user.name):$t('account.guest')}}</text>
@@ -33,7 +33,6 @@ const go=(m:any)=>{ if(m.url) uni.navigateTo({url:m.url}); else uni.showToast({t
 const signOut=async()=>{ await user.signOut(); uni.reLaunch({url:'/pages/welcome/index'}); };
 </script>
 <style lang="scss" scoped>
-.top{display:flex;align-items:center;justify-content:space-between;padding:16rpx 0 22rpx}
 .profile{display:flex;flex-direction:column;align-items:center;gap:10rpx;padding:36rpx 0 44rpx}
 .avatar{width:140rpx;height:140rpx;border-radius:50%;background:$sakura;color:#fff;font-size:60rpx;display:flex;align-items:center;justify-content:center;font-weight:$fw-bold}
 .name{font-size:$fs-lg;font-weight:$fw-bold}

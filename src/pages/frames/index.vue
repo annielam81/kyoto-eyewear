@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad">
-    <view class="top safe-top"><KyotoWordmark :height="19" /><LanguageSelector compact /></view>
+    <view class="top-bar"><KyotoWordmark :height="19" /><LanguageSelector compact /></view>
     <text class="h1">{{ $t('frames.title') }}</text>
     <text class="sub" style="display:block;margin:6rpx 0 18rpx">{{ products.filtered.length }} {{ $t('frames.styles') }}</text>
     <scroll-view scroll-x class="chips"><view class="chips-in">
@@ -29,7 +29,6 @@ const filters = [
 const openDetail = (id: string) => uni.navigateTo({ url: `/pages/product/detail?id=${id}` });
 </script>
 <style lang="scss" scoped>
-.top{display:flex;align-items:center;justify-content:space-between;padding:16rpx 0 22rpx}
 .chips{white-space:nowrap;margin-bottom:22rpx}
 .chips-in{display:flex;padding:6rpx 0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20rpx}

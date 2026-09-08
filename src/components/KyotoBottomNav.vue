@@ -21,7 +21,7 @@ const tabs = [
 const go = (t: any) => uni.reLaunch({ url: t.url });
 </script>
 <style lang="scss" scoped>
-.bn{position:fixed;left:0;right:0;bottom:0;display:flex;background:rgba(255,245,230,.97);border-top:2rpx solid $line;padding:12rpx 8rpx calc(16rpx + #{$safe-b});z-index:$z-nav}
+.bn{position:fixed;left:0;right:0;bottom:0;display:flex;background:$paper;border-top:2rpx solid $line;padding:12rpx 8rpx calc(16rpx + #{$safe-b});z-index:$z-nav}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4rpx;color:$muted;position:relative;min-height:88rpx;justify-content:center}
 .tab.on{color:$sakura}
 .lbl{font-size:$fs-xs}

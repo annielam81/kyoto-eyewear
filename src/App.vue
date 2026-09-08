@@ -6,8 +6,11 @@ onLaunch(() => { useProductStore().ensure(); });
 <style lang="scss">
 @font-face{font-family:'Sora';src:local('Sora');font-display:swap}
 page, body{background:$paper;color:$night;font-family:$font-ui;line-height:$lh;-webkit-font-smoothing:antialiased}
-.page-pad{padding:0 $sp-3 220rpx}
-.safe-top{padding-top:env(safe-area-inset-top)}
+.page-pad{padding:0 $sp-3 calc(220rpx + #{$safe-b})}
+.safe-top{padding-top:$safe-t}
+/* shared page top bar (wordmark + language switcher). Owns the iOS status-bar inset so
+   pages never re-declare padding-top and silently clobber it via the padding shorthand. */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:calc(#{$sp-2} + #{$safe-t}) 0 22rpx}
 /* unified clearance for content above fixed bottom nav / CTA */
 .above-nav{padding-bottom:calc(170rpx + env(safe-area-inset-bottom))}
 h1,.h1{font-size:$fs-h1;font-weight:$fw-bold;line-height:1.22;letter-spacing:-.01em}
