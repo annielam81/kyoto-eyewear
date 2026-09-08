@@ -12,6 +12,7 @@ export const SUPPORTED: { code: Locale; label: string }[] = [
 ];
 export const i18n = createI18n({
   legacy: false,
+  globalInjection: true,
   locale: load<Locale>('kyoto.locale', 'en-US'),
   fallbackLocale: 'en-US',
   messages: { 'en-US': enUS, 'zh-CN': zhCN, 'es-US': esUS },
