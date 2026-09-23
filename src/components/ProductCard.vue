@@ -27,7 +27,7 @@ const loc = computed(() => locale.value as Locale);
 .pc{background:#fff;border:2rpx solid $line;border-radius:$r-md;overflow:hidden}
 .img{height:220rpx;position:relative}
 .tag{position:absolute;top:14rpx;left:14rpx;background:$sunrise;color:#fff;font-size:18rpx;letter-spacing:.08em;padding:6rpx 16rpx;border-radius:$r-pill;font-weight:$fw-semi;text-transform:uppercase}
-.tag.pink{background:$sakura}
+.tag.pink{background:$accent-strong}
 .b{padding:18rpx 22rpx 22rpx;display:flex;flex-direction:column;gap:2rpx}
 .n{font-size:$fs-sm;font-weight:$fw-semi}
 .c{font-size:$fs-xs;color:$muted}

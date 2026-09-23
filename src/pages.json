@@ -1,9 +1,9 @@
 {
   "pages": [
+    { "path": "pages/home/index",     "style": { "navigationStyle": "custom" } },
     { "path": "pages/splash/index",   "style": { "navigationStyle": "custom" } },
     { "path": "pages/welcome/index",  "style": { "navigationStyle": "custom" } },
     { "path": "pages/login/index",    "style": { "navigationStyle": "custom" } },
-    { "path": "pages/home/index",     "style": { "navigationStyle": "custom" } },
     { "path": "pages/frames/index",   "style": { "navigationStyle": "custom" } },
     { "path": "pages/product/detail", "style": { "navigationStyle": "custom" } },
     { "path": "pages/tryon/index",    "style": { "navigationStyle": "custom" } },

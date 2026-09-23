@@ -44,14 +44,18 @@
 import { ref } from 'vue';
 import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
-import { useLensWizardStore } from '@/stores/lensWizard';
+import { useLensWizardStore, STEP } from '@/stores/lensWizard';
 import { UploadService } from '@/services/UploadService';
 const wizard = useLensWizardStore();
 const uploaded = ref(false); const uploading = ref(false); const progress = ref(0);
 const fileMeta = ref<{name:string;ext:string;size:string;previewable:boolean}|null>(null);
 let mockExt = 'jpg';
 import { onLoad } from '@dcloudio/uni-app';
-onLoad((opts:any)=>{ if(opts?.mock) mockExt = opts.mock; });   // QA hook: ?mock=heic
+const src = ref<'upload'|'photo'>('upload');
+onLoad((opts:any)=>{
+  if(opts?.mock) mockExt = opts.mock;                       // QA hook: ?mock=heic
+  if(opts?.src==='photo'||opts?.src==='upload') src.value = opts.src;
+});
 async function doUpload(){
   uploading.value=true; progress.value=0;
   const t=setInterval(()=>{ progress.value=Math.min(95,progress.value+15); if(progress.value>=95) clearInterval(t); },150);
@@ -62,7 +66,18 @@ async function doUpload(){
   } catch { clearInterval(t); uploading.value=false; }   // cancelled: keep prior state
 }
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
-const use = ()=>{ wizard.set('prescriptionMethod','upload'); wizard.set('step',6); navBack(FALLBACK.rx); };
+// 只有上传成功（uploaded=true，按钮在此之前是 disabled）才写入处方方法。
+// 客户进来又退出时不写入，处方步仍会被视为未完成。
+const use = ()=>{
+  if(!uploaded.value) return;
+  wizard.set('prescriptionMethod',src.value);
+  // 上传的是文件，此处没有解析出结构化处方：断开旧关联，不设档位。
+  // 因此镜片页不会假装知道推荐，双光也会因为读不到 ADD 而保持禁用。
+  wizard.set('prescriptionId', null);
+  wizard.setStrengthBand(null);
+  wizard.reconcileLensType();
+  wizard.set('step',STEP.type); navBack(FALLBACK.rx);
+};
 </script>
 <style lang="scss" scoped>
 .drop{border:3rpx dashed $teal;background:$tint-teal2;border-radius:$r-lg;padding:60rpx 30rpx;text-align:center;margin-top:14rpx}

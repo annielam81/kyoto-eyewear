@@ -15,7 +15,7 @@ defineEmits(['click']);
 .kb.long{font-size:$fs-sm;padding:20rpx 18rpx}
 .kb.sm{min-height:64rpx;padding:14rpx 24rpx;font-size:$fs-sm;border-radius:20rpx}
 .night{background:$night;color:#fff}
-.pink{background:$sakura;color:#fff}
+.pink{background:$accent-strong;color:#fff}
 .gold{background:$gold;color:$night}
 .ghost{background:#fff;border:3rpx solid $night;color:$night}
 .disabled{opacity:.4;pointer-events:none}

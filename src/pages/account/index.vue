@@ -30,11 +30,12 @@ import { useUserStore } from '@/stores/user';
 const user = useUserStore();
 const items=[{k:'profile',ic:'👤',url:'/pages/account/profile'},{k:'orders',ic:'📦',url:'/pages/order/list'},{k:'prescriptions',ic:'📋',url:'/pages/account/prescriptions'},{k:'favorites',ic:'♡',url:'/pages/account/favorites'},{k:'addresses',ic:'📍',url:'/pages/account/addresses'},{k:'payment',ic:'💳',url:null},{k:'help',ic:'💬',url:null}];
 const go=(m:any)=>{ if(m.url) uni.navigateTo({url:m.url}); else uni.showToast({title:'Coming soon',icon:'none'}); };
-const signOut=async()=>{ await user.signOut(); uni.reLaunch({url:'/pages/welcome/index'}); };
+// 浏览/购物不需要登录，退出后回首页而不是 Welcome 落地页
+const signOut=async()=>{ await user.signOut(); uni.reLaunch({url:'/pages/home/index'}); };
 </script>
 <style lang="scss" scoped>
 .profile{display:flex;flex-direction:column;align-items:center;gap:10rpx;padding:36rpx 0 44rpx}
-.avatar{width:140rpx;height:140rpx;border-radius:50%;background:$sakura;color:#fff;font-size:60rpx;display:flex;align-items:center;justify-content:center;font-weight:$fw-bold}
+.avatar{width:140rpx;height:140rpx;border-radius:50%;background:$accent-strong;color:#fff;font-size:60rpx;display:flex;align-items:center;justify-content:center;font-weight:$fw-bold}
 .name{font-size:$fs-lg;font-weight:$fw-bold}
 .since{font-size:$fs-xs;color:$muted}
 .menu{background:#fff;border:2rpx solid $line;border-radius:$r-md;overflow:hidden;margin-bottom:24rpx}

@@ -62,5 +62,5 @@ async function reorder(o:Order){
 .ord-total{font-size:$fs-md;font-weight:$fw-bold;color:$sunrise}
 .ord-ctas{display:flex;gap:10rpx;flex-wrap:wrap}
 .oc{border:2rpx solid $line;border-radius:$r-pill;padding:10rpx 22rpx;font-size:$fs-xs;font-weight:$fw-semi;background:#fff}
-.oc.pink{background:$sakura;border-color:$sakura;color:#fff}
+.oc.pink{background:$accent-strong;border-color:$accent-strong;color:#fff}
 </style>

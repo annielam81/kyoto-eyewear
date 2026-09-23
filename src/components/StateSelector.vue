@@ -48,7 +48,7 @@ const pick = (c: string)=>{ emit('update:modelValue', c); open.value=false; };
 .ss-x{width:56rpx;height:56rpx;border-radius:50%;background:$mist;display:flex;align-items:center;justify-content:center;font-size:24rpx}
 .ss-list{max-height:56vh;padding:0 18rpx}
 .ss-row{display:flex;justify-content:space-between;align-items:center;background:#fff;border:2rpx solid $line;border-radius:$r-sm;padding:22rpx 26rpx;margin-bottom:12rpx}
-.ss-row.on{border-color:$sakura;background:#FFF0F5}
+.ss-row.on{border-color:$accent;background:$tint-accent}
 .ss-name{font-size:$fs-sm;font-weight:$fw-med}
 .ss-code{font-size:$fs-xs;color:$muted;font-weight:$fw-semi;letter-spacing:.06em}
 </style>

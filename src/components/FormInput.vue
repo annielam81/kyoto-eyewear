@@ -19,6 +19,6 @@ const onInput = (e:any)=>emit('update:modelValue', e.detail.value);
 .fi{display:flex;flex-direction:column;gap:10rpx;min-width:0}
 .fi-lb{font-size:$fs-xs;color:$muted;font-weight:$fw-med}
 .fi-in{background:#fff;border:3rpx solid $line;border-radius:$r-sm;padding:26rpx;font-size:32rpx;min-height:88rpx;box-sizing:border-box;width:100%}
-.fi-in.err{border-color:$sunrise;background:#FFF8F5}
+.fi-in.err{border-color:$sunrise;background:$tint-warn}
 .fi-err{font-size:$fs-xs;color:$sunrise;font-weight:$fw-med}
 </style>

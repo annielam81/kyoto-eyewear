@@ -3,7 +3,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from 'vue';
-const props = withDefaults(defineProps<{ art: string; hex?: string; tint?: string; view?: string }>(), { hex:'#0D1B2A', tint:'', view:'front' });
+const props = withDefaults(defineProps<{ art: string; hex?: string; tint?: string; view?: string }>(), { hex:'#141B3D', tint:'', view:'front' });
 /* Placeholder line-art — to be replaced by real product photography (system already keyed by frame+color+view). */
 const ARTS: Record<string,string> = {
   round:`<circle cx="55" cy="42" r="28" fill="rgba(255,255,255,.6)"/><circle cx="145" cy="42" r="28" fill="rgba(255,255,255,.6)"/><path d="M83 38q17-12 34 0"/><path d="M27 36L8 26M173 36L192 26"/>`,

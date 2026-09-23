@@ -32,7 +32,7 @@
       </view>
     </view>
     <label class="save-chk">
-      <switch :checked="saveAcc" @change="(e:any)=>saveAcc=!!e.detail.value" color="#0B7C6E" style="transform:scale(.8)"/>
+      <switch :checked="saveAcc" @change="(e:any)=>saveAcc=!!e.detail.value" :color="BRAND.teal" style="transform:scale(.8)"/>
       <text class="save-tx">{{$t('prescription.manual.saveToAccount')}}</text>
     </label>
     <view class="sticky-cta">
@@ -44,8 +44,15 @@
 import { ref } from 'vue';
 import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
-import { useLensWizardStore } from '@/stores/lensWizard';
+import { useLensWizardStore, STEP } from '@/stores/lensWizard';
+import { PrescriptionService } from '@/services/PrescriptionService';
+import { usePrescriptionStore } from '@/stores/prescription';
+import { useI18n } from 'vue-i18n';
+import type { Prescription } from '@/models';
+import { BRAND } from '@/config/brand-colors';
 const wizard = useLensWizardStore();
+const rxStore = usePrescriptionStore();
+const { t } = useI18n();
 const showMean = ref(false); const showPd = ref(false); const pdMode = ref('single'); const saveAcc = ref(true);
 const cols = ['SPH','CYL','AXIS','ADD'];
 const eyes = [{k:'od'},{k:'os'}];
@@ -60,7 +67,33 @@ const vals = ref<Record<string,Record<string,string>>>({od:{SPH:'-3.25',CYL:'-0.
 const getIdx = (eye:string,col:string)=>{ const v=vals.value[eye][col]||'—'; const i=ranges[col].indexOf(v); return i>=0?i:0; };
 const pick = (eye:string,col:string,e:any)=>{ vals.value[eye][col]=ranges[col][e.detail.value]; };
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
-const use = ()=>{ wizard.set('prescriptionMethod','manual'); wizard.set('step',6); navBack(FALLBACK.rx); };
+// 只有走到这里（客户确认了填写的度数）才算处方完成。
+// 此前这里只写一个方法字符串，客户填的 SPH/CYL/AXIS/**ADD**/PD 全被丢掉；
+// 现在按既有 Prescription 模型落成一条真实记录，并用既有的 prescriptionId 关联到配镜配置，
+// 因此渐进/双光所需的 ADD 加光度能一路保留到购物车与订单。
+const clean = (v:string)=> (!v || v==='—') ? '' : v;
+const use = ()=>{
+  const rx: Prescription = {
+    ...PrescriptionService.blank('manual'),
+    od:{ sph:clean(vals.value.od.SPH), cyl:clean(vals.value.od.CYL), axis:clean(vals.value.od.AXIS), add:clean(vals.value.od.ADD) },
+    os:{ sph:clean(vals.value.os.SPH), cyl:clean(vals.value.os.CYL), axis:clean(vals.value.os.AXIS), add:clean(vals.value.os.ADD) },
+    pdMode: pdMode.value as Prescription['pdMode'],
+    pd:   pdMode.value==='single' ? pdRange[pdIdx.value] : null,
+    pdOd: pdMode.value==='dual'   ? pdRange[pdIdx.value]/2 : null,
+    pdOs: pdMode.value==='dual'   ? pdRange[pdIdx.value]/2 : null,
+    label: t('prescription.manual.title'),
+  };
+  // 复用既有校验（CYL 必须配 AXIS），不新增光学规则
+  if (PrescriptionService.validate(rx).length) {
+    uni.showToast({ title:t('prescription.manual.invalid'), icon:'none', duration:2600 });
+    return;
+  }
+  rxStore.add(rx);
+  wizard.set('prescriptionMethod','manual');
+  wizard.set('prescriptionId', rx.prescriptionId);
+  wizard.setStrengthBand(PrescriptionService.strengthBand(rx));
+  wizard.set('step',STEP.type); navBack(FALLBACK.rx);
+};
 </script>
 <style lang="scss" scoped>
 .help-lnk{font-size:$fs-xs;color:$teal;font-weight:$fw-semi;display:inline-block;margin:6rpx 0 16rpx}

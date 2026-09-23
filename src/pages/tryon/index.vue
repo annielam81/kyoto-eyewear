@@ -102,6 +102,7 @@ import { VirtualTryOnService } from '@/services/VirtualTryOnService';
 import { cameraLikelyAvailable } from '@/utils/platform';
 const products = useProductStore(); const fav = useFavoritesStore(); const cart = useCartStore();
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
+import { BRAND } from '@/config/brand-colors';
 const exitCam=()=>navBack(FALLBACK.pdp);
 const frameIdx = ref(0); const colorIdx = ref(0);
 type PermState = 'notRequested'|'requesting'|'granted'|'denied'|'unsupported';
@@ -137,15 +138,15 @@ function addToCart(){
   cart.addFrameOnly(f.id,f.sku,selColor.value?.key??'night',f.defaultSize,f.price);
   uni.showToast({title:'Added',icon:'none'});
 }
-const faceSvg = `<svg viewBox="0 0 390 844" style="width:100%;height:100%" preserveAspectRatio="xMidYMid slice"><rect width="390" height="844" fill="#2b2620"/><radialGradient id="sk2" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#d9b59a"/><stop offset="1" stop-color="#9b7358"/></radialGradient><ellipse cx="195" cy="360" rx="110" ry="145" fill="url(#sk2)"/><path d="M85 300q10-160 110-150t110 150q-34-72-110-80t-110 80z" fill="#2a1d17"/><rect x="148" y="480" width="98" height="72" fill="#c48e6e"/><path d="M55 800q20-190 140-190t140 190z" fill="#FFF5E6"/></svg>`;
-const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx"><circle cx="140" cy="90" r="80" fill="#FDE2EB"/><rect x="72" y="58" width="136" height="90" rx="16" fill="#fff" stroke="#0D1B2A" stroke-width="3.5"/><circle cx="140" cy="103" r="24" fill="none" stroke="#0D1B2A" stroke-width="3.5"/><circle cx="140" cy="103" r="9" fill="#FF4F8B"/><rect x="114" y="48" width="52" height="16" rx="7" fill="#0D1B2A"/></svg>`;
+const faceSvg = `<svg viewBox="0 0 390 844" style="width:100%;height:100%" preserveAspectRatio="xMidYMid slice"><rect width="390" height="844" fill="#2b2620"/><radialGradient id="sk2" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#d9b59a"/><stop offset="1" stop-color="#9b7358"/></radialGradient><ellipse cx="195" cy="360" rx="110" ry="145" fill="url(#sk2)"/><path d="M85 300q10-160 110-150t110 150q-34-72-110-80t-110 80z" fill="#2a1d17"/><rect x="148" y="480" width="98" height="72" fill="#c48e6e"/><path d="M55 800q20-190 140-190t140 190z" fill="${BRAND.paper}"/></svg>`;
+const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx"><circle cx="140" cy="90" r="80" fill="${BRAND.tintVermilion}"/><rect x="72" y="58" width="136" height="90" rx="16" fill="#fff" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="24" fill="none" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="9" fill="${BRAND.vermilion}"/><rect x="114" y="48" width="52" height="16" rx="7" fill="${BRAND.ink}"/></svg>`;
 </script>
 <style lang="scss" scoped>
 .cam{position:fixed;inset:0;background:#1a1714;color:#fff;overflow:hidden}
 .feed{position:absolute;inset:0}
 .top-bar{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 30rpx;z-index:10}
 .cb{width:72rpx;height:72rpx;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:28rpx;color:#fff}
-.cb svg{width:36rpx;height:36rpx;stroke:currentColor;fill:none;stroke-width:2}.cb.on{background:$sakura}
+.cb svg{width:36rpx;height:36rpx;stroke:currentColor;fill:none;stroke-width:2}.cb.on{background:$accent-strong}
 .cb.sm{width:60rpx;height:60rpx;font-size:24rpx}
 .guide{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);width:460rpx;height:600rpx;border:4rpx dashed rgba(255,255,255,.5);border-radius:50%;pointer-events:none;transition:border-color .4s}
 .guide.ok{border-color:$teal;border-style:solid}
@@ -156,7 +157,7 @@ const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx">
 .bottom{position:absolute;left:0;right:0;bottom:0;padding:18rpx 18rpx calc(30rpx + #{$safe-b});background:linear-gradient(transparent,rgba(13,27,42,.88) 40%);z-index:7}
 .frame-row{white-space:nowrap;margin-bottom:16rpx}
 .fbt{display:inline-flex;flex-direction:column;align-items:center;margin-right:14rpx;border:3rpx solid transparent;border-radius:$r-sm;background:rgba(255,255,255,.12);backdrop-filter:blur(6px);overflow:hidden;position:relative}
-.fbt.on{border-color:$sakura;background:rgba(255,79,139,.2)}
+.fbt.on{border-color:$accent;background:rgba(228,61,48,.16)}
 .fbt-pr{font-size:18rpx;color:#fff;padding:4rpx 0 8rpx;display:block;text-align:center}
 .color-row{display:flex;align-items:center;margin-bottom:16rpx}
 .sw{width:48rpx;height:48rpx;border-radius:50%;border:4rpx solid transparent;margin-right:14rpx}
@@ -164,7 +165,7 @@ const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx">
 .ctrl-row{display:flex;align-items:center;justify-content:space-between}
 .shutter{width:120rpx;height:120rpx;border-radius:50%;border:6rpx solid #fff;display:flex;align-items:center;justify-content:center}
 .shutter-inner{width:96rpx;height:96rpx;border-radius:50%;background:#fff}
-.add-btn{background:$sakura;color:#fff;border-radius:$r-pill;padding:22rpx 28rpx;font-size:$fs-xs;font-weight:$fw-semi;white-space:nowrap}
+.add-btn{background:$accent-strong;color:#fff;border-radius:$r-pill;padding:22rpx 28rpx;font-size:$fs-xs;font-weight:$fw-semi;white-space:nowrap}
 .snap-saved{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(13,27,42,.88);color:#fff;padding:24rpx 36rpx;border-radius:$r-md;font-size:$fs-sm;z-index:20;text-align:center}
 .perm{position:absolute;inset:0;background:$paper;color:$night;display:flex;flex-direction:column;padding:calc(80rpx + env(safe-area-inset-top)) 48rpx calc(60rpx + #{$safe-b});align-items:flex-start}
 .perm-art{align-self:center;max-width:520rpx;width:100%;margin-bottom:30rpx}
@@ -174,6 +175,6 @@ const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx">
 .cmp-frame{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:2;filter:drop-shadow(0 6rpx 12rpx rgba(0,0,0,.4))}
 .cmp-lab{position:absolute;left:24rpx;bottom:20rpx;background:rgba(13,27,42,.6);backdrop-filter:blur(6px);padding:10rpx 20rpx;border-radius:$r-pill;font-size:20rpx;display:flex;gap:12rpx;align-items:center;color:#fff;z-index:3}
 .cmp-ab{color:$gold;font-weight:$fw-bold}
-.cmp-pick{position:absolute;right:24rpx;bottom:20rpx;background:$sakura;border-radius:$r-pill;padding:12rpx 22rpx;font-size:20rpx;font-weight:$fw-semi;color:#fff;z-index:3}
+.cmp-pick{position:absolute;right:24rpx;bottom:20rpx;background:$accent-strong;border-radius:$r-pill;padding:12rpx 22rpx;font-size:20rpx;font-weight:$fw-semi;color:#fff;z-index:3}
 .cmp-close{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:30rpx;z-index:31}
 </style>

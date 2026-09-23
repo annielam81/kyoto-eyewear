@@ -106,6 +106,7 @@ import { ShippingService } from '@/services/ShippingService';
 import { AddressValidationService } from '@/services/AddressValidationService';
 import { LENS_MATERIALS } from '@/config/lens-materials.config';
 import { TREATMENTS } from '@/config/treatments.config';
+import { isTreatmentVisible } from '@/config/launch-availability.config';
 import { money } from '@/utils/format';
 import type { Locale, Address } from '@/models';
 import { onShow } from '@dcloudio/uni-app';
@@ -162,7 +163,7 @@ const sumRows = computed<PriceRow[]>(()=>{
       if (it.config.type) rows.push({ label:t('c3.sum.lensType'), value:t('wizard.s2.'+it.config.type), sub:it.typePrice?'+'+money(it.typePrice):t('common.included') });
       const m = LENS_MATERIALS.find(x=>x.id===it.config!.materialId);
       if (m) rows.push({ label:t('c3.sum.lensMaterial'), value:m.name[loc.value], sub:it.lensMaterialPrice?'+'+money(it.lensMaterialPrice):t('common.included') });
-      const trs = TREATMENTS.filter(x=>it.config!.treatmentIds.includes(x.id));
+      const trs = TREATMENTS.filter(x=>it.config!.treatmentIds.includes(x.id)&&isTreatmentVisible(x.id));
       if (trs.length) rows.push({ label:t('c3.sum.treatments'), value:trs.map(x=>x.name[loc.value]).join(', '), sub:'+'+money(Object.values(it.treatmentPrices).reduce((a,b)=>a+b,0)) });
       const rxKey = it.config.prescriptionMethod==='later'?'needed':it.config.prescriptionMethod==='saved'?'verified':'received';
       rows.push({ label:t('c3.sum.rxStatus'), value:t('c3.rxs.'+rxKey) });
@@ -216,19 +217,19 @@ async function place(){
 .mt{flex:1;text-align:center;padding:16rpx;border-radius:16rpx;font-size:$fs-xs;color:$muted;line-height:1.3}
 .mt.on{background:#fff;color:$night;font-weight:$fw-semi;box-shadow:0 2rpx 8rpx rgba(0,0,0,.06)}
 .saved-a{display:flex;align-items:center;gap:18rpx;background:#fff;border:3rpx solid $line;border-radius:$r-md;padding:24rpx;margin-bottom:14rpx}
-.saved-a.on{border-color:$sakura;background:#FFF0F5}
+.saved-a.on{border-color:$accent;background:$tint-accent}
 .sa-tx{flex:1;min-width:0}
 .sa-n{display:block;font-size:$fs-sm;font-weight:$fw-semi;margin-bottom:4rpx}
 .def-tag{background:$tint-teal2;color:$teal;font-size:18rpx;padding:2rpx 12rpx;border-radius:$r-pill;font-weight:$fw-semi;margin-left:8rpx}
 .sa-l{display:block;font-size:$fs-xs;color:$muted;line-height:1.5}
 .radio{width:36rpx;height:36rpx;border-radius:50%;border:4rpx solid $line;flex-shrink:0}
-.radio.on{border-color:$sakura;background:radial-gradient($sakura 45%,transparent 48%)}
+.radio.on{border-color:$accent;background:radial-gradient($accent 45%,transparent 48%)}
 .fields{display:flex;flex-direction:column;gap:16rpx;margin-bottom:6rpx}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:14rpx}
 .fcol{display:flex;flex-direction:column;gap:10rpx}
 .flb{font-size:$fs-xs;color:$muted;font-weight:$fw-med}
 .ship-m{display:flex;align-items:center;gap:18rpx;background:#fff;border:3rpx solid $line;border-radius:$r-md;padding:24rpx;margin-bottom:14rpx}
-.ship-m.on{border-color:$sakura;background:#FFF0F5}
+.ship-m.on{border-color:$accent;background:$tint-accent}
 .sm-tx{flex:1;min-width:0}
 .sm-n{display:block;font-size:$fs-sm;font-weight:$fw-semi}
 .sm-eta{display:block;font-size:$fs-xs;color:$muted;margin-top:2rpx}
@@ -236,7 +237,7 @@ async function place(){
 .sm-pr{font-size:$fs-sm;font-weight:$fw-bold;color:$sunrise;white-space:nowrap}
 .pay-methods{display:flex;flex-direction:column;gap:14rpx;margin-bottom:10rpx}
 .pm{display:flex;align-items:center;gap:18rpx;padding:24rpx;border:3rpx solid $line;border-radius:$r-md;background:#fff}
-.pm.on{border-color:$sakura;background:#FFF0F5}
+.pm.on{border-color:$accent;background:$tint-accent}
 .pmic{font-size:36rpx;width:52rpx;text-align:center}
 .pmn{flex:1;font-size:$fs-sm;font-weight:$fw-semi}
 .fsa-tag{background:$tint-teal2;color:$teal;font-size:18rpx;padding:4rpx 14rpx;border-radius:$r-pill;font-weight:$fw-semi}

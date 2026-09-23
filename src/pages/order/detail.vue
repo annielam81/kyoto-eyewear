@@ -64,6 +64,7 @@ import { useProductStore } from '@/stores/product';
 import { reorderToCart } from '@/services/ReorderService';
 import { LENS_MATERIALS } from '@/config/lens-materials.config';
 import { TREATMENTS } from '@/config/treatments.config';
+import { isTreatmentVisible } from '@/config/launch-availability.config';
 import { SHIPPING_METHODS } from '@/config/shipping-methods.config';
 import { money } from '@/utils/format';
 import type { Order, CartItem, Locale } from '@/models';
@@ -77,7 +78,7 @@ onLoad(async(opts:any)=>{ await products.ensure(); if(opts?.id) order.value=awai
 const frameOf=(it:CartItem)=>products.byId(it.frameId);
 const colorHex=(it:CartItem)=>frameOf(it)?.colors.find(c=>c.key===it.colorKey)?.hex??'#0D1B2A';
 const matOf=(it:CartItem)=>LENS_MATERIALS.find(m=>m.id===it.config?.materialId);
-const treatNames=(it:CartItem)=>TREATMENTS.filter(x=>it.config?.treatmentIds.includes(x.id)).map(x=>x.name[loc.value]).join(', ');
+const treatNames=(it:CartItem)=>TREATMENTS.filter(x=>it.config?.treatmentIds.includes(x.id)&&isTreatmentVisible(x.id)).map(x=>x.name[loc.value]).join(', ');
 const rxKey=(it:CartItem)=>it.config?.prescriptionMethod==='later'?'needed':it.config?.prescriptionMethod==='saved'?'verified':'received';
 const shipName=computed(()=>SHIPPING_METHODS.find(m=>m.id===order.value?.shippingMethodId)?.name[loc.value]??'');
 const eta=computed<[number,number]>(()=>SHIPPING_METHODS.find(m=>m.id===order.value?.shippingMethodId)?.etaDays??[5,8]);

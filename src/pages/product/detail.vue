@@ -62,17 +62,17 @@
         <!-- measurements svg -->
         <view class="measure">
           <svg viewBox="0 0 320 96" style="width:100%;height:auto">
-            <g fill="none" stroke="#0D1B2A" stroke-width="2.2">
+            <g fill="none" stroke="${BRAND.ink}" stroke-width="2.2">
               <circle cx="92" cy="44" r="32"/><circle cx="228" cy="44" r="32"/>
               <path d="M124 40q36-14 72 0M60 38L22 28M260 38L298 28"/>
             </g>
-            <g stroke="#FF4F8B" stroke-width="1.5" fill="#FF4F8B" font-size="9" font-family="Sora,sans-serif">
+            <g stroke="${BRAND.vermilion}" stroke-width="1.5" fill="${BRAND.vermilion}" font-size="9" font-family="Sora,sans-serif">
               <path d="M60 86h64M60 82v8M124 82v8"/>
               <text x="92" y="79" text-anchor="middle" stroke="none">{{selSize.lensWidth}}</text>
               <path d="M126 12h68M126 8v8M194 8v8"/>
               <text x="160" y="26" text-anchor="middle" stroke="none">{{selSize.bridge}}</text>
             </g>
-            <g stroke="#0B7C6E" stroke-width="1.5" fill="#0B7C6E" font-size="9" font-family="Sora,sans-serif">
+            <g stroke="${BRAND.aqua}" stroke-width="1.5" fill="${BRAND.aqua}" font-size="9" font-family="Sora,sans-serif">
               <path d="M262 66L300 56M262 62v8M300 52v8"/>
               <text x="290" y="78" text-anchor="middle" stroke="none">{{selSize.temple}}</text>
             </g>
@@ -138,6 +138,7 @@ const loc = computed(()=>locale.value as Locale);
 const products = useProductStore(); const fav = useFavoritesStore();
 const cart = useCartStore(); const wizard = useLensWizardStore();
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
+import { BRAND } from '@/config/brand-colors';
 const goBack=()=>navBack(FALLBACK.pdp);
 const goCart=()=>uni.navigateTo({url:'/pages/cart/index'});
 const frameId = ref('arashiyama'); const colorIdx = ref(0); const sizeIdx = ref(0);
@@ -156,13 +157,17 @@ const toggleFav = ()=>{ const added=fav.toggle(frame.value?.id??''); uni.showToa
 const goTryOn = ()=>uni.navigateTo({url:`/pages/tryon/index?frame=${frameId.value}`});
 const switchFrame = (id:string)=>{ frameId.value=id; colorIdx.value=0; viewIdx.value=0; initSize(); };
 const addFrameOnly = ()=>{ if(!frame.value) return; cart.addFrameOnly(frame.value.id,frame.value.sku,selColor.value.key,selSize.value.key,frame.value.price); uni.showToast({title:'Added to cart',icon:'none'}); };
-const startWizard = ()=>{ if(!frame.value) return; wizard.start(frame.value.id,selColor.value.key,selSize.value.key); uni.navigateTo({url:'/pages/wizard/index'}); };
+// 「配处方镜片」已表达处方意图，不再让客户再选一次用途；
+// 用途从镜框自身派生：太阳镜镜框 → 'sun'（触发 SUN_PREFERS_IMPACT 推荐分支），其余 → 'rx'。
+const startWizard = ()=>{ if(!frame.value) return;
+  wizard.start(frame.value.id,selColor.value.key,selSize.value.key, frame.value.category==='sun'?'sun':'rx');
+  uni.navigateTo({url:'/pages/wizard/index'}); };
 </script>
 <style lang="scss" scoped>
 .pd{background:$paper;min-height:100vh;padding-bottom:200rpx}
 .hdr-abs{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:calc(16rpx + env(safe-area-inset-top)) $sp-3 16rpx;background:rgba(255,245,230,.95);backdrop-filter:blur(10px);z-index:50}
 .ib{width:72rpx;height:72rpx;border-radius:50%;background:#fff;border:2rpx solid $line;display:flex;align-items:center;justify-content:center}
-.ib svg{width:36rpx;height:36rpx}.ib.on{background:$sakura;color:#fff;border-color:$sakura}
+.ib svg{width:36rpx;height:36rpx}.ib.on{background:$accent-strong;color:#fff;border-color:$accent-strong}
 .gal{padding-top:calc(110rpx + env(safe-area-inset-top));position:relative}
 .vtabs{position:absolute;top:calc(120rpx + env(safe-area-inset-top));left:$sp-3;display:flex;gap:10rpx}
 .vt{font-size:20rpx;padding:8rpx 18rpx;border-radius:$r-pill;background:rgba(255,255,255,.7);color:$muted;backdrop-filter:blur(6px)}
@@ -177,7 +182,7 @@ const startWizard = ()=>{ if(!frame.value) return; wizard.start(frame.value.id,s
 .prsmall{font-size:$fs-xs;color:$muted;display:block}
 .badges{display:flex;gap:10rpx;flex-wrap:wrap;margin-top:16rpx}
 .tag{font-size:19rpx;letter-spacing:.08em;padding:6rpx 16rpx;border-radius:$r-pill;font-weight:$fw-semi;text-transform:uppercase}
-.tag.teal{background:$tint-teal2;color:$teal}.tag.soft{background:#FFF0F5;color:$sakura}.tag.mist{background:$mist;color:$night}
+.tag.teal{background:$tint-teal2;color:$teal}.tag.soft{background:$tint-accent;color:$accent-ink}.tag.mist{background:$mist;color:$night}
 .sel-lbl{display:block;font-size:$fs-xs;color:$muted;margin:32rpx 0 14rpx}
 .sel-lbl-row{display:flex;justify-content:space-between;align-items:center;margin:32rpx 0 14rpx}
 .guide-lnk{font-size:$fs-xs;color:$teal;font-weight:$fw-semi}

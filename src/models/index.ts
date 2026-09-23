@@ -19,7 +19,8 @@ export interface Frame {
   fsaEligible: boolean; rating: number; reviewCount: number;
 }
 export type PrescriptionUse = 'rx' | 'readers' | 'nonrx' | 'sun';
-export type PrescriptionType = 'single' | 'progressive' | 'readers';
+/** 镜片类型。bifocal（双光）与 progressive 一样需要处方里的 ADD 加光度。 */
+export type PrescriptionType = 'single' | 'progressive' | 'bifocal' | 'readers';
 export type LensPreference = 'balanced' | 'thin' | 'weight' | 'durable';
 
 export interface LensMaterial {

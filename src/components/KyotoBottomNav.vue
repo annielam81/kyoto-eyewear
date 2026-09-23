@@ -23,7 +23,7 @@ const go = (t: any) => uni.reLaunch({ url: t.url });
 <style lang="scss" scoped>
 .bn{position:fixed;left:0;right:0;bottom:0;display:flex;background:$paper;border-top:2rpx solid $line;padding:12rpx 8rpx calc(16rpx + #{$safe-b});z-index:$z-nav}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4rpx;color:$muted;position:relative;min-height:88rpx;justify-content:center}
-.tab.on{color:$sakura}
+.tab.on{color:$accent-ink}
 .lbl{font-size:$fs-xs}
 .badge{position:absolute;top:0;right:calc(50% - 52rpx);background:$sunrise;color:#fff;font-size:20rpx;font-weight:$fw-semi;border-radius:$r-pill;min-width:32rpx;height:32rpx;display:flex;align-items:center;justify-content:center;padding:0 8rpx}
 </style>

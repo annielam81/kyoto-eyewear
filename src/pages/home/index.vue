@@ -27,8 +27,11 @@
     <scroll-view scroll-x class="hs"><view class="hs-in">
       <view v-for="f in best" :key="f.id" class="hcard"><ProductCard :frame="f" @open="openDetail" /></view>
     </view></scroll-view>
-    <!-- subscription banner -->
-    <view class="promo">
+    <!-- subscription banner —— 隐形眼镜订阅入口。
+         初始发售版本不销售隐形眼镜，因此整块不渲染（markup / 插画 / 三语文案全部保留，
+         日后在 launch-availability.config.ts 里把 contactLenses 改回 true 即可恢复）。
+         v-if 不渲染元素，其外边距一并消失，上下两块自然衔接，不会留空白。 -->
+    <view v-if="showContactLenses" class="promo">
       <view class="pbg" v-html="promoBg"></view>
       <view class="pin">
         <text class="pt">{{ $t('home.subscription.title') }}</text>
@@ -52,22 +55,27 @@ import LanguageSelector from '@/components/LanguageSelector.vue';
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import ProductCard from '@/components/ProductCard.vue';
 import { useProductStore } from '@/stores/product';
+import { isContactLensAvailable } from '@/config/launch-availability.config';
 import { onShow } from '@dcloudio/uni-app';
+import { BRAND } from '@/config/brand-colors';
 const products = useProductStore();
 onShow(() => products.ensure());
 const best = computed(() => products.frames.filter(f => f.bestSeller || ['gion','tasogare'].includes(f.id)));
 const news = computed(() => products.frames.filter(f => f.newArrival));
 const nav = (url: string, relaunch = false) => relaunch ? uni.reLaunch({ url }) : uni.navigateTo({ url });
 const openDetail = (id: string) => uni.navigateTo({ url: `/pages/product/detail?id=${id}` });
-const I = (d:string)=>`<svg viewBox="0 0 24 24" style="width:44rpx;height:44rpx" fill="none" stroke="#0D1B2A" stroke-width="1.8" stroke-linecap="round">${d}</svg>`;
+const I = (d:string)=>`<svg viewBox="0 0 24 24" style="width:44rpx;height:44rpx" fill="none" stroke="${BRAND.ink}" stroke-width="1.8" stroke-linecap="round">${d}</svg>`;
 const quick = [
   { k:'virtualTryOn', tint:'tint-sakura', icon:I('<rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="4"/><path d="M9 6l1.5-2h3L15 6"/>'), go:()=>uni.navigateTo({url:'/pages/tryon/index?frame=arashiyama'}) },
   { k:'uploadRx', tint:'tint-gold', icon:I('<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>'), go:()=>uni.navigateTo({url:'/pages/prescription/upload'}) },
   { k:'reorder', tint:'tint-teal', icon:I('<path d="M3 12a9 9 0 1 1 3 6.7M3 20v-5h5"/>'), go:()=>uni.navigateTo({url:'/pages/order/list'}) },
   { k:'fsa', tint:'tint-sunrise', icon:I('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>'), go:()=>uni.showToast({title:'FSA / HSA ✓',icon:'none'}) },
 ];
-const heroBg = `<svg viewBox="0 0 350 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect width="350" height="200" fill="#FF4F8B"/><circle cx="290" cy="70" r="70" fill="#FF6A3D"/><path d="M0 155Q80 112 170 142T350 132V200H0Z" fill="#0B7C6E"/><path d="M200 200Q260 152 350 162V200Z" fill="#FFC83D"/><g fill="#0D1B2A"><rect x="300" y="86" width="3" height="6"/><path d="M290 92h23l-4-4h-15z"/><rect x="294" y="92" width="15" height="6"/><path d="M285 106h33l-5-6h-23z"/><rect x="292" y="106" width="19" height="8"/><path d="M279 124h45l-7-8h-31z"/><rect x="290" y="124" width="23" height="12"/></g><g fill="#FFF5E6" opacity=".9"><circle cx="228" cy="28" r="6"/><circle cx="244" cy="42" r="5"/><circle cx="236" cy="58" r="4"/></g></svg>`;
-const promoBg = `<svg viewBox="0 0 350 130" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect width="350" height="130" fill="#0D1B2A"/><g fill="none" stroke="rgba(255,245,230,.14)" stroke-width="1.4"><circle cx="260" cy="130" r="46"/><circle cx="260" cy="130" r="32"/><circle cx="316" cy="108" r="46"/><circle cx="316" cy="108" r="32"/></g><circle cx="300" cy="32" r="26" fill="#FF6A3D"/><path d="M280 38Q300 24 320 38" fill="none" stroke="#0D1B2A" stroke-width="3"/></svg>`;
+// hero：藍(indigo) 主背景 + 朱(vermilion) 日轮 + 水色(aqua) 山水 + 强金滩涂，塔为极深藍靛剪影
+const heroBg = `<svg viewBox="0 0 350 200" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect width="350" height="200" fill="${BRAND.indigo}"/><circle cx="290" cy="70" r="70" fill="${BRAND.vermilion}"/><path d="M0 155Q80 112 170 142T350 132V200H0Z" fill="${BRAND.aqua}"/><path d="M200 200Q260 152 350 162V200Z" fill="${BRAND.gold}"/><g fill="${BRAND.ink}"><rect x="300" y="86" width="3" height="6"/><path d="M290 92h23l-4-4h-15z"/><rect x="294" y="92" width="15" height="6"/><path d="M285 106h33l-5-6h-23z"/><rect x="292" y="106" width="19" height="8"/><path d="M279 124h45l-7-8h-31z"/><rect x="290" y="124" width="23" height="12"/></g><g fill="${BRAND.paper}" opacity=".9"><circle cx="228" cy="28" r="6"/><circle cx="244" cy="42" r="5"/><circle cx="236" cy="58" r="4"/></g></svg>`;
+// 隐形眼镜入口是否对客户开放（初始发售版本为 false）
+const showContactLenses = isContactLensAvailable();
+const promoBg = `<svg viewBox="0 0 350 130" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect width="350" height="130" fill="${BRAND.ink}"/><g fill="none" stroke="rgba(255,245,230,.14)" stroke-width="1.4"><circle cx="260" cy="130" r="46"/><circle cx="260" cy="130" r="32"/><circle cx="316" cy="108" r="46"/><circle cx="316" cy="108" r="32"/></g><circle cx="300" cy="32" r="26" fill="${BRAND.vermilion}"/><path d="M280 38Q300 24 320 38" fill="none" stroke="${BRAND.ink}" stroke-width="3"/></svg>`;
 </script>
 <style lang="scss" scoped>
 .hero{position:relative;border-radius:$r-lg;overflow:hidden;min-height:380rpx;color:$paper}
@@ -92,5 +100,5 @@ const promoBg = `<svg viewBox="0 0 350 130" preserveAspectRatio="xMidYMid slice"
 .pin{position:relative;padding:32rpx;display:flex;flex-direction:column;gap:8rpx;max-width:72%}
 .pt{font-size:$fs-md;font-weight:$fw-bold;color:#fff}
 .psb{font-size:$fs-xs;opacity:.8;line-height:1.5}
-.pcta{align-self:flex-start;margin-top:14rpx;background:$sakura;color:#fff;border-radius:$r-pill;padding:12rpx 26rpx;font-size:$fs-xs;font-weight:$fw-semi}
+.pcta{align-self:flex-start;margin-top:14rpx;background:$accent-strong;color:#fff;border-radius:$r-pill;padding:12rpx 26rpx;font-size:$fs-xs;font-weight:$fw-semi}
 </style>

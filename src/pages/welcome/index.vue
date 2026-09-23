@@ -18,9 +18,10 @@
 import KyotoWordmark from '@/components/KyotoWordmark.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
 import LanguageSelector from '@/components/LanguageSelector.vue';
+import { BRAND } from '@/config/brand-colors';
 const go = (url: string) => uni.navigateTo({ url });
 const skip = () => uni.reLaunch({ url: '/pages/home/index' });
-const bg = `<svg viewBox="0 0 390 420" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect width="390" height="420" fill="#0B7C6E"/><path d="M240 420Q280 300 390 280V420Z" fill="#FFC83D"/><circle cx="300" cy="140" r="76" fill="#FF6A3D"/><g fill="none" stroke="#FFF5E6" stroke-width="9"><circle cx="150" cy="256" r="56"/><circle cx="286" cy="256" r="56"/><path d="M206 248q11-16 24 0M94 248l-40-30M342 248l40-30"/></g><g fill="#FF4F8B"><circle cx="60" cy="60" r="16"/><circle cx="100" cy="90" r="13"/><circle cx="50" cy="120" r="10"/></g><g fill="#FFF5E6"><circle cx="60" cy="60" r="5"/><circle cx="100" cy="90" r="4"/><circle cx="50" cy="120" r="3.5"/></g></svg>`;
+const bg = `<svg viewBox="0 0 390 420" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%"><rect width="390" height="420" fill="${BRAND.indigo}"/><path d="M240 420Q280 300 390 280V420Z" fill="${BRAND.gold}"/><circle cx="300" cy="140" r="76" fill="${BRAND.vermilion}"/><g fill="none" stroke="${BRAND.paper}" stroke-width="9"><circle cx="150" cy="256" r="56"/><circle cx="286" cy="256" r="56"/><path d="M206 248q11-16 24 0M94 248l-40-30M342 248l40-30"/></g><g fill="${BRAND.aqua}"><circle cx="60" cy="60" r="16"/><circle cx="100" cy="90" r="13"/><circle cx="50" cy="120" r="10"/></g><g fill="${BRAND.paper}"><circle cx="60" cy="60" r="5"/><circle cx="100" cy="90" r="4"/><circle cx="50" cy="120" r="3.5"/></g></svg>`;
 </script>
 <style lang="scss" scoped>
 .welcome{min-height:100vh;min-height:100dvh;background:$paper;display:flex;flex-direction:column}

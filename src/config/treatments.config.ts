@@ -20,4 +20,7 @@ export const TREATMENTS: Treatment[] = [
     name:{'en-US':'Polarized','zh-CN':'偏光','es-US':'Polarizado'},
     description:{'en-US':'Cuts reflected glare off water and roads','zh-CN':'消除水面与路面反光','es-US':'Elimina el reflejo del agua y la carretera'} },
 ];
-export const TYPE_PRICES: Record<string, number> = { single: 0, progressive: 120, readers: 0 };
+/** 镜片类型加价。bifocal 是本次新增的类型，现有定价配置里没有它的价格，
+ *  因此这里显式登记为 0（与不登记时 `?? 0` 的结果一致），不擅自发明价格。
+ *  真实业务中双光通常介于单光与渐进之间——需要确认后再填。 */
+export const TYPE_PRICES: Record<string, number> = { single: 0, progressive: 120, bifocal: 0, readers: 0 };

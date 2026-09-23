@@ -39,3 +39,6 @@ desktop.ini
 *.key
 *.p12
 *.pfx
+
+# test:domain 的 esbuild 产物（npm run test:domain 生成）
+.test-out.js

@@ -74,7 +74,7 @@ function del(id:string){
 .rxst.unknown{background:$mist;color:$muted}
 .rx-meta{display:flex;flex-wrap:wrap;gap:6rpx 20rpx;margin-bottom:8rpx}
 .rm{font-size:$fs-xs;color:$muted}
-.rx-warn{font-size:$fs-xs;color:$sunrise;line-height:1.5;background:#FFF1EB;border-radius:$r-sm;padding:14rpx;margin:8rpx 0}
+.rx-warn{font-size:$fs-xs;color:$sunrise;line-height:1.5;background:$tint-warn;border-radius:$r-sm;padding:14rpx;margin:8rpx 0}
 .rx-warn.soon{color:$night;background:$tint-gold}
 .rx-acts{display:flex;gap:20rpx;flex-wrap:wrap;margin-top:10rpx}
 .ra{font-size:$fs-xs;color:$teal;font-weight:$fw-semi}

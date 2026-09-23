@@ -1,17 +1,76 @@
-/* KYOTO design tokens — single source of truth. Do not hard-code brand values in components. */
-$sakura:#FF4F8B; $sunrise:#FF6A3D; $gold:#FFC83D; $teal:#0B7C6E; $teal-deep:#045A4E;
-$night:#0D1B2A; $ink:#0D1B2A; $paper:#FFF5E6; $mist:#F6E9D9; $card:#FFFFFF;
-$line:rgba(13,27,42,.12); $muted:rgba(13,27,42,.55);
-$tint-sakura:#FDE2EB; $tint-sunrise:#FFE6DB; $tint-gold:#FFF1C7; $tint-teal:#D6EDE8; $tint-teal2:#E6F3F0;
-/* typography */
-$font-ui:'Sora','Inter','Noto Sans SC',-apple-system,sans-serif;
-$fs-xs:20rpx; $fs-sm:24rpx; $fs-md:28rpx; $fs-lg:32rpx; $fs-xl:40rpx; $fs-h1:48rpx;
-$fw-reg:400; $fw-med:500; $fw-semi:600; $fw-bold:700;
-$lh:1.6;
-/* spacing / radii / misc */
-$sp-1:8rpx; $sp-2:16rpx; $sp-3:24rpx; $sp-4:32rpx; $sp-5:44rpx; $sp-6:64rpx;
-$r-sm:16rpx; $r-md:24rpx; $r-lg:32rpx; $r-pill:999rpx;
-$shadow-card:0 16rpx 40rpx -24rpx rgba(13,27,42,.28);
-$dur:.2s;
-$z-nav:50; $z-sheet:90; $z-toast:120;
-$safe-b:env(safe-area-inset-bottom); $safe-t:env(safe-area-inset-top);
+/* KYOTO design tokens — single source of truth. Do not hard-code brand values in components.
+ *
+ * 配色方向：现代日式 / 京都感 / 编辑感。**藍 indigo 主导深色面，朱 vermilion 做强调，水色 mizuiro 做辅助**。
+ * 刻意不再让粉色主导界面——原先的 $sakura(#FF4F8B) 已移除，改为朱色体系（见下方 accent）。
+ *
+ * 对比度已逐对实测（WCAG 2.1 相对亮度公式），标注的比值都是在真实底色上算出来的，
+ * 不是估计值。凡低于 4.5:1 的组合都另外派生了更深的变体，而不是直接拿品牌原色当正文色用。
+ */
+
+/* ---- 品牌原色（brand core，用于色块与插画，不直接当小号文字色）---- */
+$paper: #FFF5E6;      /* 象牙白 / 和纸底色 —— 全局页面背景 */
+$vermilion: #E43D30;  /* 朱色 —— 强调色原值。填充/描边/圆点用，小字请用 $accent-ink */
+$aqua: #00B8B0;       /* 水色 mizuiro —— 插画填充用。小字请用 $teal */
+$indigo: #1D286C;     /* 藍 —— 深色主面（首页 hero 背景）。白字 13.36:1 ✓ */
+$purple: #5A2D82;     /* 深紫 —— 极少量点缀。白字 9.85:1 ✓ */
+$gold-soft: #F2C9AC;  /* 品牌金（柔和）—— 大面积浅色块 */
+$gold: #E8A33D;       /* 派生的强金/芥末黄 —— hero CTA 底色，必须配深色字（$ink 7.77:1 ✓）*/
+
+/* ---- 文字与表面 ---- */
+$ink: #141B3D;        /* 极深藍靛 —— 正文与导航主色（由 $indigo 派生）。paper 上 15.52:1 ✓ */
+$night: $ink;         /* 旧名保留为别名：$night 在组件里有 25 处引用，语义与 $ink 相同 */
+$mist: #F6E9D9;       /* 比 paper 略深的中性面，用于分区 */
+$card: #FFFFFF;
+$line: rgba(20, 27, 61, .12);
+$muted: rgba(20, 27, 61, .65);  /* 次要文字。paper 上 5.15:1 ✓（原 .55 只有 3.75:1，不达标）*/
+
+/* ---- 语义色（semantic）---- */
+/* 强调 / 选中 / 主 CTA。三个变体按用途分开，避免小字对比度不足：
+ *   $accent        非文字场景：边框、圆点、进度段、图标填充
+ *   $accent-strong 按钮底色（白字 5.03:1 ✓，品牌原值 #E43D30 白字只有 4.19:1）
+ *   $accent-ink    浅底上的小号强调文字（paper 上 5.03:1 ✓，原值只有 3.88:1）
+ */
+$accent: $vermilion;
+$accent-strong: #CD372B;
+$accent-ink: #C43429;
+$tint-accent: #FAE6E2;  /* 选中态浅底（取代各页硬编码的 #FFF0F5）。$accent-ink 在其上 4.4:1，大字 ✓ */
+
+/* 水色体系的可读变体：#00B8B0 太亮，小字在浅底上只有 2.22:1，不能当文字色 */
+$teal: #00726D;         /* 水色加深 —— 标签/边框/小字。$tint-teal2 上 5.18:1 ✓ */
+$teal-deep: #00514D;
+
+/* 提示 / 警告 / 过期。刻意与 $accent 拉开色相（偏琥珀），否则两个红橙色难以区分 */
+$sunrise: #B04E0A;      /* $tint-warn 上 4.70:1 ✓ */
+$tint-warn: #FDEEE3;    /* 警告浅底（取代硬编码的 #FFF8F5 / #FFF1EB）*/
+
+/* ---- 产品卡 / 表面浅色块（restrained washes）----
+ * 用户要求：产品卡不要大面积婴儿粉，改用从朱/水/金/藍派生的克制浅色，且卡与卡之间可以不同。
+ * 以下 5 个都在 $ink 下有 13:1 以上对比度。
+ */
+$tint-vermilion: #FAE6E2;
+$tint-aqua: #DBF2F0;
+$tint-gold: #FAEEE1;
+$tint-indigo: #E6E8F2;
+$tint-purple: #EDE6F3;
+
+/* 旧 tint 类名映射：类名字符串存在产品数据（ProductService）与首页快捷入口里，
+ * 改数据会牵动更多文件，因此这里只把取值重新指向新的克制色板，类名保持不变。
+ * 四个产品色调仍然互不相同（朱 / 藍 / 金 / 水），满足「不同卡片不同色调」。 */
+$tint-sakura: $tint-vermilion;
+$tint-sunrise: $tint-indigo;
+$tint-teal: $tint-aqua;
+$tint-teal2: #E8F5F4;   /* 更浅的水色，用于行内提示与标签底 */
+
+/* ---- typography ---- */
+$font-ui: 'Sora', 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+$fs-xs: 20rpx; $fs-sm: 24rpx; $fs-md: 28rpx; $fs-lg: 32rpx; $fs-xl: 40rpx; $fs-h1: 48rpx;
+$fw-reg: 400; $fw-med: 500; $fw-semi: 600; $fw-bold: 700;
+$lh: 1.6;
+
+/* ---- spacing / radii / misc ---- */
+$sp-1: 8rpx; $sp-2: 16rpx; $sp-3: 24rpx; $sp-4: 32rpx; $sp-5: 44rpx; $sp-6: 64rpx;
+$r-sm: 16rpx; $r-md: 24rpx; $r-lg: 32rpx; $r-pill: 999rpx;
+$shadow-card: 0 16rpx 40rpx -24rpx rgba(20, 27, 61, .28);
+$dur: .2s;
+$z-nav: 50; $z-sheet: 90; $z-toast: 120;
+$safe-b: env(safe-area-inset-bottom); $safe-t: env(safe-area-inset-top);

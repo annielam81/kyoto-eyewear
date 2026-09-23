@@ -46,6 +46,7 @@ import { useProductStore } from '@/stores/product';
 import { LENS_MATERIALS } from '@/config/lens-materials.config';
 import { money } from '@/utils/format';
 import type { Order, CartItem, Locale } from '@/models';
+import { BRAND } from '@/config/brand-colors';
 const { locale, t } = useI18n();
 const loc = computed(()=>locale.value as Locale);
 const products = useProductStore();
@@ -64,7 +65,7 @@ const cfgSummary=(it:CartItem)=>{
 const goUpload=()=>uni.navigateTo({url:'/pages/prescription/upload'});
 const goOrder=()=>uni.navigateTo({url:`/pages/order/detail?id=${order.value?.orderId}`});
 const goHome=()=>uni.reLaunch({url:'/pages/home/index'});
-const art = `<svg viewBox="0 0 300 150" style="width:100%;height:auto;max-width:460rpx;margin:0 auto;display:block"><circle cx="150" cy="75" r="62" fill="#FDE2EB"/><g fill="none" stroke="#0D1B2A" stroke-width="6"><circle cx="118" cy="75" r="28"/><circle cx="182" cy="75" r="28"/><path d="M146 72q4-9 8 0M90 74l-26-15M210 74l26-15"/></g><path d="M134 98q16 11 32 0" stroke="#0D1B2A" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`;
+const art = `<svg viewBox="0 0 300 150" style="width:100%;height:auto;max-width:460rpx;margin:0 auto;display:block"><circle cx="150" cy="75" r="62" fill="${BRAND.tintAqua}"/><g fill="none" stroke="${BRAND.ink}" stroke-width="6"><circle cx="118" cy="75" r="28"/><circle cx="182" cy="75" r="28"/><path d="M146 72q4-9 8 0M90 74l-26-15M210 74l26-15"/></g><path d="M134 98q16 11 32 0" stroke="${BRAND.ink}" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`;
 </script>
 <style lang="scss" scoped>
 .conf{text-align:center;padding-bottom:220rpx}

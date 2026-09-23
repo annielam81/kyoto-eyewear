@@ -13,6 +13,6 @@
   </view>
 </template>
 <script setup lang="ts">
-withDefaults(defineProps<{ height?: number; color?: string }>(), { height: 18, color: '#0D1B2A' });
+withDefaults(defineProps<{ height?: number; color?: string }>(), { height: 18, color: '#141B3D' });
 </script>
 <style scoped>.kyoto-wordmark{display:inline-flex;align-items:center}</style>

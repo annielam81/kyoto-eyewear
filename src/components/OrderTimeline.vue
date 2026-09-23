@@ -33,7 +33,7 @@ const steps = computed(()=>{
 .tl-rail{display:flex;flex-direction:column;align-items:center;width:36rpx;flex-shrink:0}
 .tl-dot{width:32rpx;height:32rpx;border-radius:50%;background:#fff;border:4rpx solid $line;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tl-dot.done{background:$teal;border-color:$teal}
-.tl-dot.cur{background:$sakura;border-color:$sakura;box-shadow:0 0 0 6rpx rgba(255,79,139,.18)}
+.tl-dot.cur{background:$accent;border-color:$accent;box-shadow:0 0 0 6rpx rgba(228,61,48,.18)}
 .tl-chk{color:#fff;font-size:16rpx;font-weight:$fw-bold}
 .tl-line{width:4rpx;flex:1;min-height:28rpx;background:$line;margin:4rpx 0}
 .tl-line.done{background:$teal}
