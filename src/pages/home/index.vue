@@ -8,6 +8,7 @@
         <text class="des">EYEWEAR</text>
       </view>
       <view class="hds r">
+        <view class="hbtn lang" @click="openLang"><text>{{ langLabel }}</text></view>
         <view class="hbtn" @click="nav('/pages/frames/index', true)" v-html="icSearch"></view>
         <view class="hbtn" @click="nav('/pages/cart/index')">
           <view class="bag" v-html="icBag"></view>
@@ -109,7 +110,19 @@ const products = useProductStore();
 const cart = useCartStore();
 const app = useAppStore();
 
-/* 汉堡菜单：5 个主页面 + 3 种语言（语言切换从 header 移到这里） */
+/* 汉堡菜单：5 个主页面 + 3 种语言 */
+const locales: { code: Locale; label: string; short: string }[] = [
+  { code: 'en-US', label: 'English', short: 'EN' },
+  { code: 'zh-CN', label: '中文', short: '中' },
+  { code: 'es-US', label: 'Español', short: 'ES' },
+];
+const langLabel = computed(() => locales.find((l) => l.code === app.locale)?.short ?? 'EN');
+const openLang = () => {
+  uni.showActionSheet({
+    itemList: locales.map((l) => l.label),
+    success: (res) => app.setLocale(locales[res.tapIndex].code),
+  });
+};
 const openMenu = () => {
   const t = i18n.global.t;
   const navItems = [
@@ -118,11 +131,6 @@ const openMenu = () => {
     { label: t('nav.tryOn'), url: '/pages/tryon/index' },
     { label: t('nav.cart'), url: '/pages/cart/index' },
     { label: t('nav.account'), url: '/pages/account/index' },
-  ];
-  const locales: { code: Locale; label: string }[] = [
-    { code: 'en-US', label: 'English' },
-    { code: 'zh-CN', label: '中文' },
-    { code: 'es-US', label: 'Español' },
   ];
   uni.showActionSheet({
     itemList: [...navItems.map((n) => n.label), ...locales.map((l) => l.label)],
@@ -243,6 +251,7 @@ const promoBg = `
 .bname{font-family:'Cinzel',serif;font-weight:600;font-size:46rpx;letter-spacing:.30em;color:$ink;padding-left:.30em;line-height:1}
 .des{font-size:15rpx;letter-spacing:.42em;color:$muted;font-weight:$fw-med;padding-left:.42em}
 .hbtn{position:relative;color:$ink;padding:6rpx;display:flex;align-items:center}
+.hbtn.lang text{font-size:26rpx;font-weight:700;letter-spacing:.08em}
 .hbtn :deep(svg){width:44rpx;height:44rpx;display:block}
 .bag{display:flex;align-items:center}
 .cbadge{position:absolute;top:-4rpx;right:-6rpx;background:$accent-strong;color:#fff;font-size:17rpx;
