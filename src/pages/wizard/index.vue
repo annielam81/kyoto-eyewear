@@ -126,7 +126,7 @@ import OptionCard from '@/components/OptionCard.vue';
 import PriceSummary from '@/components/PriceSummary.vue';
 import FrameArt from '@/components/FrameArt.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
-import { useLensWizardStore, STEP, firstStep, flowFor } from '@/stores/lensWizard';
+import { useLensWizardStore, STEP, firstStep, flowFor, stepAfterRx } from '@/stores/lensWizard';
 import { isLensTypeAvailable, isTreatmentVisible } from '@/config/launch-availability.config';
 import { useCartStore } from '@/stores/cart';
 import { useProductStore } from '@/stores/product';
@@ -243,7 +243,7 @@ function setLater(){
   wizard.set('prescriptionId', null);      // 断开旧处方关联，否则 ADD/档位会读到上一次的处方
   wizard.setStrengthBand(null);            // 稍后提供 → 无法评估，不推荐
   wizard.reconcileLensType();              // ADD 没了 → 已选的双光要清掉
-  wizard.set('step',STEP.type);
+  wizard.set('step', stepAfterRx(w.value.use));
 }
 function useSaved(){
   if(savedRxValidity.value==='expired'){ uni.showToast({title:t('c3.myrx.expWarn'),icon:'none',duration:3200}); return; }
@@ -251,7 +251,7 @@ function useSaved(){
   // 已保存的处方里有真实 SPH，用它派生度数档位（推荐徽标 + 兼容性校验都依赖它）
   wizard.setStrengthBand(savedRx.value?PrescriptionService.strengthBand(savedRx.value):null);
   wizard.reconcileLensType();              // 换了处方 → 若新处方没有 ADD，清掉已选的双光
-  wizard.set('step',STEP.type);
+  wizard.set('step', stepAfterRx(w.value.use));
 }
 // 只「进入」流程不算完成：prescriptionMethod 一律由目标页在拿到结果后才写入
 // （manual.vue / upload.vue 的 use()）。否则客户进去又退出，处方步会被误判为已完成。

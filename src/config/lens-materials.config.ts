@@ -1,12 +1,12 @@
 import type { LensMaterial } from '@/models';
-/** Catalog is configuration-driven; later replaceable by backend. Bands: 0 ≤±2 · 1 ±2–4 · 2 ±4–6 · 3 >±6 · 4 unsure */
+/** Catalog is configuration-driven; later replaceable by backend. Bands: 0 ≤±2 · 1 ±2–±4.5 · 2 ±4.5–±6 · 3 >±6 · 4 unsure */
 export const LENS_MATERIALS: LensMaterial[] = [
   { id:'std150', index:1.5, material:'cr39',
     name:{'en-US':'Standard 1.50','zh-CN':'标准 1.50','es-US':'Estándar 1.50'},
     label:{'en-US':'Standard','zh-CN':'标准','es-US':'Estándar'},
     description:{'en-US':'Everyday standard lens.','zh-CN':'日常标准镜片。','es-US':'Lente estándar para uso diario.'},
     price:0, thicknessRating:4, weightRating:2, impactResistance:'standard',
-    recommendedRange:'±0 – ±2.00', compatibleStrengthBands:[0,4], badges:[], enabled:true },
+    recommendedRange:'±0 – ±4.50', compatibleStrengthBands:[0,1,4], badges:[], enabled:true },
   { id:'poly', index:null, material:'polycarbonate',
     name:{'en-US':'Polycarbonate','zh-CN':'PC 聚碳酸酯','es-US':'Policarbonato'},
     label:{'en-US':'Lightweight + Impact Resistant','zh-CN':'轻量 + 抗冲击','es-US':'Ligero + Resistente a impactos'},

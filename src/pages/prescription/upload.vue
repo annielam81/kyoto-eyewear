@@ -44,7 +44,7 @@
 import { ref } from 'vue';
 import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
-import { useLensWizardStore, STEP } from '@/stores/lensWizard';
+import { useLensWizardStore, STEP, stepAfterRx } from '@/stores/lensWizard';
 import { UploadService } from '@/services/UploadService';
 const wizard = useLensWizardStore();
 const uploaded = ref(false); const uploading = ref(false); const progress = ref(0);
@@ -76,7 +76,7 @@ const use = ()=>{
   wizard.set('prescriptionId', null);
   wizard.setStrengthBand(null);
   wizard.reconcileLensType();
-  wizard.set('step',STEP.type); navBack(FALLBACK.rx);
+  wizard.set('step', stepAfterRx(wizard.w.use)); navBack(FALLBACK.rx);
 };
 </script>
 <style lang="scss" scoped>

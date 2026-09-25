@@ -277,7 +277,7 @@ onMounted(()=>{
 .try-topbar{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 30rpx;z-index:10;background:transparent;margin:0}
 .tb-mid{display:flex;align-items:center}
 .tb-right{display:flex;gap:18rpx}
-.cb{width:72rpx;height:72rpx;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center}
+.cb{width:76rpx;height:76rpx;border-radius:50%;background:rgba(24,19,15,.62);border:1rpx solid rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}
 .cb.sm{width:88rpx;height:88rpx}
 .cb-t{color:#fff;font-size:30rpx;font-weight:600}
 /* 起始页 */

@@ -32,6 +32,14 @@ export const flowFor = (use: LensConfiguration['use']): number[] => {
   return seq;
 };
 export const firstStep = (use: LensConfiguration['use']) => flowFor(use)[0];
+/** 处方页（手动/上传/已保存/稍后提供）完成后应去的下一步：沿当前发售流程走。
+ *  类型步在发售期被隐藏时不会出现在这里 —— 之前各处方页写死 STEP.type，
+ *  是"选完度数跳回选度数"多出一步 bug 的根因。 */
+export const stepAfterRx = (use: LensConfiguration['use']): number => {
+  const seq = flowFor(use);
+  const i = seq.indexOf(STEP.rx);
+  return seq[Math.min(i + 1, seq.length - 1)];
+};
 const fresh = (): WizardState => ({
   configurationId: uid(), frameId: null, colorKey: null, sizeKey: null, step: STEP.rx, editCartItemId: null,
   use: null, type: null, strengthBand: null, preference: null,

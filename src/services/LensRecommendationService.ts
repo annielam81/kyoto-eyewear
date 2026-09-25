@@ -3,7 +3,7 @@ import { LARGE_LENS_WIDTH, SUN_PREFERS_IMPACT } from '@/config/frame-lens-rules.
 import type { Frame, LensMaterial, LensPreference, PrescriptionUse } from '@/models';
 
 export interface RecommendationInput {
-  strengthBand: number | null;        // 0 ≤±2 · 1 ±2–4 · 2 ±4–6 · 3 >±6 · 4 unsure
+  strengthBand: number | null;        // 0 ≤±2 · 1 ±2–±4.5 · 2 ±4.5–±6 · 3 >±6 · 4 unsure
   preference: LensPreference | null;
   use: PrescriptionUse | null;
   frame: Frame | null; sizeKey: string | null;

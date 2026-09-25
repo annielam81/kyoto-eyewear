@@ -20,7 +20,7 @@
       <LanguageSelector />
     </view>
     <!-- 母版 09：退出登录是一行 Vermilion 文字操作，不是一颗大按钮 -->
-    <view class="signout" @click="signOut">
+    <view v-if="user.signedIn" class="signout" @click="signOut">
       <view class="so-ic" v-html="icons.signout"></view>
       <text class="so-t">{{$t('account.logout')}}</text>
     </view>

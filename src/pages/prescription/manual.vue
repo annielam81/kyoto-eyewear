@@ -44,7 +44,7 @@
 import { ref } from 'vue';
 import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
-import { useLensWizardStore, STEP } from '@/stores/lensWizard';
+import { useLensWizardStore, STEP, stepAfterRx } from '@/stores/lensWizard';
 import { PrescriptionService } from '@/services/PrescriptionService';
 import { usePrescriptionStore } from '@/stores/prescription';
 import { useI18n } from 'vue-i18n';
@@ -92,7 +92,7 @@ const use = ()=>{
   wizard.set('prescriptionMethod','manual');
   wizard.set('prescriptionId', rx.prescriptionId);
   wizard.setStrengthBand(PrescriptionService.strengthBand(rx));
-  wizard.set('step',STEP.type); navBack(FALLBACK.rx);
+  wizard.set('step', stepAfterRx(wizard.w.use)); navBack(FALLBACK.rx);
 };
 </script>
 <style lang="scss" scoped>

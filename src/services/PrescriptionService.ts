@@ -13,17 +13,17 @@ export const PrescriptionService = {
       pd: 63, verificationStatus: 'verified', prescriberName: 'Dr. Chen',
       issueDate: '2026-03-01', expirationDate: '2028-03-01' };
   },
-  /** 度数档位（0 ≤±2 · 1 ±2–4 · 2 ±4–6 · 3 >±6）。
-   *  取双眼 SPH 绝对值的较大者。没有可读的 SPH 时返回 null —— 宁可不推荐，也不猜。 */
-  bandFromSph(...sph: (string | null | undefined)[]): number | null {
-    const mags = sph.map(v => Math.abs(parseFloat(String(v ?? '')))).filter(n => Number.isFinite(n));
+  /** 度数档位（0 ≤±2 · 1 ±2–±4.5 · 2 ±4.5–±6 · 3 >±6）。
+   *  取双眼 SPH、CYL 绝对值的较大者 —— 散光同样影响镜片厚度。没有可读的度数时返回 null —— 宁可不推荐，也不猜。 */
+  bandFromRx(...vals: (string | null | undefined)[]): number | null {
+    const mags = vals.map(v => Math.abs(parseFloat(String(v ?? '')))).filter(n => Number.isFinite(n));
     if (!mags.length) return null;
     const m = Math.max(...mags);
-    return m < 2 ? 0 : m < 4 ? 1 : m < 6 ? 2 : 3;
+    return m < 2 ? 0 : m <= 4.5 ? 1 : m < 6 ? 2 : 3;
   },
-  /** 从一份处方推出度数档位；缺 SPH 则为 null。 */
+  /** 从一份处方推出度数档位；缺度数则为 null。 */
   strengthBand(p: Prescription): number | null {
-    return this.bandFromSph(p.od?.sph, p.os?.sph);
+    return this.bandFromRx(p.od?.sph, p.os?.sph, p.od?.cyl, p.os?.cyl);
   },
   /** Customer-facing validity from stored expiration date. */
   validity(p: Prescription): import('@/models').RxValidity {
