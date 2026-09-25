@@ -4,7 +4,9 @@ import { useProductStore } from '@/stores/product';
 onLaunch(() => { useProductStore().ensure(); });
 </script>
 <style lang="scss">
-@font-face{font-family:'Sora';src:local('Sora');font-display:swap}
+@font-face{font-family:'Cinzel';font-weight:400 700;font-display:swap;src:url('@/static/fonts/Cinzel-latin.woff2') format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-weight:400 700;font-display:swap;src:url('@/static/fonts/PlusJakartaSans-latin.woff2') format('woff2')}
+@font-face{font-family:'Noto Serif JP';font-weight:600;font-display:swap;src:url('@/static/fonts/NotoSerifJP-kanji.woff2') format('woff2');unicode-range:U+4EAC,U+90FD}
 page, body{background:$paper;color:$night;font-family:$font-ui;line-height:$lh;-webkit-font-smoothing:antialiased}
 .page-pad{padding:0 $sp-3 calc(#{$nav-h} + 80rpx + #{$safe-b})}
 .safe-top{padding-top:$safe-t}

@@ -67,6 +67,9 @@ $tint-teal2: #E8F5F4;   /* 更浅的水色，用于行内提示与标签底 */
 
 /* ---- typography ---- */
 $font-ui: 'Sora', 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+/* 衬线展示字体：Cinzel（拉丁）+ Noto Serif JP（日文），本地 woff2，App.vue 注册 */
+$font-serif: 'Cinzel', 'Noto Serif JP', 'Didot', 'Bodoni MT', 'Songti SC', serif;
+$font-jp: 'Noto Serif JP', 'Songti SC', serif;
 $fs-xs: 20rpx; $fs-sm: 24rpx; $fs-md: 28rpx; $fs-lg: 32rpx; $fs-xl: 40rpx; $fs-h1: 48rpx;
 $fw-reg: 400; $fw-med: 500; $fw-semi: 600; $fw-bold: 700;
 $lh: 1.6;

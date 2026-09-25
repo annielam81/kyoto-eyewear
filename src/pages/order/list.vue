@@ -18,7 +18,7 @@
         </view>
       </view>
     </view>
-    <KyotoBottomNav active="account"/>
+    <KyotoBottomNav active="orders"/>
   </view>
 </template>
 <script setup lang="ts">

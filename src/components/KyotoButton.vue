@@ -5,7 +5,7 @@
   </view>
 </template>
 <script setup lang="ts">
-withDefaults(defineProps<{ variant?: 'night'|'pink'|'ghost'|'gold'; size?: 'md'|'sm'; disabled?: boolean; loading?: boolean }>(),
+withDefaults(defineProps<{ variant?: 'night'|'pink'|'ghost'|'gold'|'vermillion'; size?: 'md'|'sm'; disabled?: boolean; loading?: boolean }>(),
   { variant:'night', size:'md' });
 defineEmits(['click']);
 </script>
@@ -17,6 +17,7 @@ defineEmits(['click']);
 .kb.sm{min-height:64rpx;padding:14rpx 22rpx;font-size:$fs-sm;border-radius:$r-xs}
 .night{background:$ink;color:$paper}
 .pink{background:$accent-strong;color:$paper}
+.vermillion{background:$accent-strong;color:$paper}
 .gold{background:$gold;color:$ink}
 .ghost{background:transparent;border:2rpx solid $ink;color:$ink}
 .disabled{opacity:.4;pointer-events:none}

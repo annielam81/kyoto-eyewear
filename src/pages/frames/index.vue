@@ -23,7 +23,7 @@
     <view class="grid">
       <ProductCard v-for="f in products.filtered" :key="f.id" :frame="f" @open="openDetail" />
     </view>
-    <KyotoBottomNav active="frames" />
+    <KyotoBottomNav active="shop" />
   </view>
 </template>
 <script setup lang="ts">
