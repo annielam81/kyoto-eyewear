@@ -6,7 +6,7 @@
       <view :class="['ctx-art',frame.tint]"><FrameArt :art="frame.art" :hex="selColor?.hex" style="height:80rpx"/></view>
       <view class="ctx-tx">
         <text class="ctx-n">{{frame.name[loc]}} · {{selColor?.name[loc]}} · {{w.sizeKey}}</text>
-        <text class="ctx-p">${{frame.price + wizard.lensPrice}}</text>
+        <text class="ctx-p">${{sp(frame) + wizard.lensPrice}}</text>
       </view>
     </view>
     <!-- STEP 1 —— 处方（内容键仍为 s5）。选完镜框后第一步就是处方 -->
@@ -112,7 +112,7 @@
     <!-- footer -->
     <view class="sticky-cta">
       <KyotoButton variant="pink" :disabled="!canContinue" @click="advance">
-        {{w.step===STEP.review?$t('wizard.s6.addToCart')+' · $'+((frame?.price??0)+wizard.lensPrice):$t('common.continue')}}
+        {{w.step===STEP.review?$t('wizard.s6.addToCart')+' · $'+((frame?sp(frame):0)+wizard.lensPrice):$t('common.continue')}}
       </KyotoButton>
     </view>
   </view>
@@ -131,6 +131,8 @@ import { isLensTypeAvailable, isTreatmentVisible } from '@/config/launch-availab
 import { useCartStore } from '@/stores/cart';
 import { useProductStore } from '@/stores/product';
 import { LENS_MATERIALS } from '@/config/lens-materials.config';
+import { frameSellPrice } from '@/config/pricing.config';
+import type { Frame } from '@/models';
 import { TREATMENTS, TYPE_PRICES } from '@/config/treatments.config';
 import { LensRecommendationService, LENS_WHY } from '@/services/LensRecommendationService';
 import { usePrescriptionStore } from '@/stores/prescription';
@@ -140,6 +142,7 @@ import type { Locale, PrescriptionUse, PrescriptionType } from '@/models';
 import { BRAND } from '@/config/brand-colors';
 import { money } from '@/utils/format';
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
+const sp = (f: Frame) => frameSellPrice(f);
 const { locale,t } = useI18n(); const loc = computed(()=>locale.value as Locale);
 const wizard = useLensWizardStore(); const cart = useCartStore(); const products = useProductStore();
 const rxStore = usePrescriptionStore();
@@ -184,7 +187,7 @@ const treatGroups = computed(()=>[
 const reviewRows = computed(()=>{
   const f=frame.value; if(!f) return [];
   const mat=wizard.material; const rows:any[]=[];
-  rows.push({label:t('wizard.s6.frame'),value:`${f.name[loc.value]} · ${f.nameZH}`,sub:money(f.price)});
+  rows.push({label:t('wizard.s6.frame'),value:`${f.name[loc.value]} · ${f.nameZH}`,sub:money(sp(f))});
   rows.push({label:t('wizard.s6.color'),value:selColor.value?.name[loc.value]??''});
   rows.push({label:t('wizard.s6.size'),value:w.value.sizeKey??''});
   // 用途已由入口/类型派生，不再是客户可编辑的一步，这里仅作信息展示
@@ -197,7 +200,7 @@ const reviewRows = computed(()=>{
   const m=w.value.prescriptionMethod;
   const rxLbl=m==='saved'?t('wizard.s6.rxSaved'):(m==='upload'||m==='photo')?t('wizard.s6.rxUpload'):m==='later'?t('wizard.s6.rxLater'):t('wizard.s6.rxManual');
   if(w.value.use!=='nonrx') rows.push({label:t('wizard.s6.prescription'),value:rxLbl,editable:true,key:'rx'});
-  rows.push({label:t('wizard.s6.total'),value:money(f.price+wizard.lensPrice),total:true});
+  rows.push({label:t('wizard.s6.total'),value:money(sp(f)+wizard.lensPrice),total:true});
   return rows;
 });
 const canContinue = computed(()=>{
@@ -279,8 +282,8 @@ function advance(){
     const cfg={configurationId:c.configurationId,use:c.use,type:c.type,strengthBand:c.strengthBand,
       preference:c.preference,materialId:c.materialId,treatmentIds:[...wizard.includedTreatmentIds,...c.treatmentIds],
       prescriptionMethod:c.prescriptionMethod,prescriptionId:c.prescriptionId};
-    if(c.editCartItemId) cart.replaceConfigured(c.editCartItemId,f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',f.price,cfg);
-    else cart.addConfigured(f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',f.price,cfg);
+    if(c.editCartItemId) cart.replaceConfigured(c.editCartItemId,f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',sp(f),cfg);
+    else cart.addConfigured(f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',sp(f),cfg);
     wizard.reset();
     uni.navigateTo({url:'/pages/cart/index'});
     return;

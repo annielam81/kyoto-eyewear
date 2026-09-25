@@ -3,9 +3,11 @@ export type LocalizedText = Record<Locale, string>;
 
 export interface FrameColor { key: string; hex: string; name: LocalizedText }
 export interface FrameSize { key: string; lensWidth: number; bridge: number; temple: number }
+export type FrameSeries = 'essential' | 'signature' | 'atelier';
 export interface Frame {
   id: string; sku: string; slug: string;
   name: LocalizedText; collectionName: string; nameZH: string;
+  series: FrameSeries;
   price: number; category: 'optical' | 'sun';
   frameShape: 'round' | 'square' | 'cat-eye' | 'aviator';
   frameMaterial: LocalizedText;

@@ -24,6 +24,7 @@
         <view class="hwash"></view>
         <view class="hin">
           <view class="hcopy">
+            <text class="promo">{{ $t('home.hero.eyebrow') }}</text>
             <text class="ta" :class="{ 'ta-zh': $i18n.locale === 'zh-CN' }">{{ $t('home.hero.titleA') }}</text>
             <text class="tb">{{ $t('home.hero.titleB') }}</text>
             <text class="hsub">{{ $t('home.hero.subtitle') }}</text>
@@ -267,6 +268,9 @@ const promoBg = `
     linear-gradient(180deg, rgba(250,247,242,.10) 0%, rgba(250,247,242,0) 45%, rgba(250,247,242,.38) 82%, $paper 100%)}
 .hin{position:relative;display:flex;justify-content:space-between;padding:46rpx 36rpx 64rpx}
 .hcopy{display:flex;flex-direction:column;max-width:66%}
+.promo{align-self:flex-start;font-size:20rpx;font-weight:$fw-bold;letter-spacing:.1em;color:#fff;
+  background:$accent-strong;border-radius:$r-pill;padding:8rpx 20rpx;margin-bottom:14rpx;
+  box-shadow:0 8rpx 20rpx -8rpx rgba(205,55,43,.55)}
 .ta{font-family:$font-serif;font-size:54rpx;font-weight:600;color:$ink;line-height:1.18}
 .ta-zh{font-size:40rpx;letter-spacing:.04em}
 .tb{font-family:$font-serif;font-size:54rpx;font-weight:400;color:$ink;line-height:1.28}

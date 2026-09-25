@@ -30,7 +30,9 @@
         <view class="np">
           <text class="pname">{{frame.name[loc]}}</text>
           <text class="zhname">{{frame.nameZH}}</text>
-          <text class="pr">${{frame.price}}</text>
+          <text class="seriesline">{{ seriesName }} · {{ seriesTagline }}</text>
+          <text class="pr">${{sellPrice}}<text v-if="onPromo" class="was"> ${{frame.price}}</text></text>
+          <text class="pairline">{{ $t('product.completePair') }}</text>
           <view class="rate">
             <text class="stars">★★★★★</text>
             <text class="rnum">{{frame.rating}}</text>
@@ -122,7 +124,7 @@
         <!-- 母版 03 的层级：主操作 Vermilion 在上，次操作 Indigo 在下。
              业务流程仍以代码为准 —— 主 CTA 是「配处方镜片」，不是母版示意的 Try On。 -->
         <KyotoButton variant="pink" :class="{long:$t('product.addLenses').length>22}" @click="startWizard">{{$t('product.addLenses')}}</KyotoButton>
-        <KyotoButton variant="night" @click="addFrameOnly">{{$t('product.frameOnly')}} · ${{frame?.price}}</KyotoButton>
+        <KyotoButton variant="night" @click="addFrameOnly">{{$t('product.frameOnly')}} · ${{sellPrice ?? frame?.price}}</KyotoButton>
       </view>
     </view>
   </view>
@@ -140,6 +142,7 @@ import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { useLensWizardStore } from '@/stores/lensWizard';
 import type { Locale } from '@/models';
+import { frameSellPrice, frameOnPromo, SERIES_INFO } from '@/config/pricing.config';
 const { locale } = useI18n();
 const loc = computed(()=>locale.value as Locale);
 const products = useProductStore(); const fav = useFavoritesStore();
@@ -153,6 +156,10 @@ const viewIdx = ref(0); const openAcc = ref<string|null>(null);
 const views = ['front','side','deg'] as const;
 const viewLabels = computed(()=>['Front','Side','45°']);
 const frame = computed(()=>products.byId(frameId.value));
+const sellPrice = computed(()=>frame.value?frameSellPrice(frame.value):0);
+const onPromo = computed(()=>!!frame.value&&frameOnPromo(frame.value));
+const seriesName = computed(()=>frame.value?SERIES_INFO[frame.value.series].name[loc.value]:'');
+const seriesTagline = computed(()=>frame.value?SERIES_INFO[frame.value.series].tagline[loc.value]:'');
 const selColor = computed(()=>frame.value?.colors[colorIdx.value]??{hex:'#0D1B2A',key:'night',name:{'en-US':'Night','zh-CN':'夜空蓝','es-US':'Noche'}});
 const selSize = computed(()=>frame.value?.sizes[sizeIdx.value]??{key:'M',lensWidth:49,bridge:20,temple:145});
 const related = computed(()=>products.frames.filter(f=>f.id!==frameId.value).slice(0,4));
@@ -163,7 +170,7 @@ onLoad(async (opts:any)=>{ if(opts?.id) frameId.value=opts.id; await products.en
 const toggleFav = ()=>{ const added=fav.toggle(frame.value?.id??''); uni.showToast({title:added?'Saved':'Removed',icon:'none'}); };
 const goTryOn = ()=>uni.navigateTo({url:`/pages/tryon/index?frame=${frameId.value}`});
 const switchFrame = (id:string)=>{ frameId.value=id; colorIdx.value=0; viewIdx.value=0; initSize(); };
-const addFrameOnly = ()=>{ if(!frame.value) return; cart.addFrameOnly(frame.value.id,frame.value.sku,selColor.value.key,selSize.value.key,frame.value.price); uni.showToast({title:'Added to cart',icon:'none'}); };
+const addFrameOnly = ()=>{ if(!frame.value) return; cart.addFrameOnly(frame.value.id,frame.value.sku,selColor.value.key,selSize.value.key,sellPrice.value); uni.showToast({title:'Added to cart',icon:'none'}); };
 // 「配处方镜片」已表达处方意图，不再让客户再选一次用途；
 // 用途从镜框自身派生：太阳镜镜框 → 'sun'（触发 SUN_PREFERS_IMPACT 推荐分支），其余 → 'rx'。
 const startWizard = ()=>{ if(!frame.value) return;
@@ -188,6 +195,9 @@ const startWizard = ()=>{ if(!frame.value) return;
 .pname{font-size:40rpx;font-weight:$fw-bold;letter-spacing:-.015em;line-height:1.2;color:$ink}
 .zhname{font-family:'Noto Sans SC',sans-serif;font-size:$fs-xs;color:$muted;letter-spacing:.16em;display:block;margin-top:6rpx}
 .pr{font-size:36rpx;font-weight:$fw-bold;color:$ink;display:block;line-height:1.2;margin-top:6rpx;font-variant-numeric:tabular-nums}
+.pr .was{font-size:24rpx;color:$muted;font-weight:$fw-reg;text-decoration:line-through;margin-left:10rpx}
+.seriesline{font-size:22rpx;color:$accent-strong;font-weight:$fw-semi;letter-spacing:.08em;margin-top:10rpx;display:block}
+.pairline{font-size:22rpx;color:$muted;line-height:1.6;margin-top:8rpx;display:block}
 .rate{display:flex;align-items:baseline;gap:8rpx;margin-top:4rpx}
 .rnum{font-size:$fs-xs;font-weight:$fw-semi;color:$ink;font-variant-numeric:tabular-nums}
 .rcnt{font-size:18rpx;color:$muted;font-variant-numeric:tabular-nums}

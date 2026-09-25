@@ -5,7 +5,7 @@ export const useProductStore = defineStore('product', {
   state: () => ({ frames: [] as Frame[], loaded: false, filter: 'all' as string }),
   getters: {
     filtered(s): Frame[] {
-      return s.frames.filter(f => s.filter==='all' || f.category===s.filter || f.frameShape===s.filter);
+      return s.frames.filter(f => s.filter==='all' || f.category===s.filter || f.frameShape===s.filter || (f as any).series===s.filter);
     },
   },
   actions: {

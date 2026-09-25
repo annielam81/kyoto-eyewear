@@ -8,7 +8,7 @@
     <view class="b">
       <text class="n">{{ frame.name[loc] }}</text>
       <view class="prow">
-        <text class="p">{{ money(frame.price) }}</text>
+        <view class="pr"><text class="p">{{ money(sellPrice) }}</text><text v-if="onPromo" class="was">{{ money(frame.price) }}</text></view>
         <view v-if="mode==='new'" class="add" @click.stop="quickAdd" v-html="icPlus"></view>
       </view>
       <view v-if="mode==='best'" class="meta">
@@ -29,6 +29,7 @@ import FrameArt from './FrameArt.vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { money } from '@/utils/format';
+import { frameSellPrice, frameOnPromo } from '@/config/pricing.config';
 import type { Frame, Locale } from '@/models';
 
 const props = withDefaults(defineProps<{ frame: Frame; mode?: 'best' | 'new' }>(), { mode: 'best' });
@@ -42,10 +43,12 @@ const cart = useCartStore();
 const selKey = ref(props.frame.colors[0]?.code ?? '');
 const selHex = computed(() => props.frame.colors.find(c => c.code === selKey.value)?.hex ?? '#141B3D');
 const rate = computed(() => `${props.frame.rating.toFixed(1)} (${props.frame.reviewCount})`);
+const sellPrice = computed(() => frameSellPrice(props.frame));
+const onPromo = computed(() => frameOnPromo(props.frame));
 
 const quickAdd = () => {
   const f = props.frame;
-  cart.addFrameOnly(f.id, f.sku, selKey.value, f.defaultSize, f.price);
+  cart.addFrameOnly(f.id, f.sku, selKey.value, f.defaultSize, sellPrice.value);
   uni.showToast({ title: t('toast.addedCart'), icon: 'none' });
 };
 
@@ -75,6 +78,7 @@ const icStar = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:100%;h
 .prow{display:flex;align-items:center;justify-content:space-between;margin-top:6rpx;min-height:52rpx}
 /* 价格清楚但不像促销站：Ink 加粗，不用大红 */
 .p{font-size:$fs-sm;font-weight:$fw-semi;color:$ink;font-variant-numeric:tabular-nums}
+.was{font-size:20rpx;color:$muted;text-decoration:line-through;margin-left:10rpx;font-weight:$fw-reg}
 .add{width:54rpx;height:54rpx;display:flex;align-items:center;justify-content:center;border-radius:$r-sm;background:$ink;color:$paper}
 .add :deep(svg){width:30rpx;height:30rpx}
 .add:active{transform:scale(.92)}

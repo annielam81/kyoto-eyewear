@@ -18,6 +18,11 @@
       <text v-for="f in shapes" :key="f.k" class="fchip" :class="{ on: products.filter===f.k }"
         @click="products.filter = f.k">{{ $t(f.l) }}</text>
     </view></scroll-view>
+    <!-- 系列：三档价格体系 -->
+    <scroll-view scroll-x class="shapes"><view class="shapes-in">
+      <text v-for="c in seriesChips" :key="c.k" class="fchip" :class="{ on: products.filter===c.k }"
+        @click="products.filter = c.k">{{ c.label }}</text>
+    </view></scroll-view>
     <text class="count">{{ products.filtered.length }} {{ $t('frames.styles') }}</text>
 
     <view class="grid">
@@ -33,7 +38,18 @@ import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import ProductCard from '@/components/ProductCard.vue';
 import { useProductStore } from '@/stores/product';
 import { onShow } from '@dcloudio/uni-app';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { SERIES_INFO, SERIES_PRICE, OPENING_PROMO } from '@/config/pricing.config';
+import type { FrameSeries, Locale } from '@/models';
 const products = useProductStore();
+const { locale } = useI18n();
+const loc = computed(() => locale.value as Locale);
+const seriesPrice = (k: FrameSeries) =>
+  (OPENING_PROMO.active && k === OPENING_PROMO.series) ? OPENING_PROMO.promoPrice : SERIES_PRICE[k];
+const seriesChips = computed(() => (['essential', 'signature', 'atelier'] as FrameSeries[]).map(k => ({
+  k, label: `${SERIES_INFO[k].name[loc.value]} · $${seriesPrice(k)}`,
+})));
 onShow(() => products.ensure());
 /* 分类与款式都写回同一个既有 filter 字段（store 的 filtered 同时匹配 category 与 frameShape），
    因此这里只是把现有能力按母版的两行结构呈现，没有新增任何筛选逻辑。 */

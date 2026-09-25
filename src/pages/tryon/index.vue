@@ -56,7 +56,7 @@
         <scroll-view scroll-x class="frame-row">
           <view v-for="(f,i) in frames" :key="f.id" :class="['fbt',{on:frameIdx===i}]" @click="setFrame(i)">
             <FrameArt :art="f.art" :hex="f.colors[0].hex" style="height:90rpx;width:130rpx"/>
-            <text class="fbt-pr">${{f.price}}</text>
+            <text class="fbt-pr">${{sp(f)}}</text>
           </view>
         </scroll-view>
         <view class="color-row">
@@ -79,13 +79,13 @@
         <view class="cmp-half">
           <view class="feed" v-html="faceSvg"></view>
           <view class="cmp-frame"><FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex" style="width:330rpx"/></view>
-          <view class="cmp-lab"><text class="cmp-ab">A</text><text>{{selFrame?.name['en-US']}} · ${{selFrame?.price}}</text></view>
+          <view class="cmp-lab"><text class="cmp-ab">A</text><text>{{selFrame?.name['en-US']}} · ${{selFrame?sp(selFrame):''}}</text></view>
           <view class="cmp-pick" @click="chooseCmp(0)">{{$t('tryon.chooseThis')}}</view>
         </view>
         <view class="cmp-half">
           <view class="feed" v-html="faceSvg"></view>
           <view class="cmp-frame"><FrameArt :art="cmpB?.art??'round'" :hex="cmpB?.colors[0].hex" style="width:330rpx"/></view>
-          <view class="cmp-lab"><text class="cmp-ab">B</text><text>{{cmpB?.name['en-US']}} · ${{cmpB?.price}}</text></view>
+          <view class="cmp-lab"><text class="cmp-ab">B</text><text>{{cmpB?.name['en-US']}} · ${{cmpB?sp(cmpB):''}}</text></view>
           <view class="cmp-pick" @click="chooseCmp(1)">{{$t('tryon.chooseThis')}}</view>
         </view>
         <view class="cb cmp-close" @click="comparing=false">✕</view>
@@ -102,11 +102,14 @@ import FrameArt from '@/components/FrameArt.vue';
 import { useProductStore } from '@/stores/product';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
+import { frameSellPrice } from '@/config/pricing.config';
+import type { Frame } from '@/models';
 import { VirtualTryOnService } from '@/services/VirtualTryOnService';
 import { cameraLikelyAvailable } from '@/utils/platform';
 const products = useProductStore(); const fav = useFavoritesStore(); const cart = useCartStore();
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
 import { BRAND } from '@/config/brand-colors';
+const sp = (f: Frame) => frameSellPrice(f);
 const exitCam=()=>navBack(FALLBACK.pdp);
 const frameIdx = ref(0); const colorIdx = ref(0);
 type PermState = 'notRequested'|'requesting'|'granted'|'denied'|'unsupported';
@@ -139,7 +142,7 @@ function chooseCmp(i:number){ if(i===1){ frameIdx.value=(frameIdx.value+1)%frame
 function snap(){ snapSaved.value=true; setTimeout(()=>snapSaved.value=false,1500); }
 function addToCart(){
   const f=selFrame.value; if(!f) return;
-  cart.addFrameOnly(f.id,f.sku,selColor.value?.key??'night',f.defaultSize,f.price);
+  cart.addFrameOnly(f.id,f.sku,selColor.value?.key??'night',f.defaultSize,sp(f));
   uni.showToast({title:'Added',icon:'none'});
 }
 const faceSvg = `<svg viewBox="0 0 390 844" style="width:100%;height:100%" preserveAspectRatio="xMidYMid slice"><rect width="390" height="844" fill="#2b2620"/><radialGradient id="sk2" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#d9b59a"/><stop offset="1" stop-color="#9b7358"/></radialGradient><ellipse cx="195" cy="360" rx="110" ry="145" fill="url(#sk2)"/><path d="M85 300q10-160 110-150t110 150q-34-72-110-80t-110 80z" fill="#2a1d17"/><rect x="148" y="480" width="98" height="72" fill="#c48e6e"/><path d="M55 800q20-190 140-190t140 190z" fill="${BRAND.paper}"/></svg>`;
