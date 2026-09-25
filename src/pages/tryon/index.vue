@@ -40,7 +40,7 @@
       <view :class="['guide',{ok:aligned}]"></view>
       <!-- frame overlay -->
       <view v-if="aligned" class="overlay" :style="{transform:`translate(-50%,-50%) translate(${dx}rpx,${dy}rpx)`}">
-        <FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex??'#0D1B2A'" style="width:400rpx;height:auto"/>
+        <FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex??'#0D1B2A'" style="width:520rpx;height:auto"/>
       </view>
       <!-- adjust controls -->
       <view v-if="adjusting&&aligned" class="adjust-ctrl">
@@ -78,13 +78,13 @@
       <view v-if="comparing" class="cmp">
         <view class="cmp-half">
           <view class="feed" v-html="faceSvg"></view>
-          <view class="cmp-frame"><FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex" style="width:330rpx"/></view>
+          <view class="cmp-frame"><FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex" style="width:440rpx"/></view>
           <view class="cmp-lab"><text class="cmp-ab">A</text><text>{{selFrame?.name['en-US']}} · ${{selFrame?sp(selFrame):''}}</text></view>
           <view class="cmp-pick" @click="chooseCmp(0)">{{$t('tryon.chooseThis')}}</view>
         </view>
         <view class="cmp-half">
           <view class="feed" v-html="faceSvg"></view>
-          <view class="cmp-frame"><FrameArt :art="cmpB?.art??'round'" :hex="cmpB?.colors[0].hex" style="width:330rpx"/></view>
+          <view class="cmp-frame"><FrameArt :art="cmpB?.art??'round'" :hex="cmpB?.colors[0].hex" style="width:440rpx"/></view>
           <view class="cmp-lab"><text class="cmp-ab">B</text><text>{{cmpB?.name['en-US']}} · ${{cmpB?sp(cmpB):''}}</text></view>
           <view class="cmp-pick" @click="chooseCmp(1)">{{$t('tryon.chooseThis')}}</view>
         </view>
@@ -145,7 +145,7 @@ function addToCart(){
   cart.addFrameOnly(f.id,f.sku,selColor.value?.key??'night',f.defaultSize,sp(f));
   uni.showToast({title:'Added',icon:'none'});
 }
-const faceSvg = `<svg viewBox="0 0 390 844" style="width:100%;height:100%" preserveAspectRatio="xMidYMid slice"><rect width="390" height="844" fill="#2b2620"/><radialGradient id="sk2" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#d9b59a"/><stop offset="1" stop-color="#9b7358"/></radialGradient><ellipse cx="195" cy="360" rx="110" ry="145" fill="url(#sk2)"/><path d="M85 300q10-160 110-150t110 150q-34-72-110-80t-110 80z" fill="#2a1d17"/><rect x="148" y="480" width="98" height="72" fill="#c48e6e"/><path d="M55 800q20-190 140-190t140 190z" fill="${BRAND.paper}"/></svg>`;
+const faceSvg = `<svg viewBox="0 0 390 844" style="width:100%;height:100%" preserveAspectRatio="xMidYMid slice"><rect width="390" height="844" fill="#2b2620"/><radialGradient id="sk2" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#d9b59a"/><stop offset="1" stop-color="#9b7358"/></radialGradient><ellipse cx="195" cy="360" rx="110" ry="145" fill="url(#sk2)"/><path d="M85 300q10-160 110-150t110 150q-34-72-110-80t-110 80z" fill="#2a1d17"/><rect x="148" y="480" width="98" height="72" fill="#c48e6e"/><path d="M55 800q20-190 140-190t140 190z" fill="#26211b"/></svg>`;
 // 同样不要在 v-html 里写 rpx —— max-width 交给 .perm-art 的编译期 CSS
 const permArt = `<svg viewBox="0 0 280 180" style="width:100%"><circle cx="140" cy="90" r="80" fill="${BRAND.tintVermilion}"/><rect x="72" y="58" width="136" height="90" rx="16" fill="#fff" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="24" fill="none" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="9" fill="${BRAND.vermilion}"/><rect x="114" y="48" width="52" height="16" rx="7" fill="${BRAND.ink}"/></svg>`;
 </script>
