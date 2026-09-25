@@ -16,7 +16,7 @@
 
     <!-- ============ CALIBRATE ============ -->
     <view v-else-if="step==='cal'" class="cal">
-      <image class="feed" :src="photo" mode="aspectFill"></image>
+      <image class="feed" :src="photo" mode="aspectFit"></image>
       <view class="try-topbar">
         <view class="cb" @tap="step='pick'"><text class="cb-t">✕</text></view>
         <view class="tb-mid"><KyotoWordmark :size="14"/></view>
@@ -45,7 +45,7 @@
 
     <!-- ============ TRY ============ -->
     <view v-else class="try">
-      <image v-if="photo" class="feed" :src="photo" mode="aspectFill"></image>
+      <image v-if="photo" class="feed" :src="photo" mode="aspectFit"></image>
       <view class="try-topbar">
         <view class="cb" @tap="close"><text class="cb-t">✕</text></view>
         <view class="tb-mid"><KyotoWordmark :size="14"/></view>
@@ -91,14 +91,14 @@
       <view v-if="comparing" class="cmp">
         <view class="cmp-half top">
           <view class="cmp-full" :style="{width:winW+'px',height:winH+'px',top:'0px'}">
-            <image class="feed" :src="photo" mode="aspectFill"></image>
+            <image :src="photo" mode="aspectFit" :style="{position:'absolute',left:photoRect.x+'px',top:photoRect.y+'px',width:photoRect.w+'px',height:photoRect.h+'px'}"></image>
             <view class="overlay" :style="ovFor(cmpA)"><FrameArt :art="cmpA.art" :hex="cmpAColor"/></view>
             <text class="cmp-lab">A</text>
           </view>
         </view>
         <view class="cmp-half bot">
           <view class="cmp-full" :style="{width:winW+'px',height:winH+'px',top:(-winH/2)+'px'}">
-            <image class="feed" :src="photo" mode="aspectFill"></image>
+            <image :src="photo" mode="aspectFit" :style="{position:'absolute',left:photoRect.x+'px',top:photoRect.y+'px',width:photoRect.w+'px',height:photoRect.h+'px'}"></image>
             <view class="overlay" :style="ovFor(cmpB)"><FrameArt :art="cmpB.art" :hex="cmpBColor"/></view>
             <text class="cmp-lab">B</text>
           </view>
@@ -133,7 +133,7 @@ const clamp = (v:number,a:number,b:number)=>Math.max(a,Math.min(b,v));
 type Step = 'pick'|'cal'|'try';
 const step = ref<Step>('pick');
 const photo = ref('');
-const frames = computed(()=>store.list.filter(f=>f.prescriptionCompatible));
+const frames = computed(()=>((store.frames||[]) as any[]).filter(f=>f.prescriptionCompatible));
 const cur = ref<any>({}); const ci = ref(0);
 const curColor = computed(()=>cur.value.colors?.[ci.value] ?? {hex:'#141B3D'});
 const seriesPrice = (f:any)=>frameSellPrice(f);
@@ -158,15 +158,24 @@ function frameBox(f:any){
 /* 眼镜位置：相对锚点（屏幕中央 / 42% 高度）的偏移 */
 const ox = ref(0), oy = ref(0);
 function ovFor(f:any){
-  const b = frameBox(f);
-  return { marginLeft:(ox.value-b.wpx/2)+'px', marginTop:(oy.value-b.hpx/2)+'px', width:b.wrpx+'rpx' };
+  const b = frameBox(f), pr = photoRect.value;
+  const cx = pr.x + pr.w/2 + ox.value, cy = pr.y + pr.h*0.42 + oy.value;
+  return { left:(cx-b.wpx/2)+'px', top:(cy-b.hpx/2)+'px', width:b.wrpx+'rpx' };
 }
+
+/* ---- 照片在屏幕上的实际显示区域（aspectFit，完整显示不裁切） ---- */
+function fitRect(iw:number, ih:number, cw:number, ch:number){
+  const sc = Math.min(cw/iw, ch/ih), w = iw*sc, h = ih*sc;
+  return { x:(cw-w)/2, y:(ch-h)/2, w, h, s:sc };
+}
+const photoRect = ref({ x:0, y:0, w:winW, h:winH, s:1 });
 
 /* ---- 校准 ---- */
 const cardW = ref(420), ccx = ref(0), ccy = ref(0);
 const cardStyle = computed(()=>{
-  const w = cardW.value, h = w/CARD_RATIO;
-  return { width:w+'px', height:h+'px', marginLeft:(ccx.value-w/2)+'px', marginTop:(ccy.value-h/2)+'px' };
+  const w = cardW.value, h = w/CARD_RATIO, pr = photoRect.value;
+  const cx = pr.x + pr.w/2 + ccx.value, cy = pr.y + pr.h*0.42 + ccy.value;
+  return { width:w+'px', height:h+'px', left:(cx-w/2)+'px', top:(cy-h/2)+'px' };
 });
 let cSX=0, cSY=0, cOX=0, cOY=0;
 function cTS(e:any){ const t=e.touches[0]; cSX=t.clientX; cSY=t.clientY; cOX=ccx.value; cOY=ccy.value; }
@@ -207,12 +216,13 @@ async function snap(){
     const info = await uni.getImageInfo({ src: photo.value }) as any;
     const iw = info.width, ih = info.height;
     const ctx = uni.createCanvasContext('snapCanvas');
-    const s = Math.max(cw/iw, ch/ih), dw = iw*s, dh = ih*s;
-    ctx.drawImage(photo.value, (cw-dw)/2, (ch-dh)/2, dw, dh);
+    const s2 = Math.min(cw/iw, ch/ih), dw = iw*s2, dh = ih*s2, dx = (cw-dw)/2, dy = (ch-dh)/2;
+    ctx.drawImage(photo.value, dx, dy, dw, dh);
+    const pr = photoRect.value, k = dw/pr.w;
     const b = frameBox(cur.value);
-    const owPx = b.wpx/winW*cw, ohPx = owPx*80/200;
-    const dispScale = cw/winW;
-    const cxPx = (winW/2+ox.value)*dispScale, cyPx = (winH*0.42+oy.value)*dispScale;
+    const owPx = b.wpx*k, ohPx = owPx*80/200;
+    const gcx = pr.x + pr.w/2 + ox.value, gcy = pr.y + pr.h*0.42 + oy.value;
+    const cxPx = dx + (gcx-pr.x)*k, cyPx = dy + (gcy-pr.y)*k;
     const lx = cxPx-owPx/2, ty = cyPx-ohPx/2;
     const hex = curColor.value.hex;
     ctx.setStrokeStyle(hex); ctx.setFillStyle('rgba(255,255,255,.55)'); ctx.setLineWidth(Math.max(6,owPx*0.02));
@@ -234,7 +244,12 @@ async function snap(){
 function choose(src:'camera'|'album'){
   uni.chooseImage({ count:1, sizeType:['compressed'],
     sourceType: src==='camera' ? ['camera'] : ['album'],
-    success:(r:any)=>{ photo.value = r.tempFilePaths[0]; enterCal(); },
+    success:(r:any)=>{
+      photo.value = r.tempFilePaths[0];
+      uni.getImageInfo({ src: photo.value,
+        success:(info:any)=>{ photoRect.value = fitRect(info.width, info.height, winW, winH); enterCal(); },
+        fail:()=>{ photoRect.value = { x:0, y:0, w:winW, h:winH, s:1 }; enterCal(); } });
+    },
   });
 }
 function addCart(){ cart.add(cur.value.id, { colorKey: curColor.value.key }, 1); uni.showToast({ title:'✓', icon:'none' }); }
@@ -284,7 +299,7 @@ onMounted(()=>{
 .cal-tip{position:absolute;top:calc(150rpx + env(safe-area-inset-top));left:40rpx;right:40rpx;background:rgba(20,16,13,.78);backdrop-filter:blur(10px);border-radius:24rpx;padding:28rpx 30rpx;z-index:6}
 .cal-title{color:#FFF5E6;font-size:32rpx;font-weight:700;display:block;margin-bottom:10rpx}
 .cal-body{color:rgba(255,245,230,.78);font-size:26rpx;line-height:1.7;display:block}
-.cardbox{position:absolute;left:50%;top:38%;z-index:6;touch-action:none}
+.cardbox{position:absolute;left:0;top:0;z-index:6;touch-action:none}
 .cardbox::before{content:'';position:absolute;inset:0;border:4rpx dashed #FF6A3D;border-radius:8rpx;background:rgba(255,106,61,.08)}
 .card-c{position:absolute;width:34rpx;height:34rpx;border:6rpx solid #FF6A3D}
 .card-c.tl{left:-6rpx;top:-6rpx;border-right:0;border-bottom:0}
@@ -302,7 +317,7 @@ onMounted(()=>{
 .try{position:absolute;top:0;left:0;right:0;bottom:0;z-index:5}
 .size-badge{position:absolute;top:calc(120rpx + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:rgba(20,16,13,.66);border:1rpx solid rgba(255,255,255,.25);border-radius:40rpx;padding:10rpx 26rpx;z-index:6}
 .sb-t{color:#FFF5E6;font-size:24rpx;letter-spacing:.04em}
-.overlay{position:absolute;left:50%;top:42%;z-index:5;touch-action:none}
+.overlay{position:absolute;left:0;top:0;z-index:5;touch-action:none}
 .hint{position:absolute;left:50%;transform:translateX(-50%);bottom:460rpx;background:rgba(20,16,13,.62);padding:14rpx 30rpx;border-radius:40rpx;z-index:6}
 .hint-tx{color:#FFF5E6;font-size:26rpx}
 .nudge{position:absolute;left:50%;transform:translateX(-50%);bottom:440rpx;display:flex;flex-direction:column;align-items:center;gap:14rpx;z-index:7}
