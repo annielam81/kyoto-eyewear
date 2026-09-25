@@ -1,6 +1,7 @@
 <template>
   <view class="cam">
-    <view class="feed" v-html="faceSvg"></view>
+    <!-- 真机自拍 / 相册照片，全屏显示 -->
+    <image v-if="photo" class="feed" :src="photo" mode="aspectFill"></image>
     <!-- top bar -->
     <view class="top-bar">
       <view class="cb" @click="exitCam">
@@ -8,49 +9,41 @@
       </view>
       <view class="tb-mid">
         <KyotoWordmark :height="14" color="#fff"/>
-        <!-- 当前为 UI shell + 模拟对位（VirtualTryOnService 无真实 AR），如实标注 -->
-        <text class="demo-tag">{{$t('common.mock')}}</text>
       </view>
       <view style="display:flex;gap:12rpx">
-        <view class="cb" :class="{on:adjusting}" @click="adjusting=!adjusting">⤧</view>
-        <view class="cb" @click="compare">⫼</view>
+        <view v-if="photo" class="cb" :class="{on:adjusting}" @click="adjusting=!adjusting">⤧</view>
+        <view v-if="photo" class="cb" @click="compare">⫼</view>
       </view>
     </view>
-    <!-- permission screen -->
-    <view v-if="!granted" class="perm">
+    <!-- 起始页：选照片来源 -->
+    <view v-if="!photo" class="perm">
       <view class="perm-art" v-html="permArt"></view>
       <KyotoWordmark :height="20"/>
-      <template v-if="perm==='denied'||perm==='unsupported'">
-        <text class="h1" style="margin-top:20rpx">{{$t('tryon.permTitle')}}</text>
-        <text class="sub" style="margin:16rpx 0 12rpx">{{ perm==='denied' ? $t('tryon.denied') : $t('tryon.unsupported') }}</text>
-        <text class="sub" style="margin:0 0 28rpx">{{$t('tryon.fallbackHint')}}</text>
-        <KyotoButton v-if="perm==='denied'" variant="ghost" style="margin-bottom:14rpx" @click="grantCam">{{$t('common.retry')}}</KyotoButton>
-        <KyotoButton variant="pink" @click="goUploadFallback">{{$t('tryon.fallbackCta')}}</KyotoButton>
-        <KyotoButton variant="ghost" style="margin-top:14rpx" @click="exitCam">{{$t('common.back')}}</KyotoButton>
-      </template>
-      <template v-else>
-        <text class="h1" style="margin-top:20rpx">{{$t('tryon.permTitle')}}</text>
-        <text class="sub" style="margin:16rpx 0 32rpx">{{$t('tryon.permBody')}}</text>
-        <KyotoButton variant="pink" :loading="perm==='requesting'" @click="grantCam">{{$t('tryon.allow')}}</KyotoButton>
-        <KyotoButton variant="ghost" style="margin-top:14rpx" @click="exitCam">{{$t('tryon.notNow')}}</KyotoButton>
-      </template>
+      <text class="h1" style="margin-top:20rpx">{{$t('tryon.permTitle')}}</text>
+      <text class="sub" style="margin:16rpx 0 32rpx">{{$t('tryon.permBody')}}</text>
+      <KyotoButton variant="pink" @click="takePhoto('camera')">{{$t('tryon.takePhoto')}}</KyotoButton>
+      <KyotoButton variant="ghost" style="margin-top:14rpx" @click="takePhoto('album')">{{$t('tryon.chooseAlbum')}}</KyotoButton>
+      <KyotoButton variant="ghost" style="margin-top:14rpx" @click="exitCam">{{$t('common.back')}}</KyotoButton>
     </view>
-    <!-- camera live view -->
+    <!-- 自拍试戴 -->
     <view v-else>
-      <view :class="['guide',{ok:aligned}]"></view>
-      <!-- frame overlay -->
-      <view v-if="aligned" class="overlay" :style="{transform:`translate(-50%,-50%) translate(${dx}rpx,${dy}rpx)`}">
-        <FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex??'#0D1B2A'" style="width:520rpx;height:auto"/>
+      <!-- frame overlay（可拖动） -->
+      <view class="overlay"
+        :style="{marginLeft:ox+'px',marginTop:oy+'px',width:(520*oscale)+'rpx'}"
+        @touchstart="onDragStart" @touchmove.stop.prevent="onDragMove">
+        <FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex??'#0D1B2A'" style="width:100%;height:auto"/>
       </view>
       <!-- adjust controls -->
-      <view v-if="adjusting&&aligned" class="adjust-ctrl">
-        <view class="cb sm" @click="dx-=8">←</view>
-        <view class="cb sm" @click="dy-=8">↑</view>
-        <view class="cb sm" @click="dy+=8">↓</view>
-        <view class="cb sm" @click="dx+=8">→</view>
-        <view class="cb sm on" @click="dx=0;dy=0;adjusting=false">✓</view>
+      <view v-if="adjusting" class="adjust-ctrl">
+        <view class="cb sm" @click="oy-=8">↑</view>
+        <view class="cb sm" @click="ox-=8">←</view>
+        <view class="cb sm" @click="ox+=8">→</view>
+        <view class="cb sm" @click="oy+=8">↓</view>
+        <view class="cb sm" @click="zoom(-0.1)">－</view>
+        <view class="cb sm" @click="zoom(0.1)">＋</view>
+        <view class="cb sm on" @click="adjusting=false">✓</view>
       </view>
-      <view class="hint"><text class="hint-tx">{{aligned?$t('tryon.alignOk'):$t('tryon.align')}}</text></view>
+      <view class="hint"><text class="hint-tx">{{adjusting?$t('tryon.adjust'):$t('tryon.dragHint')}}</text></view>
       <!-- bottom controls -->
       <view class="bottom">
         <scroll-view scroll-x class="frame-row">
@@ -74,27 +67,29 @@
         </view>
       </view>
       <view v-if="snapSaved" class="snap-saved">📸 {{$t('tryon.saved')}}</view>
-      <!-- A/B compare (split screen) -->
+      <!-- A/B compare (split screen, 同一张自拍) -->
       <view v-if="comparing" class="cmp">
         <view class="cmp-half">
-          <view class="feed" v-html="faceSvg"></view>
+          <image class="feed zoom" :src="photo" mode="aspectFill"></image>
           <view class="cmp-frame"><FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex" style="width:440rpx"/></view>
           <view class="cmp-lab"><text class="cmp-ab">A</text><text>{{selFrame?.name['en-US']}} · ${{selFrame?sp(selFrame):''}}</text></view>
           <view class="cmp-pick" @click="chooseCmp(0)">{{$t('tryon.chooseThis')}}</view>
         </view>
         <view class="cmp-half">
-          <view class="feed" v-html="faceSvg"></view>
+          <image class="feed zoom" :src="photo" mode="aspectFill"></image>
           <view class="cmp-frame"><FrameArt :art="cmpB?.art??'round'" :hex="cmpB?.colors[0].hex" style="width:440rpx"/></view>
           <view class="cmp-lab"><text class="cmp-ab">B</text><text>{{cmpB?.name['en-US']}} · ${{cmpB?sp(cmpB):''}}</text></view>
           <view class="cmp-pick" @click="chooseCmp(1)">{{$t('tryon.chooseThis')}}</view>
         </view>
         <view class="cb cmp-close" @click="comparing=false">✕</view>
       </view>
+      <!-- 合成用隐藏 canvas -->
+      <canvas canvas-id="snapCanvas" :style="{width:cw+'px',height:ch+'px',position:'absolute',left:'-9999px',top:'0'}"></canvas>
     </view>
   </view>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick, getCurrentInstance } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import KyotoWordmark from '@/components/KyotoWordmark.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
@@ -104,65 +99,147 @@ import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { frameSellPrice } from '@/config/pricing.config';
 import type { Frame } from '@/models';
-import { VirtualTryOnService } from '@/services/VirtualTryOnService';
-import { cameraLikelyAvailable } from '@/utils/platform';
-const products = useProductStore(); const fav = useFavoritesStore(); const cart = useCartStore();
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
 import { BRAND } from '@/config/brand-colors';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+const instance = getCurrentInstance();
+const products = useProductStore(); const fav = useFavoritesStore(); const cart = useCartStore();
 const sp = (f: Frame) => frameSellPrice(f);
 const exitCam=()=>navBack(FALLBACK.pdp);
 const frameIdx = ref(0); const colorIdx = ref(0);
-type PermState = 'notRequested'|'requesting'|'granted'|'denied'|'unsupported';
-const perm = ref<PermState>(cameraLikelyAvailable()?'notRequested':'unsupported');
-const granted = computed(()=>perm.value==='granted'); const aligned = ref(false);
-const adjusting = ref(false); const dx = ref(0); const dy = ref(0); const snapSaved = ref(false);
+/* 自拍试戴状态 */
+const photo = ref('');                 // 自拍 / 相册照片本地路径
+const ox = ref(0), oy = ref(0);         // 眼镜偏移（px，可拖动）
+const oscale = ref(1);                  // 眼镜缩放
+const adjusting = ref(false);
+const snapSaved = ref(false);
 const comparing = ref(false);
+const cw = ref(900), ch = ref(1200);    // 合成 canvas 尺寸
 const frames = computed(()=>products.frames.length?products.frames:[]);
 const selFrame = computed(()=>frames.value[frameIdx.value]);
 const selColor = computed(()=>selFrame.value?.colors[colorIdx.value]??selFrame.value?.colors[0]);
 onLoad(async (opts:any)=>{
   await products.ensure();
-  if(opts?.mockperm==='denied'){ perm.value='denied'; }        // QA hook
-  if(opts?.mockperm==='unsupported'){ perm.value='unsupported'; }
   if(opts?.frame){ const i=frames.value.findIndex(f=>f.id===opts.frame); if(i>=0) frameIdx.value=i; }
 });
-async function grantCam(){
-  if(perm.value==='unsupported') return;
-  perm.value='requesting';
-  const r = await VirtualTryOnService.requestPermission();
-  if(r==='granted'){ perm.value='granted'; VirtualTryOnService.startMockAlignment(s=>{ aligned.value=s.aligned; }); }
-  else perm.value='denied';
-}
 const setFrame = (i:number)=>{ frameIdx.value=i; colorIdx.value=0; };
-const goUploadFallback = ()=>uni.navigateTo({url:'/pages/prescription/upload'});
 const toggleFav = ()=>fav.toggle(selFrame.value?.id??'');
 const compare = ()=>{ if(frames.value.length>1) comparing.value=true; };
 const cmpB = computed(()=>frames.value[(frameIdx.value+1)%frames.value.length]);
 function chooseCmp(i:number){ if(i===1){ frameIdx.value=(frameIdx.value+1)%frames.value.length; colorIdx.value=0; } comparing.value=false; }
-function snap(){ snapSaved.value=true; setTimeout(()=>snapSaved.value=false,1500); }
+/* ---- 照片来源 ---- */
+function takePhoto(src:'camera'|'album'){
+  uni.chooseImage({ count:1, sourceType:[src], sizeType:['compressed'],
+    success:(res)=>{ photo.value = res.tempFilePaths[0]; ox.value=0; oy.value=0; oscale.value=1; },
+  });
+}
+/* ---- 拖动 / 缩放眼镜 ---- */
+let dragX=0, dragY=0;
+function onDragStart(e:any){ const t=e.changedTouches[0]; dragX=t.clientX; dragY=t.clientY; }
+function onDragMove(e:any){
+  const t=e.changedTouches[0];
+  ox.value=Math.max(-300,Math.min(300,ox.value+t.clientX-dragX));
+  oy.value=Math.max(-300,Math.min(300,oy.value+t.clientY-dragY));
+  dragX=t.clientX; dragY=t.clientY;
+}
+function zoom(d:number){ oscale.value=Math.max(0.6,Math.min(1.8,+(oscale.value+d).toFixed(2))); }
 function addToCart(){
   const f=selFrame.value; if(!f) return;
   cart.addFrameOnly(f.id,f.sku,selColor.value?.key??'night',f.defaultSize,sp(f));
   uni.showToast({title:'Added',icon:'none'});
 }
-const faceSvg = `<svg viewBox="0 0 390 844" style="width:100%;height:100%" preserveAspectRatio="xMidYMid slice"><rect width="390" height="844" fill="#2b2620"/><radialGradient id="sk2" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#d9b59a"/><stop offset="1" stop-color="#9b7358"/></radialGradient><ellipse cx="195" cy="360" rx="110" ry="145" fill="url(#sk2)"/><path d="M85 300q10-160 110-150t110 150q-34-72-110-80t-110 80z" fill="#2a1d17"/><rect x="148" y="480" width="98" height="72" fill="#c48e6e"/><path d="M55 800q20-190 140-190t140 190z" fill="#26211b"/></svg>`;
+/* ---- 快门：canvas 合成自拍 + 眼镜，存相册 ---- */
+function getImageInfo(src:string):Promise<{width:number;height:number;path:string}>{
+  return new Promise((res,rej)=>uni.getImageInfo({src,success:res,fail:rej}));
+}
+function rr(ctx:any,x:number,y:number,w:number,h:number,r:number){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+/** 把 FrameArt 的线稿画到 canvas 上（与组件内 ARTS 同构）。 */
+function drawFrameArt(ctx:any,art:string,hex:string,cx:number,cy:number,w:number){
+  const s=w/200, x0=cx-w/2, y0=cy-w*0.2;
+  const X=(v:number)=>x0+v*s, Y=(v:number)=>y0+v*s;
+  const bridge=(a:number,b:number,c:number,d:number)=>{ ctx.beginPath(); ctx.moveTo(X(a),Y(b)); ctx.quadraticCurveTo(X(c),Y(d),X(2*c-a),Y(b)); ctx.stroke(); };
+  const line=(a:number,b:number,c:number,d:number)=>{ ctx.beginPath(); ctx.moveTo(X(a),Y(b)); ctx.lineTo(X(c),Y(d)); ctx.stroke(); };
+  ctx.save(); ctx.strokeStyle=hex; ctx.lineWidth=4*s; ctx.lineCap='round'; ctx.lineJoin='round';
+  const lensFill='rgba(255,255,255,0.32)';
+  if(art==='square'){
+    for(const xv of [25,113]){ rr(ctx,X(xv),Y(18),62*s,46*s,10*s); ctx.fillStyle=lensFill; ctx.fill(); ctx.stroke(); }
+    bridge(87,32,100,23); line(25,30,7,22); line(175,30,193,22);
+  }else if(art==='cat'){
+    for(const xo of [0,88]){
+      ctx.beginPath(); ctx.moveTo(X(25+xo),Y(42));
+      ctx.quadraticCurveTo(X(25+xo),Y(20),X(57+xo),Y(20));
+      ctx.quadraticCurveTo(X(87+xo),Y(20),X(87+xo),Y(42));
+      ctx.quadraticCurveTo(X(87+xo),Y(62),X(57+xo),Y(62));
+      ctx.quadraticCurveTo(X(25+xo),Y(62),X(25+xo),Y(42));
+      ctx.closePath(); ctx.fillStyle=lensFill; ctx.fill(); ctx.stroke();
+    }
+    bridge(87,36,100,26); line(25,34,6,20); line(175,34,194,20);
+  }else if(art==='sun'){
+    ctx.fillStyle=hex; ctx.globalAlpha=0.82;
+    for(const xo of [0,86]){
+      ctx.beginPath(); ctx.moveTo(X(25+xo),Y(30)); ctx.lineTo(X(89+xo),Y(30)); ctx.lineTo(X(89+xo),Y(40));
+      ctx.quadraticCurveTo(X(89+xo),Y(66),X(57+xo),Y(66));
+      ctx.quadraticCurveTo(X(25+xo),Y(66),X(25+xo),Y(40));
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha=1; bridge(89,34,100,26); line(25,32,7,24); line(175,32,193,24);
+  }else if(art==='aviator'){
+    ctx.fillStyle=hex; ctx.globalAlpha=0.4;
+    const lens=(pts:number[])=>{ ctx.beginPath(); ctx.moveTo(X(pts[0]),Y(pts[1]));
+      for(let i=2;i<pts.length;i+=4){ ctx.quadraticCurveTo(X(pts[i]),Y(pts[i+1]),X(pts[i+2]),Y(pts[i+3])); }
+      ctx.closePath(); ctx.fill(); };
+    lens([28,26, 90,26,89,32, 85,56,83,68, 59,68,33,68, 29,50,25,32, 24,26,28,26]);
+    lens([114,26, 176,26,175,32, 171,50,167,68, 141,68,117,68, 115,56,111,32, 110,26,114,26]);
+    ctx.globalAlpha=1; bridge(89,30,100,22); line(28,30,8,22); line(172,30,192,22);
+  }else{ // round（默认）
+    for(const cv of [55,145]){ ctx.beginPath(); ctx.arc(X(cv),Y(42),28*s,0,7); ctx.fillStyle=lensFill; ctx.fill(); ctx.stroke(); }
+    bridge(83,38,100,26); line(27,36,8,26); line(173,36,192,26);
+  }
+  ctx.restore();
+}
+async function snap(){
+  if(!photo.value) return;
+  try{
+    const sys=uni.getSystemInfoSync();
+    const W=900, H=Math.round(900*sys.windowHeight/sys.windowWidth);
+    cw.value=W; ch.value=H; await nextTick();
+    const info=await getImageInfo(photo.value);
+    const ctx=uni.createCanvasContext('snapCanvas', instance as any);
+    const sc=Math.max(W/info.width,H/info.height), dw=info.width*sc, dh=info.height*sc;
+    ctx.drawImage(photo.value,(W-dw)/2,(H-dh)/2,dw,dh);
+    // 眼镜位置：屏幕坐标 → canvas 坐标
+    const kx=W/sys.windowWidth, ky=H/sys.windowHeight;
+    const owPx=(520*oscale.value)/750*sys.windowWidth;
+    const artW=owPx*0.72; // 与 FrameArt 内层 svg 的 72% 对齐
+    drawFrameArt(ctx, selFrame.value?.art??'round', selColor.value?.hex??'#0D1B2A',
+      (sys.windowWidth/2+ox.value)*kx, (sys.windowHeight*0.42+oy.value)*ky, artW*kx);
+    await new Promise<void>(r=>ctx.draw(false,()=>r()));
+    const tmp=await new Promise<string>((res,rej)=>uni.canvasToTempFilePath({
+      canvasId:'snapCanvas', destWidth:W, destHeight:H, success:(o:any)=>res(o.tempFilePath), fail:rej }));
+    await new Promise<void>((res,rej)=>uni.saveImageToPhotosAlbum({filePath:tmp,success:()=>res(),fail:rej}));
+    snapSaved.value=true; setTimeout(()=>snapSaved.value=false,1500);
+  }catch(e){ uni.showToast({title:t('tryon.saveFail'),icon:'none'}); }
+}
 // 同样不要在 v-html 里写 rpx —— max-width 交给 .perm-art 的编译期 CSS
 const permArt = `<svg viewBox="0 0 280 180" style="width:100%"><circle cx="140" cy="90" r="80" fill="${BRAND.tintVermilion}"/><rect x="72" y="58" width="136" height="90" rx="16" fill="#fff" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="24" fill="none" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="9" fill="${BRAND.vermilion}"/><rect x="114" y="48" width="52" height="16" rx="7" fill="${BRAND.ink}"/></svg>`;
 </script>
 <style lang="scss" scoped>
 .cam{position:fixed;inset:0;background:#1a1714;color:#fff;overflow:hidden}
-.feed{position:absolute;inset:0}
+.feed{position:absolute;inset:0;width:100%;height:100%}
+.feed.zoom{transform:scale(1.25) translateY(6%)}
 .top-bar{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 30rpx;z-index:10}
 .tb-mid{display:flex;flex-direction:column;align-items:center;gap:6rpx}
-.demo-tag{font-size:15rpx;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,245,230,.72);font-weight:$fw-semi}
 .cb{width:72rpx;height:72rpx;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:28rpx;color:#fff}
 .cb svg{width:36rpx;height:36rpx;stroke:currentColor;fill:none;stroke-width:2}.cb.on{background:$accent-strong}
 .cb.sm{width:60rpx;height:60rpx;font-size:24rpx}
-.guide{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);width:460rpx;height:600rpx;border:4rpx dashed rgba(255,255,255,.5);border-radius:50%;pointer-events:none;transition:border-color .4s}
-.guide.ok{border-color:$teal;border-style:solid}
-.overlay{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;filter:drop-shadow(0 8rpx 16rpx rgba(0,0,0,.4))}
+.overlay{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);z-index:5;filter:drop-shadow(0 8rpx 16rpx rgba(0,0,0,.4))}
 .adjust-ctrl{position:absolute;left:50%;top:54%;transform:translateX(-50%);display:flex;gap:12rpx;z-index:8}
-.hint{position:absolute;bottom:460rpx;left:0;right:0;text-align:center;z-index:6}
+.hint{position:absolute;bottom:460rpx;left:0;right:0;text-align:center;z-index:6;pointer-events:none}
 .hint-tx{background:rgba(13,27,42,.55);backdrop-filter:blur(6px);padding:12rpx 28rpx;border-radius:$r-pill;font-size:$fs-xs;color:rgba(255,255,255,.9)}
 .bottom{position:absolute;left:0;right:0;bottom:0;padding:18rpx 18rpx calc(30rpx + #{$safe-b});background:linear-gradient(transparent,rgba(13,27,42,.88) 40%);z-index:7}
 .frame-row{white-space:nowrap;margin-bottom:16rpx}
@@ -182,7 +259,6 @@ const permArt = `<svg viewBox="0 0 280 180" style="width:100%"><circle cx="140" 
 .perm-art{align-self:center;max-width:520rpx;width:100%;margin-bottom:30rpx}
 .cmp{position:absolute;top:0;left:0;right:0;bottom:0;background:$night;z-index:30;display:flex;flex-direction:column}
 .cmp-half{flex:1;position:relative;overflow:hidden;border-bottom:3rpx solid rgba(255,255,255,.15)}
-.cmp-half .feed{position:absolute;top:0;left:0;right:0;bottom:0;transform:scale(1.25) translateY(6%)}
 .cmp-frame{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:2;filter:drop-shadow(0 6rpx 12rpx rgba(0,0,0,.4))}
 .cmp-lab{position:absolute;left:24rpx;bottom:20rpx;background:rgba(13,27,42,.6);backdrop-filter:blur(6px);padding:10rpx 20rpx;border-radius:$r-pill;font-size:20rpx;display:flex;gap:12rpx;align-items:center;color:#fff;z-index:3}
 .cmp-ab{color:$gold;font-weight:$fw-bold}
