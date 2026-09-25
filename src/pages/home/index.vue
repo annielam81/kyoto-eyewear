@@ -1,5 +1,7 @@
 <template>
   <view class="home">
+    <!-- 页面底：淡淡水墨樱花（对标参考稿米黄底） -->
+    <view class="bgsakura"></view>
     <!-- HEADER：汉堡菜单 | 品牌 | 搜索+购物袋（对标参考稿） -->
     <view class="hdr">
       <view class="hds"><view class="hbtn" @click="openMenu" v-html="icMenu"></view></view>
@@ -233,7 +235,9 @@ const promoBg = `
 </script>
 
 <style lang="scss" scoped>
-.home{background:$paper;min-height:100vh}
+.home{background:$paper;min-height:100vh;position:relative}
+.bgsakura{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;opacity:.55;
+  background:url(@/static/img/bg-sakura-wash.jpg) no-repeat;background-size:100% 100%}
 /* header：实底 + 安全区，和 KyotoHeader 同一处理（真机不透字） */
 .hdr{display:flex;align-items:center;justify-content:space-between;
   padding:calc(#{$sp-2} + env(safe-area-inset-top)) $sp-3 18rpx;
