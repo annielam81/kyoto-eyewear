@@ -87,7 +87,7 @@ const use = ()=>{
 .prog-box{margin-top:28rpx;text-align:center}
 .prog-bar{background:$line;border-radius:$r-pill;height:8rpx;margin-bottom:14rpx;overflow:hidden}
 .prog-fill{height:100%;background:$teal;border-radius:$r-pill;transition:width .2s}
-.preview-box{display:flex;gap:20rpx;align-items:center;background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:24rpx;margin-top:24rpx}
+.preview-box{display:flex;gap:20rpx;align-items:center;background:$card;border:1rpx solid $line;border-radius:$r-md;padding:24rpx;margin-top:24rpx}
 .prev-img{width:130rpx;height:170rpx;border-radius:16rpx;background:linear-gradient(#fff,#eee);border:2rpx solid $line;position:relative;overflow:hidden;flex-shrink:0}
 .prev-line{position:absolute;left:14rpx;height:6rpx;background:rgba(13,27,42,.15);border-radius:3rpx}
 .prev-img.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8rpx;background:$mist}

@@ -215,8 +215,8 @@ async function place(){
 <style lang="scss" scoped>
 .mode-tog{display:flex;background:$mist;border-radius:$r-sm;padding:6rpx;margin-bottom:18rpx}
 .mt{flex:1;text-align:center;padding:16rpx;border-radius:16rpx;font-size:$fs-xs;color:$muted;line-height:1.3}
-.mt.on{background:#fff;color:$night;font-weight:$fw-semi;box-shadow:0 2rpx 8rpx rgba(0,0,0,.06)}
-.saved-a{display:flex;align-items:center;gap:18rpx;background:#fff;border:3rpx solid $line;border-radius:$r-md;padding:24rpx;margin-bottom:14rpx}
+.mt.on{background:$card;color:$ink;font-weight:$fw-semi}
+.saved-a{display:flex;align-items:center;gap:18rpx;background:$card;border:1rpx solid $line-strong;border-radius:$r-md;padding:22rpx;margin-bottom:12rpx}
 .saved-a.on{border-color:$accent;background:$tint-accent}
 .sa-tx{flex:1;min-width:0}
 .sa-n{display:block;font-size:$fs-sm;font-weight:$fw-semi;margin-bottom:4rpx}
@@ -228,7 +228,7 @@ async function place(){
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:14rpx}
 .fcol{display:flex;flex-direction:column;gap:10rpx}
 .flb{font-size:$fs-xs;color:$muted;font-weight:$fw-med}
-.ship-m{display:flex;align-items:center;gap:18rpx;background:#fff;border:3rpx solid $line;border-radius:$r-md;padding:24rpx;margin-bottom:14rpx}
+.ship-m{display:flex;align-items:center;gap:18rpx;background:$card;border:1rpx solid $line-strong;border-radius:$r-md;padding:22rpx;margin-bottom:12rpx}
 .ship-m.on{border-color:$accent;background:$tint-accent}
 .sm-tx{flex:1;min-width:0}
 .sm-n{display:block;font-size:$fs-sm;font-weight:$fw-semi}
@@ -236,12 +236,12 @@ async function place(){
 .sm-free{display:block;font-size:$fs-xs;color:$teal;margin-top:2rpx}
 .sm-pr{font-size:$fs-sm;font-weight:$fw-bold;color:$sunrise;white-space:nowrap}
 .pay-methods{display:flex;flex-direction:column;gap:14rpx;margin-bottom:10rpx}
-.pm{display:flex;align-items:center;gap:18rpx;padding:24rpx;border:3rpx solid $line;border-radius:$r-md;background:#fff}
+.pm{display:flex;align-items:center;gap:18rpx;padding:22rpx;border:1rpx solid $line-strong;border-radius:$r-md;background:$card}
 .pm.on{border-color:$accent;background:$tint-accent}
 .pmic{font-size:36rpx;width:52rpx;text-align:center}
 .pmn{flex:1;font-size:$fs-sm;font-weight:$fw-semi}
 .fsa-tag{background:$tint-teal2;color:$teal;font-size:18rpx;padding:4rpx 14rpx;border-radius:$r-pill;font-weight:$fw-semi}
-.card-form{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:22rpx;display:flex;flex-direction:column;gap:16rpx;margin-bottom:10rpx}
+.card-form{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:22rpx;display:flex;flex-direction:column;gap:16rpx;margin-bottom:10rpx}
 .bill-row{display:flex;align-items:center;gap:14rpx}
 .chk{width:40rpx;height:40rpx;border-radius:12rpx;border:3rpx solid $line;display:flex;align-items:center;justify-content:center;color:transparent;font-size:22rpx;flex-shrink:0}
 .chk.on{background:$teal;border-color:$teal;color:#fff}

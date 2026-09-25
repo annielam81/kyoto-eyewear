@@ -36,7 +36,7 @@ const display = computed(()=>{
 const pick = (c: string)=>{ emit('update:modelValue', c); open.value=false; };
 </script>
 <style lang="scss" scoped>
-.ss-field{display:flex;align-items:center;justify-content:space-between;background:#fff;border:3rpx solid $line;border-radius:$r-sm;padding:26rpx;min-height:88rpx;box-sizing:border-box}
+.ss-field{display:flex;align-items:center;justify-content:space-between;background:$card;border:1rpx solid $line-strong;border-radius:$r-sm;padding:24rpx;min-height:88rpx;box-sizing:border-box}
 .ss-field.err{border-color:$sunrise}
 .ss-val{font-size:$fs-md}.ss-val.ph{color:$muted}
 .ss-chev{color:$muted}
@@ -47,7 +47,7 @@ const pick = (c: string)=>{ emit('update:modelValue', c); open.value=false; };
 .ss-t{font-size:$fs-md;font-weight:$fw-bold}
 .ss-x{width:56rpx;height:56rpx;border-radius:50%;background:$mist;display:flex;align-items:center;justify-content:center;font-size:24rpx}
 .ss-list{max-height:56vh;padding:0 18rpx}
-.ss-row{display:flex;justify-content:space-between;align-items:center;background:#fff;border:2rpx solid $line;border-radius:$r-sm;padding:22rpx 26rpx;margin-bottom:12rpx}
+.ss-row{display:flex;justify-content:space-between;align-items:center;background:$card;border:1rpx solid $line;border-radius:$r-sm;padding:20rpx 24rpx;margin-bottom:10rpx}
 .ss-row.on{border-color:$accent;background:$tint-accent}
 .ss-name{font-size:$fs-sm;font-weight:$fw-med}
 .ss-code{font-size:$fs-xs;color:$muted;font-weight:$fw-semi;letter-spacing:.06em}

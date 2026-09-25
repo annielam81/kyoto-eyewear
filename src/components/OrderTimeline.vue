@@ -28,10 +28,10 @@ const steps = computed(()=>{
 });
 </script>
 <style lang="scss" scoped>
-.tl{display:flex;flex-direction:column;background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:26rpx 28rpx}
+.tl{display:flex;flex-direction:column;background:$card;border:1rpx solid $line;border-radius:$r-md;padding:24rpx 26rpx}
 .tl-row{display:flex;gap:22rpx}
 .tl-rail{display:flex;flex-direction:column;align-items:center;width:36rpx;flex-shrink:0}
-.tl-dot{width:32rpx;height:32rpx;border-radius:50%;background:#fff;border:4rpx solid $line;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tl-dot{width:28rpx;height:28rpx;border-radius:50%;background:$card;border:2rpx solid $line-strong;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .tl-dot.done{background:$teal;border-color:$teal}
 .tl-dot.cur{background:$accent;border-color:$accent;box-shadow:0 0 0 6rpx rgba(228,61,48,.18)}
 .tl-chk{color:#fff;font-size:16rpx;font-weight:$fw-bold}

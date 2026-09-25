@@ -6,7 +6,11 @@
       <view class="cb" @click="exitCam">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </view>
-      <KyotoWordmark :height="14" color="#fff"/>
+      <view class="tb-mid">
+        <KyotoWordmark :height="14" color="#fff"/>
+        <!-- 当前为 UI shell + 模拟对位（VirtualTryOnService 无真实 AR），如实标注 -->
+        <text class="demo-tag">{{$t('common.mock')}}</text>
+      </view>
       <view style="display:flex;gap:12rpx">
         <view class="cb" :class="{on:adjusting}" @click="adjusting=!adjusting">⤧</view>
         <view class="cb" @click="compare">⫼</view>
@@ -139,12 +143,15 @@ function addToCart(){
   uni.showToast({title:'Added',icon:'none'});
 }
 const faceSvg = `<svg viewBox="0 0 390 844" style="width:100%;height:100%" preserveAspectRatio="xMidYMid slice"><rect width="390" height="844" fill="#2b2620"/><radialGradient id="sk2" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#d9b59a"/><stop offset="1" stop-color="#9b7358"/></radialGradient><ellipse cx="195" cy="360" rx="110" ry="145" fill="url(#sk2)"/><path d="M85 300q10-160 110-150t110 150q-34-72-110-80t-110 80z" fill="#2a1d17"/><rect x="148" y="480" width="98" height="72" fill="#c48e6e"/><path d="M55 800q20-190 140-190t140 190z" fill="${BRAND.paper}"/></svg>`;
-const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx"><circle cx="140" cy="90" r="80" fill="${BRAND.tintVermilion}"/><rect x="72" y="58" width="136" height="90" rx="16" fill="#fff" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="24" fill="none" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="9" fill="${BRAND.vermilion}"/><rect x="114" y="48" width="52" height="16" rx="7" fill="${BRAND.ink}"/></svg>`;
+// 同样不要在 v-html 里写 rpx —— max-width 交给 .perm-art 的编译期 CSS
+const permArt = `<svg viewBox="0 0 280 180" style="width:100%"><circle cx="140" cy="90" r="80" fill="${BRAND.tintVermilion}"/><rect x="72" y="58" width="136" height="90" rx="16" fill="#fff" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="24" fill="none" stroke="${BRAND.ink}" stroke-width="3.5"/><circle cx="140" cy="103" r="9" fill="${BRAND.vermilion}"/><rect x="114" y="48" width="52" height="16" rx="7" fill="${BRAND.ink}"/></svg>`;
 </script>
 <style lang="scss" scoped>
 .cam{position:fixed;inset:0;background:#1a1714;color:#fff;overflow:hidden}
 .feed{position:absolute;inset:0}
 .top-bar{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 30rpx;z-index:10}
+.tb-mid{display:flex;flex-direction:column;align-items:center;gap:6rpx}
+.demo-tag{font-size:15rpx;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,245,230,.72);font-weight:$fw-semi}
 .cb{width:72rpx;height:72rpx;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:28rpx;color:#fff}
 .cb svg{width:36rpx;height:36rpx;stroke:currentColor;fill:none;stroke-width:2}.cb.on{background:$accent-strong}
 .cb.sm{width:60rpx;height:60rpx;font-size:24rpx}
@@ -167,6 +174,7 @@ const permArt = `<svg viewBox="0 0 280 180" style="width:100%;max-width:520rpx">
 .shutter-inner{width:96rpx;height:96rpx;border-radius:50%;background:#fff}
 .add-btn{background:$accent-strong;color:#fff;border-radius:$r-pill;padding:22rpx 28rpx;font-size:$fs-xs;font-weight:$fw-semi;white-space:nowrap}
 .snap-saved{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(13,27,42,.88);color:#fff;padding:24rpx 36rpx;border-radius:$r-md;font-size:$fs-sm;z-index:20;text-align:center}
+.perm-art{width:100%;max-width:520rpx}
 .perm{position:absolute;inset:0;background:$paper;color:$night;display:flex;flex-direction:column;padding:calc(80rpx + env(safe-area-inset-top)) 48rpx calc(60rpx + #{$safe-b});align-items:flex-start}
 .perm-art{align-self:center;max-width:520rpx;width:100%;margin-bottom:30rpx}
 .cmp{position:absolute;top:0;left:0;right:0;bottom:0;background:$night;z-index:30;display:flex;flex-direction:column}

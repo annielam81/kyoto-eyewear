@@ -98,21 +98,21 @@ const use = ()=>{
 <style lang="scss" scoped>
 .help-lnk{font-size:$fs-xs;color:$teal;font-weight:$fw-semi;display:inline-block;margin:6rpx 0 16rpx}
 .tip{background:$tint-teal2;border-radius:$r-sm;padding:20rpx;font-size:$fs-xs;color:$teal-deep;line-height:1.6;margin-bottom:16rpx}
-.rxtbl{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:18rpx;margin-top:14rpx}
+.rxtbl{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:18rpx;margin-top:14rpx}
 .rh{display:grid;grid-template-columns:80rpx repeat(4,1fr);gap:8rpx;margin-bottom:10rpx}
 .rc{text-align:center;font-size:18rpx;color:$muted;letter-spacing:.06em;font-weight:$fw-semi}
 .rrow{display:grid;grid-template-columns:80rpx repeat(4,1fr);gap:8rpx;margin-bottom:10rpx;align-items:center}
 .rlab{display:flex;flex-direction:column;gap:2rpx}
 .rlk{font-size:$fs-sm;font-weight:$fw-bold}
 .rls{font-size:18rpx;color:$muted}
-.rxcell{border:3rpx solid $line;border-radius:16rpx;background:#fff;padding:18rpx 8rpx;text-align:center;font-size:$fs-xs;min-height:72rpx;display:flex;align-items:center;justify-content:center}
+.rxcell{border:1rpx solid $line-strong;border-radius:$r-xs;background:$card;padding:16rpx 8rpx;text-align:center;font-size:$fs-xs;min-height:70rpx;display:flex;align-items:center;justify-content:center;color:$ink;font-variant-numeric:tabular-nums}
 .rxcell.wide{width:100%;margin-top:10rpx}
-.pdbox{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:22rpx;margin-top:20rpx}
+.pdbox{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:22rpx;margin-top:20rpx}
 .pd-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12rpx}
 .pdlbl{font-size:$fs-sm;font-weight:$fw-semi}
 .pdtog{display:flex;background:$mist;border-radius:$r-sm;padding:6rpx;margin-bottom:14rpx}
 .pdt{flex:1;text-align:center;padding:14rpx;border-radius:16rpx;font-size:$fs-xs;color:$muted}
-.pdt.on{background:#fff;color:$ink;font-weight:$fw-semi;box-shadow:0 2rpx 8rpx rgba(0,0,0,.06)}
+.pdt.on{background:$card;color:$ink;font-weight:$fw-semi}
 .save-chk{display:flex;align-items:center;gap:8rpx;margin:24rpx 0 14rpx}
 .save-tx{font-size:$fs-xs;color:$muted;line-height:1.5;flex:1}
 </style>

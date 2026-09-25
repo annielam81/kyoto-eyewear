@@ -16,14 +16,16 @@ defineProps<{ rows: PriceRow[] }>();
 defineEmits(['edit']);
 </script>
 <style lang="scss" scoped>
-.ps{background:#fff;border:2rpx solid $line;border-radius:$r-md;overflow:hidden}
-.ln{display:flex;align-items:flex-start;gap:16rpx;padding:22rpx 26rpx;border-bottom:2rpx solid $line;font-size:$fs-sm}
+/* 订单信息本身就是内容：白底 + 发丝线，装饰为零 */
+.ps{background:$card;border:1rpx solid $line-strong;border-radius:$r-md;overflow:hidden}
+.ln{display:flex;align-items:flex-start;gap:16rpx;padding:20rpx 24rpx;border-bottom:1rpx solid $line;font-size:$fs-sm}
 .ln:last-child{border:none}
-.k{color:$muted;min-width:150rpx}
+.k{color:$muted;min-width:150rpx;font-size:18rpx;letter-spacing:.06em;text-transform:uppercase;font-weight:$fw-semi;padding-top:3rpx}
 .vwrap{flex:1;display:flex;flex-direction:column;align-items:flex-end;gap:2rpx;min-width:0}
-.v{font-weight:$fw-med;text-align:right;line-height:1.5;word-break:break-word}
-.s{font-size:$fs-xs;color:$muted}
-.e{color:$teal;font-weight:$fw-semi;font-size:$fs-xs;padding-top:4rpx}
+.v{font-weight:$fw-med;text-align:right;line-height:1.5;word-break:break-word;color:$ink}
+.s{font-size:18rpx;color:$muted;font-variant-numeric:tabular-nums}
+.e{color:$accent-ink;font-weight:$fw-semi;font-size:17rpx;letter-spacing:.06em;text-transform:uppercase;padding-top:6rpx}
 .tot{background:$mist;font-weight:$fw-semi}
-.tot .v{font-size:$fs-xl;font-weight:$fw-bold;color:$sunrise}
+.tot .k{color:$ink}
+.tot .v{font-size:$fs-xl;font-weight:$fw-bold;color:$accent-ink;font-variant-numeric:tabular-nums}
 </style>

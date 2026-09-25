@@ -20,6 +20,10 @@ $gold: #E8A33D;       /* 派生的强金/芥末黄 —— hero CTA 底色，必�
 $ink: #141B3D;        /* 极深藍靛 —— 正文与导航主色（由 $indigo 派生）。paper 上 15.52:1 ✓ */
 $night: $ink;         /* 旧名保留为别名：$night 在组件里有 25 处引用，语义与 $ink 相同 */
 $mist: #F6E9D9;       /* 比 paper 略深的中性面，用于分区 */
+/* 商品承托面：温暖中性、极低饱和。商品图的底色一律用它，
+ * 让镜架本身成为画面里唯一的颜色来源（不要 pastel 粉/蓝/紫）。 */
+$stone: #F3EDE4;
+$stone-deep: #EBE3D7;
 $card: #FFFFFF;
 $line: rgba(20, 27, 61, .12);
 $muted: rgba(20, 27, 61, .65);  /* 次要文字。paper 上 5.15:1 ✓（原 .55 只有 3.75:1，不达标）*/
@@ -69,8 +73,17 @@ $lh: 1.6;
 
 /* ---- spacing / radii / misc ---- */
 $sp-1: 8rpx; $sp-2: 16rpx; $sp-3: 24rpx; $sp-4: 32rpx; $sp-5: 44rpx; $sp-6: 64rpx;
-$r-sm: 16rpx; $r-md: 24rpx; $r-lg: 32rpx; $r-pill: 999rpx;
+/* 编辑感排版更依赖「克制的圆角」：小元件用 $r-xs/$r-sm，卡片用 $r-md，
+ * $r-lg 只留给 hero 这类大面积图形。不要所有东西都堆大圆角。 */
+$r-xs: 6rpx; $r-sm: 12rpx; $r-md: 20rpx; $r-lg: 28rpx; $r-pill: 999rpx;
 $shadow-card: 0 16rpx 40rpx -24rpx rgba(20, 27, 61, .28);
+/* 母版里的轻阴影：卡片只是被「托起来一点」，不是浮起来 */
+$shadow-soft: 0 4rpx 14rpx -10rpx rgba(20, 27, 61, .24);
+
+/* ---- editorial 辅助 ---- */
+$line-strong: rgba(20, 27, 61, .22);   /* 分节细线，比 $line 明显一点 */
+$ls-eyebrow: .2em;                     /* 小标签的字距 */
+$nav-h: 104rpx;                        /* 底部导航自身高度（不含安全区），页面下留白据此计算 */
 $dur: .2s;
 $z-nav: 50; $z-sheet: 90; $z-toast: 120;
 $safe-b: env(safe-area-inset-bottom); $safe-t: env(safe-area-inset-top);

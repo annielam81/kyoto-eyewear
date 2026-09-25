@@ -22,6 +22,8 @@ const svg = computed(() => {
 </script>
 <style lang="scss" scoped>
 .fa{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
-.tint-sakura{background:$tint-sakura}.tint-sunrise{background:$tint-sunrise}
-.tint-gold{background:$tint-gold}.tint-teal{background:$tint-teal}
+/* 商品底色统一为温暖中性 —— 取消粉/蓝/紫三种 pastel 背景。
+ * tint 类名仍来自商品数据（ProductService 未动），只是不再映射到彩色；
+ * 将来换成真实商品摄影时，这层底色可直接留作白底摄影的承托面。 */
+.tint-sakura,.tint-sunrise,.tint-gold,.tint-teal{background:$stone}
 </style>

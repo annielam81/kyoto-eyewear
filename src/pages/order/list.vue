@@ -49,18 +49,19 @@ async function reorder(o:Order){
 }
 </script>
 <style lang="scss" scoped>
-.ord{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:24rpx;margin-bottom:16rpx}
+.ord{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:22rpx;margin-bottom:14rpx}
 .ord-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8rpx;gap:12rpx}
-.ord-n{font-size:$fs-sm;font-weight:$fw-semi}
-.ord-st{font-size:$fs-xs;padding:6rpx 16rpx;border-radius:$r-pill;font-weight:$fw-semi;text-align:center;line-height:1.3}
-.ord-st.received,.ord-st.rx_verification,.ord-st.lens_production,.ord-st.quality_check{background:$tint-gold;color:$night}
-.ord-st.shipped,.ord-st.delivered{background:$tint-teal2;color:$teal}
-.ord-st.rx_needed{background:$tint-sunrise;color:$sunrise}
-.ord-date{display:block;font-size:$fs-xs;color:$muted}
+.ord-n{font-size:$fs-sm;font-weight:$fw-semi;color:$ink}
+/* 状态改成细边标签：一眼可读但不用大色块 */
+.ord-st{font-size:16rpx;letter-spacing:.08em;text-transform:uppercase;padding:5rpx 12rpx;border-radius:$r-xs;font-weight:$fw-semi;text-align:center;line-height:1.3;border:1rpx solid}
+.ord-st.received,.ord-st.rx_verification,.ord-st.lens_production,.ord-st.quality_check{background:transparent;border-color:$line-strong;color:$muted}
+.ord-st.shipped,.ord-st.delivered{background:transparent;border-color:$teal;color:$teal}
+.ord-st.rx_needed{background:transparent;border-color:$sunrise;color:$sunrise}
+.ord-date{display:block;font-size:18rpx;color:$muted;font-variant-numeric:tabular-nums}
 .ord-warn{font-size:$fs-xs;color:$sunrise;font-weight:$fw-med;margin-top:8rpx}
 .ord-bot{display:flex;justify-content:space-between;align-items:center;margin-top:12rpx;gap:12rpx;flex-wrap:wrap}
-.ord-total{font-size:$fs-md;font-weight:$fw-bold;color:$sunrise}
+.ord-total{font-size:$fs-md;font-weight:$fw-bold;color:$accent-ink;font-variant-numeric:tabular-nums}
 .ord-ctas{display:flex;gap:10rpx;flex-wrap:wrap}
-.oc{border:2rpx solid $line;border-radius:$r-pill;padding:10rpx 22rpx;font-size:$fs-xs;font-weight:$fw-semi;background:#fff}
-.oc.pink{background:$accent-strong;border-color:$accent-strong;color:#fff}
+.oc{border:1rpx solid $line-strong;border-radius:$r-xs;padding:9rpx 18rpx;font-size:$fs-xs;font-weight:$fw-semi;background:transparent;color:$ink}
+.oc.pink{background:$accent-strong;border-color:$accent-strong;color:$paper}
 </style>

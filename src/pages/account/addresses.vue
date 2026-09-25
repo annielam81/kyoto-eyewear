@@ -78,14 +78,14 @@ function del(id:string){
 }
 </script>
 <style lang="scss" scoped>
-.acard{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:24rpx;margin-bottom:14rpx}
+.acard{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:22rpx;margin-bottom:12rpx}
 .ac-n{display:block;font-size:$fs-sm;font-weight:$fw-semi;margin-bottom:4rpx}
 .def-tag{background:$tint-teal2;color:$teal;font-size:18rpx;padding:2rpx 12rpx;border-radius:$r-pill;font-weight:$fw-semi;margin-left:8rpx}
 .ac-l{display:block;font-size:$fs-xs;color:$muted;line-height:1.6}
 .ac-acts{display:flex;gap:22rpx;margin-top:14rpx;flex-wrap:wrap}
 .al{font-size:$fs-xs;color:$teal;font-weight:$fw-semi}
 .al.warn{color:$sunrise}
-.editor{background:#fff;border:3rpx solid $accent;border-radius:$r-md;padding:24rpx;display:flex;flex-direction:column;gap:16rpx;margin-top:8rpx}
+.editor{background:$card;border:2rpx solid $accent;border-radius:$r-md;padding:24rpx;display:flex;flex-direction:column;gap:16rpx;margin-top:8rpx}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:14rpx}
 .fcol{display:flex;flex-direction:column;gap:10rpx}
 .flb{font-size:$fs-xs;color:$muted;font-weight:$fw-med}

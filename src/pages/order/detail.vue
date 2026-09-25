@@ -88,19 +88,19 @@ function doReorder(){ if(!order.value) return; const r=reorderToCart(order.value
 const toast=()=>uni.showToast({title:'Mock',icon:'none'});
 </script>
 <style lang="scss" scoped>
-.cfg{display:flex;gap:18rpx;background:#fff;border:2rpx solid $line;border-radius:$r-md;overflow:hidden;margin-bottom:14rpx}
+.cfg{display:flex;gap:18rpx;background:$card;border:1rpx solid $line;border-radius:$r-md;overflow:hidden;margin-bottom:14rpx}
 .cfg-art{width:180rpx;flex-shrink:0;display:flex;align-items:center}
 .cfg-tx{flex:1;padding:20rpx 20rpx 20rpx 0;min-width:0}
 .cfg-n{display:block;font-size:$fs-sm;font-weight:$fw-semi;margin-bottom:6rpx}
 .cfg-l{display:block;font-size:$fs-xs;color:$muted;line-height:1.6}
 .cfg-l.rx{color:$teal;font-weight:$fw-med}
-.blk{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:22rpx}
+.blk{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:22rpx}
 .bl{display:block;font-size:$fs-sm;line-height:1.7}
 .bl.ship{color:$teal;font-weight:$fw-med;margin-top:6rpx}
-.sum{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:14rpx 24rpx}
+.sum{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:14rpx 24rpx}
 .srow{display:flex;justify-content:space-between;padding:12rpx 0;border-bottom:2rpx solid $line;font-size:$fs-sm}
 .srow:last-child{border:none}.sk{color:$muted}.sv{font-weight:$fw-semi}
 .tot{font-weight:$fw-bold}.tv{font-size:$fs-md;font-weight:$fw-bold;color:$sunrise}
 .support{display:flex;gap:14rpx}
-.sp{flex:1;text-align:center;border:2rpx solid $line;border-radius:$r-sm;padding:22rpx;font-size:$fs-xs;font-weight:$fw-semi;background:#fff}
+.sp{flex:1;text-align:center;border:1rpx solid $line-strong;border-radius:$r-sm;padding:20rpx;font-size:$fs-xs;font-weight:$fw-semi;background:$card;color:$ink}
 </style>

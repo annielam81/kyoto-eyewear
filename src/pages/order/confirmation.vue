@@ -65,15 +65,20 @@ const cfgSummary=(it:CartItem)=>{
 const goUpload=()=>uni.navigateTo({url:'/pages/prescription/upload'});
 const goOrder=()=>uni.navigateTo({url:`/pages/order/detail?id=${order.value?.orderId}`});
 const goHome=()=>uni.reLaunch({url:'/pages/home/index'});
-const art = `<svg viewBox="0 0 300 150" style="width:100%;height:auto;max-width:460rpx;margin:0 auto;display:block"><circle cx="150" cy="75" r="62" fill="${BRAND.tintAqua}"/><g fill="none" stroke="${BRAND.ink}" stroke-width="6"><circle cx="118" cy="75" r="28"/><circle cx="182" cy="75" r="28"/><path d="M146 72q4-9 8 0M90 74l-26-15M210 74l26-15"/></g><path d="M134 98q16 11 32 0" stroke="${BRAND.ink}" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`;
+// 同样不要在 v-html 里写 rpx —— 限宽与居中交给 .art 的编译期 CSS
+const art = `<svg viewBox="0 0 300 150" style="width:100%;height:auto;display:block"><circle cx="150" cy="75" r="62" fill="${BRAND.tintAqua}"/><g fill="none" stroke="${BRAND.ink}" stroke-width="6"><circle cx="118" cy="75" r="28"/><circle cx="182" cy="75" r="28"/><path d="M146 72q4-9 8 0M90 74l-26-15M210 74l26-15"/></g><path d="M134 98q16 11 32 0" stroke="${BRAND.ink}" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`;
 </script>
 <style lang="scss" scoped>
-.conf{text-align:center;padding-bottom:220rpx}
-.top{display:flex;justify-content:center;padding:20rpx 0 8rpx}
+.art{width:100%;max-width:460rpx;margin:0 auto}
+.conf{text-align:center;padding-bottom:calc(#{$nav-h} + 80rpx + #{$safe-b})}
+/* 本页没有 top-bar / KyotoHeader，.top 就是最顶层元素，因此由它 owning 状态栏 inset，
+ * 并且 sticky + $paper 实底，避免滚动后标题钻进状态栏。 */
+.top{position:sticky;top:0;z-index:$z-nav;display:flex;justify-content:center;
+  margin:0 (-$sp-3);padding:calc(#{$sp-2} + #{$safe-t}) $sp-3 18rpx;background:$paper}
 .num{display:block;text-align:center;font-size:$fs-xs;color:$muted;letter-spacing:.1em;margin-top:8rpx}
 .next{display:block;text-align:center;margin:14rpx auto 0;max-width:560rpx}
 .blocks{text-align:left;display:flex;flex-direction:column;gap:16rpx;margin-bottom:28rpx}
-.blk{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:24rpx}
+.blk{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:24rpx}
 .blk.row2{display:grid;grid-template-columns:1fr 1fr;gap:14rpx}
 .bt{display:block;font-size:$fs-xs;color:$muted;letter-spacing:.1em;text-transform:uppercase;font-weight:$fw-semi;margin-bottom:8rpx}
 .bl{display:block;font-size:$fs-sm;line-height:1.6}

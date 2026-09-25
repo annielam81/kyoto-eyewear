@@ -22,24 +22,26 @@
           <text v-for="(v,i) in viewLabels" :key="v" :class="['vt',{on:viewIdx===i}]" @click="viewIdx=i">{{v}}</text>
         </view>
         <view class="dots"><text v-for="(_,i) in views" :key="i" :class="['dot',{on:viewIdx===i}]" @click="viewIdx=i"></text></view>
-        <view class="tryon-btn" @click="goTryOn">📷 {{$t('product.tryOn')}}</view>
+        <view class="tryon-btn" @click="goTryOn">{{$t('product.tryOn')}}</view>
       </view>
       <!-- name + price -->
       <view class="page-pad">
+        <!-- 母版 03：名称 → 价格 → 评分 → 描述，左对齐竖排 -->
         <view class="np">
-          <view>
-            <text class="h1" style="font-size:44rpx">{{frame.name[loc]}}</text>
-            <text class="zhname">{{frame.nameZH}}</text>
+          <text class="pname">{{frame.name[loc]}}</text>
+          <text class="zhname">{{frame.nameZH}}</text>
+          <text class="pr">${{frame.price}}</text>
+          <view class="rate">
+            <text class="stars">★★★★★</text>
+            <text class="rnum">{{frame.rating}}</text>
+            <text class="rcnt">({{frame.reviewCount}})</text>
           </view>
-          <view class="prbox">
-            <text class="pr">${{frame.price}}</text>
-            <text class="prsmall">{{$t('product.lensesFrom')}} $0</text>
-          </view>
+          <text class="pdesc">{{frame.description[loc]}}</text>
         </view>
         <view class="badges">
-          <text class="tag teal">✓ {{$t('product.fsa')}}</text>
-          <text class="tag soft">{{$t('product.freeLens')}}</text>
-          <text class="tag mist">{{$t('product.returns')}}</text>
+          <text class="btag">{{$t('product.fsa')}}</text>
+          <text class="btag">{{$t('product.freeLens')}}</text>
+          <text class="btag">{{$t('product.returns')}}</text>
         </view>
         <!-- color -->
         <text class="sel-lbl">{{$t('product.color')}} · <b>{{selColor.name[loc]}}</b></text>
@@ -83,11 +85,11 @@
             <view><text class="mv">{{selSize.temple}} mm</text><text class="mk">{{$t('product.temple')}}</text></view>
           </view>
         </view>
-        <!-- info rows -->
+        <!-- frame details —— editorial 信息行，无 emoji -->
         <view class="infolist">
-          <view class="it"><text class="ic2">👤</text><view><text class="ih">{{$t('product.fit')}}</text><text class="is">{{frame.fit[loc]}}</text></view></view>
-          <view class="it"><text class="ic2">✦</text><view><text class="ih">{{$t('product.material')}}</text><text class="is">{{frame.frameMaterial[loc]}}</text></view></view>
-          <view class="it"><text class="ic2">◎</text><view><text class="ih">{{$t('product.rxCompat')}}</text><text class="is">{{frame.rxRange}}</text></view></view>
+          <view class="info-row"><text class="ir-k">{{$t('product.fit')}}</text><text class="ir-v">{{frame.fit[loc]}}</text></view>
+          <view class="info-row"><text class="ir-k">{{$t('product.material')}}</text><text class="ir-v">{{frame.frameMaterial[loc]}}</text></view>
+          <view class="info-row"><text class="ir-k">{{$t('product.rxCompat')}}</text><text class="ir-v">{{frame.rxRange}}</text></view>
         </view>
         <!-- accordions -->
         <view class="acc" v-for="a in accs" :key="a.k">
@@ -97,13 +99,16 @@
           <text v-if="openAcc===a.k" class="ab">{{$t(a.body)}}</text>
         </view>
         <!-- reviews -->
-        <view class="sec-hd"><text class="h2">{{$t('product.reviews')}} ★★★★★ {{frame.rating}}</text></view>
+        <view class="sec-h">
+          <view class="sh-l"><text class="eyebrow">{{frame.reviewCount}} · {{$t('product.reviews')}}</text><text class="sh-t">{{frame.rating}} / 5</text></view>
+          <text class="sh-a stars">★★★★★</text>
+        </view>
         <view v-for="r in reviews" :key="r.who" class="review">
           <view class="rwho"><text>{{r.who}}</text><text class="stars">★★★★★</text></view>
           <text class="rbody">{{r.body}}</text>
         </view>
         <!-- related -->
-        <text class="h2" style="margin:32rpx 0 18rpx">{{$t('product.related')}}</text>
+        <view class="sec-h"><view class="sh-l"><text class="sh-t">{{$t('product.related')}}</text></view></view>
         <scroll-view scroll-x><view class="hs-in" style="display:flex;gap:18rpx;padding-bottom:10rpx">
           <view v-for="f2 in related" :key="f2.id" style="flex:0 0 280rpx">
             <ProductCard :frame="f2" @open="switchFrame"/>
@@ -114,8 +119,10 @@
     <!-- sticky CTA -->
     <view class="sticky-cta">
       <view class="cta2">
-        <KyotoButton variant="ghost" size="sm" @click="addFrameOnly">{{$t('product.frameOnly')}}<br/><text style="font-weight:500;font-size:20rpx;opacity:.7">${{frame?.price}}</text></KyotoButton>
-        <KyotoButton variant="pink" :class="{long:$t('product.addLenses').length>22}" @click="startWizard">{{$t('product.addLenses')}} →</KyotoButton>
+        <!-- 母版 03 的层级：主操作 Vermilion 在上，次操作 Indigo 在下。
+             业务流程仍以代码为准 —— 主 CTA 是「配处方镜片」，不是母版示意的 Try On。 -->
+        <KyotoButton variant="pink" :class="{long:$t('product.addLenses').length>22}" @click="startWizard">{{$t('product.addLenses')}}</KyotoButton>
+        <KyotoButton variant="night" @click="addFrameOnly">{{$t('product.frameOnly')}} · ${{frame?.price}}</KyotoButton>
       </view>
     </view>
   </view>
@@ -166,52 +173,58 @@ const startWizard = ()=>{ if(!frame.value) return;
 <style lang="scss" scoped>
 .pd{background:$paper;min-height:100vh;padding-bottom:200rpx}
 .hdr-abs{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:calc(16rpx + env(safe-area-inset-top)) $sp-3 16rpx;background:rgba(255,245,230,.95);backdrop-filter:blur(10px);z-index:50}
-.ib{width:72rpx;height:72rpx;border-radius:50%;background:#fff;border:2rpx solid $line;display:flex;align-items:center;justify-content:center}
+.ib{width:68rpx;height:68rpx;border-radius:50%;background:$card;border:1rpx solid $line-strong;display:flex;align-items:center;justify-content:center;color:$ink}
 .ib svg{width:36rpx;height:36rpx}.ib.on{background:$accent-strong;color:#fff;border-color:$accent-strong}
-.gal{padding-top:calc(110rpx + env(safe-area-inset-top));position:relative}
+/* 产品图区域拿最大视觉权重；底色只做极浅承托，不抢镜 */
+.gal{padding-top:calc(104rpx + env(safe-area-inset-top));position:relative}
 .vtabs{position:absolute;top:calc(120rpx + env(safe-area-inset-top));left:$sp-3;display:flex;gap:10rpx}
-.vt{font-size:20rpx;padding:8rpx 18rpx;border-radius:$r-pill;background:rgba(255,255,255,.7);color:$muted;backdrop-filter:blur(6px)}
-.vt.on{background:$night;color:#fff}
+.vt{font-size:18rpx;letter-spacing:.06em;padding:7rpx 16rpx;border-radius:$r-xs;background:rgba(255,255,255,.72);color:$muted;font-weight:$fw-med;backdrop-filter:blur(6px)}
+.vt.on{background:$ink;color:$paper;font-weight:$fw-semi}
 .dots{position:absolute;bottom:28rpx;left:50%;transform:translateX(-50%);display:flex;gap:12rpx}
-.dot{width:12rpx;height:12rpx;border-radius:50%;background:rgba(13,27,42,.22)}
-.dot.on{background:$night;width:36rpx;border-radius:6rpx}
-.tryon-btn{position:absolute;right:$sp-3;bottom:28rpx;background:$night;color:#fff;border-radius:$r-pill;padding:18rpx 28rpx;font-size:22rpx;font-weight:$fw-semi}
-.np{display:flex;justify-content:space-between;align-items:flex-start;gap:18rpx;margin-top:30rpx}
-.zhname{font-family:'Noto Sans SC',sans-serif;font-size:$fs-sm;color:$muted;letter-spacing:.2em;display:block;margin-top:4rpx}
-.prbox{text-align:right}.pr{font-size:44rpx;font-weight:$fw-bold;color:$sunrise;display:block}
-.prsmall{font-size:$fs-xs;color:$muted;display:block}
-.badges{display:flex;gap:10rpx;flex-wrap:wrap;margin-top:16rpx}
+.dot{width:8rpx;height:8rpx;border-radius:50%;background:rgba(20,27,61,.2)}
+.dot.on{background:$ink;width:28rpx;border-radius:4rpx}
+.tryon-btn{position:absolute;right:$sp-3;bottom:26rpx;background:$ink;color:$paper;border-radius:$r-sm;padding:14rpx 24rpx;font-size:$fs-xs;font-weight:$fw-semi;letter-spacing:.04em}
+.np{display:flex;flex-direction:column;align-items:flex-start;gap:6rpx;margin-top:$sp-4}
+.pname{font-size:40rpx;font-weight:$fw-bold;letter-spacing:-.015em;line-height:1.2;color:$ink}
+.zhname{font-family:'Noto Sans SC',sans-serif;font-size:$fs-xs;color:$muted;letter-spacing:.16em;display:block;margin-top:6rpx}
+.pr{font-size:36rpx;font-weight:$fw-bold;color:$ink;display:block;line-height:1.2;margin-top:6rpx;font-variant-numeric:tabular-nums}
+.rate{display:flex;align-items:baseline;gap:8rpx;margin-top:4rpx}
+.rnum{font-size:$fs-xs;font-weight:$fw-semi;color:$ink;font-variant-numeric:tabular-nums}
+.rcnt{font-size:18rpx;color:$muted;font-variant-numeric:tabular-nums}
+.pdesc{font-size:$fs-xs;color:$muted;line-height:1.6;margin-top:10rpx}
+
+.badges{display:flex;gap:10rpx;flex-wrap:wrap;margin-top:$sp-2}
+.btag{font-size:17rpx;letter-spacing:.08em;padding:6rpx 14rpx;border-radius:$r-xs;font-weight:$fw-semi;
+  text-transform:uppercase;color:$muted;border:1rpx solid $line-strong}
 .tag{font-size:19rpx;letter-spacing:.08em;padding:6rpx 16rpx;border-radius:$r-pill;font-weight:$fw-semi;text-transform:uppercase}
 .tag.teal{background:$tint-teal2;color:$teal}.tag.soft{background:$tint-accent;color:$accent-ink}.tag.mist{background:$mist;color:$night}
-.sel-lbl{display:block;font-size:$fs-xs;color:$muted;margin:32rpx 0 14rpx}
-.sel-lbl-row{display:flex;justify-content:space-between;align-items:center;margin:32rpx 0 14rpx}
+.sel-lbl{display:block;font-size:18rpx;letter-spacing:.08em;text-transform:uppercase;color:$muted;font-weight:$fw-semi;margin:$sp-5 0 14rpx}
+.sel-lbl-row{display:flex;justify-content:space-between;align-items:baseline;margin:$sp-5 0 14rpx}
+.sel-lbl-row .sel-lbl{margin:0}
 .guide-lnk{font-size:$fs-xs;color:$teal;font-weight:$fw-semi}
 .swatches{display:flex;gap:20rpx}
-.sw{width:64rpx;height:64rpx;border-radius:50%;border:4rpx solid transparent;cursor:pointer}
-.sw.on{border-color:$night;box-shadow:inset 0 0 0 6rpx $paper}
+.sw{width:56rpx;height:56rpx;border-radius:50%;border:3rpx solid transparent}
+.sw.on{border-color:$ink;box-shadow:inset 0 0 0 5rpx $paper}
 .sizes{display:flex;gap:16rpx}
-.szb{flex:1;border:3rpx solid $line;background:#fff;border-radius:$r-sm;padding:18rpx 10rpx;text-align:center;position:relative}
-.szb.on{border-color:$night;background:$night;color:#fff}
-.szb.rec::after{content:"✓";position:absolute;top:-14rpx;right:14rpx;background:$teal;color:#fff;font-size:18rpx;padding:2rpx 10rpx;border-radius:$r-pill}
+.szb{flex:1;border:1rpx solid $line-strong;background:$card;border-radius:$r-sm;padding:16rpx 10rpx;text-align:center;position:relative}
+.szb.on{border-color:$ink;background:$ink;color:$paper}
+.szb.rec::after{content:"";position:absolute;top:-1rpx;left:50%;transform:translateX(-50%);width:28rpx;height:3rpx;background:$accent;border-radius:$r-pill}
 .sk{display:block;font-size:$fs-sm;font-weight:$fw-bold}
 .smm{display:block;font-size:19rpx;color:$muted;margin-top:4rpx}
 .szb.on .smm{color:rgba(255,255,255,.7)}
-.measure{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:24rpx;margin-top:16rpx}
+.measure{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:24rpx;margin-top:$sp-2}
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16rpx;margin-top:18rpx;text-align:center}
-.mv{display:block;font-size:$fs-md;font-weight:$fw-bold}
-.mk{font-size:$fs-xs;color:$muted}
-.infolist{margin-top:12rpx}
-.it{display:flex;gap:20rpx;padding:22rpx 0;border-bottom:2rpx solid $line;font-size:$fs-sm}
-.it:last-child{border:none}
-.ic2{font-size:28rpx;width:40rpx;text-align:center;flex-shrink:0;padding-top:2rpx}
-.ih{display:block;font-size:$fs-sm;font-weight:$fw-semi;margin-bottom:4rpx}
-.is{font-size:$fs-xs;color:$muted;line-height:1.6}
-.acc{border-top:2rpx solid $line}.ah{display:flex;justify-content:space-between;padding:26rpx 0;font-size:$fs-sm;font-weight:$fw-semi}
+.mv{display:block;font-size:$fs-md;font-weight:$fw-bold;font-variant-numeric:tabular-nums}
+.mk{font-size:17rpx;letter-spacing:.06em;text-transform:uppercase;color:$muted;font-weight:$fw-med}
+.infolist{margin-top:$sp-4;border-top:2rpx solid $line}
+.acc{border-top:2rpx solid $line}
+.ah{display:flex;justify-content:space-between;align-items:center;padding:24rpx 0;font-size:$fs-sm;font-weight:$fw-semi;color:$ink}
 .ab{font-size:$fs-xs;color:$muted;line-height:1.7;padding-bottom:20rpx}
-.sec-hd{margin:28rpx 0 16rpx}
-.review{padding:22rpx 0;border-top:2rpx solid $line}
+
+.review{padding:20rpx 0;border-top:2rpx solid $line}
 .rwho{display:flex;justify-content:space-between;font-size:20rpx;color:$muted;margin-bottom:8rpx}
 .stars{color:$gold}
 .rbody{font-size:$fs-xs;line-height:1.6}
-.cta2{display:grid;grid-template-columns:1fr 1.6fr;gap:14rpx}
+/* 母版 03：两颗全宽 CTA 竖排 —— 主操作 Vermilion，次操作 Indigo */
+.cta2{display:flex;flex-direction:column;gap:12rpx}
 </style>

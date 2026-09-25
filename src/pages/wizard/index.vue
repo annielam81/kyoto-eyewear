@@ -1,6 +1,6 @@
 <template>
   <view class="page-pad wz">
-    <WizardProgress :step="displayStep" :total="displayTotal" @back="goBack"/>
+    <WizardProgress :step="displayStep" :total="displayTotal" :title="stepTitle" @back="goBack"/>
     <!-- context bar -->
     <view v-if="frame" class="ctx">
       <view :class="['ctx-art',frame.tint]"><FrameArt :art="frame.art" :hex="selColor?.hex" style="height:80rpx"/></view>
@@ -13,21 +13,32 @@
     <view v-if="w.step===STEP.rx&&w.use!=='nonrx'">
       <text class="h1">{{$t('wizard.s5.title')}}</text>
       <text class="sub" style="display:block;margin:10rpx 0 24rpx">{{$t('wizard.s5.subtitle')}}</text>
-      <view class="rx-saved" :class="{expired:savedRxValidity==='expired'}" @click="useSaved">
-        <text class="rx-s-ic">{{savedRxValidity==='expired'?'⚠':'✓'}}</text>
-        <view>
-          <text class="rx-s-name">{{$t('wizard.s5.saved')}}</text>
-          <text class="rx-s-sub">{{savedRx?.label}} · OD {{savedRx?.od?.sph}}</text>
-          <text v-if="savedRxValidity==='expired'" class="rx-s-exp">{{$t('c3.rxs.expired')}} — {{$t('c3.myrx.expWarn')}}</text>
-          <text v-else-if="savedRxValidity==='expiringSoon'" class="rx-s-exp soon">{{$t('c3.myrx.soonWarn')}}</text>
+      <!-- 母版 04：竖排方式列表。四种方式与业务逻辑完全沿用代码，
+           「拍照」入口保留在上传页内部（相机 / 相册两个按钮），未删除任何能力。 -->
+      <view class="rxlist">
+        <view class="rxr" @click="goRx('upload')">
+          <view class="rxr-ic" v-html="rxIcons.upload"></view>
+          <view class="rxr-tx"><text class="rxr-n">{{$t('wizard.s5.upload')}}</text><text class="rxr-s">{{$t('wizard.s5.uploadS')}}</text></view>
+        </view>
+        <view class="rxr" @click="goManual">
+          <view class="rxr-ic" v-html="rxIcons.manual"></view>
+          <view class="rxr-tx"><text class="rxr-n">{{$t('wizard.s5.manual')}}</text><text class="rxr-s">{{$t('wizard.s5.manualS')}}</text></view>
+        </view>
+        <view class="rxr" :class="{expired:savedRxValidity==='expired'}" @click="useSaved">
+          <view class="rxr-ic" v-html="rxIcons.saved"></view>
+          <view class="rxr-tx">
+            <text class="rxr-n">{{$t('wizard.s5.saved')}}</text>
+            <text class="rxr-s">{{savedRx?.label}} · OD {{savedRx?.od?.sph}}</text>
+            <text v-if="savedRxValidity==='expired'" class="rx-s-exp">{{$t('c3.rxs.expired')}} — {{$t('c3.myrx.expWarn')}}</text>
+            <text v-else-if="savedRxValidity==='expiringSoon'" class="rx-s-exp soon">{{$t('c3.myrx.soonWarn')}}</text>
+          </view>
+        </view>
+        <view class="rxr" @click="setLater">
+          <view class="rxr-ic" v-html="rxIcons.later"></view>
+          <view class="rxr-tx"><text class="rxr-n">{{$t('wizard.s5.later')}}</text><text class="rxr-s">{{$t('wizard.s5.laterS')}}</text></view>
         </view>
       </view>
-      <view class="rx-methods">
-        <view class="rxm" @click="goRx('upload')"><text class="rmic">📄</text><text class="rmn">{{$t('wizard.s5.upload')}}</text><text class="rms">{{$t('wizard.s5.uploadS')}}</text></view>
-        <view class="rxm" @click="goRx('photo')"><text class="rmic">📷</text><text class="rmn">{{$t('wizard.s5.photo')}}</text><text class="rms">{{$t('wizard.s5.photoS')}}</text></view>
-        <view class="rxm" @click="goManual"><text class="rmic">⌨️</text><text class="rmn">{{$t('wizard.s5.manual')}}</text><text class="rms">{{$t('wizard.s5.manualS')}}</text></view>
-        <view class="rxm wide" @click="setLater"><text class="rmic">⏱</text><view class="rxm-tx"><text class="rmn">{{$t('wizard.s5.later')}}</text><text class="rms">{{$t('wizard.s5.laterS')}}</text></view></view>
-      </view>
+      <view class="rx-note"><text>{{$t('wizard.s5.privacy')}}</text></view>
     </view>
     <!-- STEP 2 —— 镜片类型（内容键仍为 s2）-->
     <view v-else-if="w.step===STEP.type">
@@ -74,16 +85,18 @@
       <text class="sub" style="display:block;margin:10rpx 0 24rpx">{{$t('wizard.s4.subtitle')}}</text>
       <view v-for="g in treatGroups" :key="g.k">
         <text class="grp">{{$t('wizard.s4.'+g.k)}}</text>
-        <view v-for="tr in g.items" :key="tr.id" class="treat-row">
+        <view v-for="tr in g.items" :key="tr.id" class="treat-row" :class="{incl:g.k==='groupIncluded'}"
+          @click="g.k!=='groupIncluded' && wizard.toggleTreatment(tr.id)">
+          <!-- Included 恒为已选且不可取消；Optional 默认关闭，必须客户主动勾选 -->
+          <view class="tck" :class="{on:g.k==='groupIncluded'||w.treatmentIds.includes(tr.id), lock:g.k==='groupIncluded'}">
+            <text v-if="g.k==='groupIncluded'||w.treatmentIds.includes(tr.id)">✓</text>
+          </view>
           <view class="treat-tx">
             <text class="treat-name">{{tr.name[loc]}}</text>
             <text class="treat-desc">{{tr.description[loc]}}</text>
           </view>
-          <text v-if="g.k==='groupIncluded'" class="incl-tag">{{$t('common.included')}}</text>
-          <view v-else class="treat-right">
-            <text class="treat-pr" v-if="tr.price">+${{tr.price}}</text>
-            <view :class="['sw',{on:w.treatmentIds.includes(tr.id)}]" @click="wizard.toggleTreatment(tr.id)"></view>
-          </view>
+          <text v-if="g.k==='groupIncluded'" class="treat-pr incl">$0</text>
+          <text v-else class="treat-pr">{{tr.price?'+$'+tr.price:'$0'}}</text>
         </view>
       </view>
     </view>
@@ -91,7 +104,7 @@
     <view v-else-if="w.step===STEP.review">
       <text class="h1">{{$t('wizard.s6.title')}}</text>
       <text class="sub" style="display:block;margin:10rpx 0 24rpx">{{$t('wizard.s6.subtitle')}}</text>
-      <view v-if="frame" :class="['rev-art',frame.tint]" style="height:240rpx;border-radius:32rpx;overflow:hidden;margin-bottom:24rpx">
+      <view v-if="frame" :class="['rev-art',frame.tint]" style="height:232rpx;border-radius:20rpx;overflow:hidden;margin-bottom:24rpx">
         <FrameArt :art="frame.art" :hex="selColor?.hex" style="height:100%"/>
       </view>
       <PriceSummary :rows="reviewRows" @edit="editStep"/>
@@ -124,6 +137,7 @@ import { usePrescriptionStore } from '@/stores/prescription';
 import { PrescriptionService } from '@/services/PrescriptionService';
 import { lensTypeAllowed, TYPES_REQUIRING_ADD } from '@/config/frame-lens-rules.config';
 import type { Locale, PrescriptionUse, PrescriptionType } from '@/models';
+import { BRAND } from '@/config/brand-colors';
 import { money } from '@/utils/format';
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
 const { locale,t } = useI18n(); const loc = computed(()=>locale.value as Locale);
@@ -197,6 +211,20 @@ const canContinue = computed(()=>{
 // 进度编号：处方路径干净 5 步；nonrx 只有镀膜+评审两步，也显示成 1/2、2/2，
 // 不再出现旧版「1/6 直接跳到 5/6」的空洞编号。
 const flowSteps = computed<number[]>(()=> flowFor(w.value.use));
+/** 向导页头标题：复用各步既有的短标题 key，不新增文案。 */
+const STEP_TITLE:Record<number,string>={
+  [STEP.rx]:'wizard.s5.short', [STEP.type]:'wizard.s2.short', [STEP.material]:'wizard.s3.short',
+  [STEP.treatments]:'wizard.s4.short', [STEP.review]:'wizard.s6.short',
+};
+/* 处方方式图标。不要在 v-html 字符串里写 rpx（webview 不认），尺寸由 .rxr-ic :deep(svg) 决定。 */
+const RXI = (d:string)=>`<svg viewBox="0 0 24 24" fill="none" stroke="${BRAND.ink}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const rxIcons = {
+  upload: RXI('<rect x="3" y="6" width="18" height="14" rx="2.5"/><circle cx="12" cy="13" r="3.4"/><path d="M9 6l1.4-2h3.2L15 6"/>'),
+  manual: RXI('<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/>'),
+  saved:  RXI('<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>'),
+  later:  RXI('<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.6 6.5 12 13l8.4-6.5"/>'),
+};
+const stepTitle = computed(()=> t(STEP_TITLE[w.value.step] ?? 'wizard.s5.short'));
 const stepInFlow = (s:number)=> flowSteps.value.includes(s);
 const displayTotal = computed(()=> flowSteps.value.length);
 const displayStep  = computed(()=> Math.max(1, flowSteps.value.indexOf(w.value.step)+1));
@@ -264,40 +292,63 @@ function advance(){
 </script>
 <style lang="scss" scoped>
 .wz{padding-bottom:200rpx}
-.ctx{display:flex;align-items:center;gap:18rpx;background:#fff;border:2rpx solid $line;border-radius:$r-sm;padding:14rpx 18rpx;margin-bottom:26rpx}
-.ctx-art{width:110rpx;height:70rpx;border-radius:14rpx;flex-shrink:0;overflow:hidden}
+/* 步骤标题：不做海报级尺寸，靠字重+留白分层 */
+:deep(.h1){font-size:$fs-xl;letter-spacing:-.015em}
+.ctx{display:flex;align-items:center;gap:16rpx;background:$card;border:1rpx solid $line;border-radius:$r-sm;padding:12rpx 16rpx;margin-bottom:$sp-4}
+.ctx-art{width:100rpx;height:64rpx;border-radius:$r-xs;flex-shrink:0;overflow:hidden}
 .ctx-n{font-size:$fs-xs;font-weight:$fw-semi;display:block}
-.ctx-p{font-size:$fs-sm;font-weight:$fw-bold;color:$sunrise;display:block;margin-top:4rpx}
-.pick-hint{background:$mist;border-radius:$r-sm;padding:24rpx;text-align:center;color:$muted;font-size:$fs-sm;margin-top:14rpx}
+.ctx-p{font-size:$fs-sm;font-weight:$fw-bold;color:$accent-ink;display:block;margin-top:2rpx;font-variant-numeric:tabular-nums}
+.pick-hint{background:transparent;border:1rpx dashed $line-strong;border-radius:$r-sm;padding:22rpx;text-align:center;color:$muted;font-size:$fs-xs;line-height:1.6;margin-top:14rpx}
 .rec-badges{display:flex;gap:10rpx;flex-wrap:wrap;margin:8rpx 0}
 .incompat{font-size:$fs-xs;color:$sunrise;font-weight:$fw-semi;line-height:1.5}
-.badge-pill{font-size:18rpx;padding:4rpx 14rpx;border-radius:$r-pill;background:$night;color:#fff;font-weight:$fw-semi;letter-spacing:.04em}
+.badge-pill{font-size:16rpx;padding:4rpx 12rpx;border-radius:$r-xs;background:transparent;border:1rpx solid $line-strong;color:$muted;font-weight:$fw-semi;letter-spacing:.08em;text-transform:uppercase}
 .why-btn{font-size:$fs-xs;color:$teal;font-weight:$fw-semi}
-.why-txt{font-size:$fs-xs;color:$ink;line-height:1.6;margin-top:10rpx;display:block;background:$tint-teal2;padding:18rpx;border-radius:$r-sm}
-.treat-row{display:flex;align-items:center;gap:16rpx;padding:22rpx;background:#fff;border:2rpx solid $line;border-radius:$r-md;margin-bottom:14rpx}
+.why-txt{font-size:$fs-xs;color:$ink;line-height:1.6;margin-top:10rpx;display:block;background:$mist;padding:16rpx 18rpx;border-radius:$r-sm}
+/* 母版 06：左勾选框 / 中文案 / 右价格。Included 与 Optional 用表面区分 */
+.treat-row{display:flex;align-items:flex-start;gap:16rpx;padding:20rpx 22rpx;background:$card;
+  border:1rpx solid $line;border-radius:$r-md;margin-bottom:12rpx;box-shadow:$shadow-soft}
+.treat-row.incl{background:$mist;border-color:transparent;box-shadow:none}
+.tck{width:40rpx;height:40rpx;border-radius:$r-xs;border:1rpx solid $line-strong;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:24rpx;color:transparent;background:$card}
+.tck.on{background:$accent-strong;border-color:$accent-strong;color:#fff}
+.tck.lock{background:$accent-strong;border-color:$accent-strong;color:#fff}
 .treat-tx{flex:1}
 .treat-name{display:block;font-size:$fs-sm;font-weight:$fw-semi}
 .treat-desc{display:block;font-size:$fs-xs;color:$muted;margin-top:4rpx}
-.incl-tag{background:$tint-teal2;color:$teal;font-size:18rpx;padding:6rpx 16rpx;border-radius:$r-pill;font-weight:$fw-semi;white-space:nowrap}
+.incl-tag{background:transparent;color:$muted;font-size:17rpx;letter-spacing:.08em;text-transform:uppercase;padding:0;font-weight:$fw-semi;white-space:nowrap}
 .treat-right{display:flex;align-items:center;gap:14rpx}
-.treat-pr{font-size:$fs-xs;font-weight:$fw-semi;color:$sunrise;white-space:nowrap}
-.sw{width:80rpx;height:48rpx;border-radius:$r-pill;background:$line;position:relative;transition:.2s;flex-shrink:0}
-.sw::after{content:"";position:absolute;top:6rpx;left:6rpx;width:36rpx;height:36rpx;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 2rpx 6rpx rgba(0,0,0,.2)}
-.sw.on{background:$teal}.sw.on::after{left:38rpx}
-.rx-saved{display:flex;align-items:center;gap:18rpx;border:3rpx solid $teal;background:$tint-teal2;border-radius:$r-md;padding:24rpx;margin-bottom:16rpx}
+.treat-pr{font-size:$fs-sm;font-weight:$fw-semi;color:$ink;white-space:nowrap;font-variant-numeric:tabular-nums;padding-top:2rpx}
+.treat-pr.incl{color:$muted}
+.sw{width:72rpx;height:42rpx;border-radius:$r-pill;background:$line-strong;position:relative;transition:$dur;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:5rpx;left:5rpx;width:32rpx;height:32rpx;border-radius:50%;background:$card;transition:$dur;box-shadow:0 2rpx 6rpx rgba(20,27,61,.18)}
+.sw.on{background:$accent-strong}.sw.on::after{left:35rpx}
+.rx-saved{display:flex;align-items:center;gap:18rpx;border:1rpx solid $line-strong;background:$card;border-radius:$r-md;padding:22rpx;margin-bottom:14rpx}
 .rx-saved.expired{border-color:$sunrise;background:$tint-warn;opacity:.85}
 .rx-s-exp{display:block;font-size:$fs-xs;color:$sunrise;margin-top:6rpx;line-height:1.5}
-.rx-s-exp.soon{color:$night}
-.rx-s-ic{font-size:36rpx;width:60rpx;text-align:center;flex-shrink:0;color:$teal}
+.rx-s-exp.soon{color:$ink}
+.rx-s-ic{font-size:30rpx;width:48rpx;text-align:center;flex-shrink:0;color:$teal}
 .rx-s-name{display:block;font-size:$fs-sm;font-weight:$fw-semi}
 .rx-s-sub{display:block;font-size:$fs-xs;color:$muted}
+/* ---- 母版 04：处方方式竖排列表 ---- */
+.rxlist{display:flex;flex-direction:column;gap:14rpx}
+.rxr{display:flex;align-items:center;gap:18rpx;background:$card;border:1rpx solid $line;
+  border-radius:$r-md;padding:20rpx;box-shadow:$shadow-soft}
+.rxr.expired{border-color:$sunrise}
+.rxr-ic{width:72rpx;height:72rpx;border-radius:$r-sm;background:$stone;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center}
+.rxr-ic :deep(svg){width:36rpx;height:36rpx;display:block}
+.rxr-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4rpx}
+.rxr-n{font-size:$fs-sm;font-weight:$fw-semi;color:$ink;line-height:1.3}
+.rxr-s{font-size:18rpx;color:$muted;line-height:1.45}
+.rx-note{margin-top:$sp-4;background:$mist;border-radius:$r-sm;padding:20rpx 22rpx;
+  font-size:18rpx;color:$muted;line-height:1.6;text-align:center}
 .rx-methods{display:grid;grid-template-columns:1fr 1fr;gap:14rpx}
-.rxm{background:#fff;border:2rpx solid $line;border-radius:$r-md;padding:28rpx 20rpx;display:flex;flex-direction:column;gap:8rpx}
+.rxm{background:$card;border:1rpx solid $line-strong;border-radius:$r-md;padding:24rpx 20rpx;display:flex;flex-direction:column;gap:8rpx}
 .rxm.wide{grid-column:1/-1;flex-direction:row;align-items:center}
 /* 宽磁贴翻成横向后，标题与说明被包在一个 view 里会退化成 inline（「Send it laterWe'll…」）。
    这里让内层也纵向排列，gap 与 .rxm 自身一致，两行的观感与其余磁贴相同。 */
 .rxm-tx{display:flex;flex-direction:column;gap:8rpx;min-width:0;flex:1}
-.rmic{font-size:40rpx}
-.rmn{font-size:$fs-sm;font-weight:$fw-semi}
-.rms{font-size:$fs-xs;color:$muted;line-height:1.4}
+.rmic{font-size:32rpx;line-height:1.2}
+.rmn{font-size:$fs-sm;font-weight:$fw-semi;color:$ink}
+.rms{font-size:18rpx;color:$muted;line-height:1.45}
 </style>
