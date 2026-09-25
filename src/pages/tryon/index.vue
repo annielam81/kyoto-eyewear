@@ -29,7 +29,7 @@
     <view v-else>
       <!-- frame overlay（可拖动） -->
       <view class="overlay"
-        :style="{marginLeft:ox+'px',marginTop:oy+'px',width:(700*oscale)+'rpx'}"
+        :style="{marginLeft:ox+'px',marginTop:oy+'px',width:(900*oscale)+'rpx'}"
         @touchstart="onDragStart" @touchmove.stop.prevent="onDragMove">
         <FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex??'#0D1B2A'" style="width:100%;height:auto"/>
       </view>
@@ -214,7 +214,7 @@ async function snap(){
     ctx.drawImage(photo.value,(W-dw)/2,(H-dh)/2,dw,dh);
     // 眼镜位置：屏幕坐标 → canvas 坐标
     const kx=W/sys.windowWidth, ky=H/sys.windowHeight;
-    const owPx=(700*oscale.value)/750*sys.windowWidth;
+    const owPx=(900*oscale.value)/750*sys.windowWidth;
     const artW=owPx*0.72; // 与 FrameArt 内层 svg 的 72% 对齐
     drawFrameArt(ctx, selFrame.value?.art??'round', selColor.value?.hex??'#0D1B2A',
       (sys.windowWidth/2+ox.value)*kx, (sys.windowHeight*0.42+oy.value)*ky, artW*kx);
