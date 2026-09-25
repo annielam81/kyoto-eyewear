@@ -1,12 +1,10 @@
 <template>
   <view class="home">
-    <!-- 页面底：淡淡水墨樱花（对标参考稿米黄底） -->
-    <view class="bgsakura"></view>
     <!-- HEADER：汉堡菜单 | 品牌 | 搜索+购物袋（对标参考稿） -->
     <view class="hdr">
       <view class="hds"><view class="hbtn" @click="openMenu" v-html="icMenu"></view></view>
       <view class="brand">
-        <KyotoWordmark :height="20" />
+        <text class="bname">KYOTO</text>
         <text class="des">EYEWEAR</text>
       </view>
       <view class="hds r">
@@ -96,7 +94,6 @@
 import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 
-import KyotoWordmark from '@/components/KyotoWordmark.vue';
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import ProductCard from '@/components/ProductCard.vue';
 
@@ -235,9 +232,7 @@ const promoBg = `
 </script>
 
 <style lang="scss" scoped>
-.home{background:$paper;min-height:100vh;position:relative}
-.bgsakura{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;opacity:.55;
-  background:url(@/static/img/bg-sakura-wash.jpg) no-repeat;background-size:100% 100%}
+.home{background:$paper;min-height:100vh}
 /* header：实底 + 安全区，和 KyotoHeader 同一处理（真机不透字） */
 .hdr{display:flex;align-items:center;justify-content:space-between;
   padding:calc(#{$sp-2} + env(safe-area-inset-top)) $sp-3 18rpx;
@@ -245,6 +240,7 @@ const promoBg = `
 .hds{min-width:150rpx;display:flex;align-items:center;gap:10rpx}
 .hds.r{justify-content:flex-end}
 .brand{display:flex;flex-direction:column;align-items:center;gap:2rpx}
+.bname{font-family:'Cinzel',serif;font-weight:600;font-size:46rpx;letter-spacing:.30em;color:$ink;padding-left:.30em;line-height:1}
 .des{font-size:15rpx;letter-spacing:.42em;color:$muted;font-weight:$fw-med;padding-left:.42em}
 .hbtn{position:relative;color:$ink;padding:6rpx;display:flex;align-items:center}
 .hbtn :deep(svg){width:44rpx;height:44rpx;display:block}
