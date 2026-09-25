@@ -19,6 +19,21 @@
       <text class="grp">{{$t('account.language')}}</text>
       <LanguageSelector />
     </view>
+    <view class="theme-sec">
+      <text class="grp">{{$t('account.theme')}}</text>
+      <view class="theme-opts">
+        <view class="theme-opt" :class="{on: theme.name==='pagoda'}" @click="theme.setTheme('pagoda')">
+          <view class="to-sw pagoda"></view>
+          <text class="to-n">{{$t('account.themePagoda')}}</text>
+          <text v-if="theme.name==='pagoda'" class="to-check">✓</text>
+        </view>
+        <view class="theme-opt" :class="{on: theme.name==='sunset'}" @click="theme.setTheme('sunset')">
+          <view class="to-sw sunset"></view>
+          <text class="to-n">{{$t('account.themeSunset')}}</text>
+          <text v-if="theme.name==='sunset'" class="to-check">✓</text>
+        </view>
+      </view>
+    </view>
     <!-- 母版 09：退出登录是一行 Vermilion 文字操作，不是一颗大按钮 -->
     <view v-if="user.signedIn" class="signout" @click="signOut">
       <view class="so-ic" v-html="icons.signout"></view>
@@ -33,7 +48,9 @@ import LanguageSelector from '@/components/LanguageSelector.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import { useUserStore } from '@/stores/user';
+import { useThemeStore } from '@/stores/theme';
 const user = useUserStore();
+const theme = useThemeStore();
 /* 线条图标取代 emoji（母版 09）。不要在 v-html 里写 rpx —— webview 不认，
    尺寸由 .mi-ic :deep(svg) 的编译期 CSS 决定。 */
 const A=(d:string)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
@@ -66,6 +83,15 @@ const signOut=async()=>{ await user.signOut(); uni.reLaunch({url:'/pages/home/in
 .mi-n{flex:1;font-size:$fs-sm;font-weight:$fw-med;color:$ink}
 .mi-arr{color:$line-strong;font-size:$fs-md}
 .lang-sec{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:24rpx;box-shadow:$shadow-soft}
+.theme-sec{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:24rpx;box-shadow:$shadow-soft;margin-top:$sp-3}
+.theme-opts{display:flex;flex-direction:column;gap:12rpx;margin-top:16rpx}
+.theme-opt{display:flex;align-items:center;gap:18rpx;padding:18rpx;border:1rpx solid $line;border-radius:$r-md}
+.theme-opt.on{border-color:$accent-strong;background:$tint-accent}
+.to-sw{width:72rpx;height:72rpx;border-radius:$r-sm;flex-shrink:0;border:1rpx solid $line}
+.to-sw.pagoda{background:linear-gradient(135deg,$paper 55%,$indigo 55%)}
+.to-sw.sunset{background:linear-gradient(135deg,$vermilion 0%,$gold 48%,$indigo 100%)}
+.to-n{flex:1;font-size:$fs-sm;font-weight:$fw-med;color:$ink}
+.to-check{color:$accent-strong;font-weight:$fw-bold;font-size:$fs-md}
 .signout{display:flex;align-items:center;gap:18rpx;margin-top:$sp-3;padding:24rpx;
   background:$card;border:1rpx solid $line;border-radius:$r-md;color:$accent-strong;box-shadow:$shadow-soft}
 .so-ic{width:40rpx;height:40rpx;display:flex;align-items:center;justify-content:center;flex-shrink:0}

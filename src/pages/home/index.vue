@@ -1,5 +1,5 @@
 <template>
-  <view class="home">
+  <view class="home" :class="themeClass">
     <!-- HEADER：汉堡菜单 | 品牌 | 搜索+购物袋（对标参考稿） -->
     <view class="hdr">
       <view class="hds"><view class="hbtn" @click="openMenu" v-html="icMenu"></view></view>
@@ -18,8 +18,8 @@
     </view>
 
     <view class="page-pad hbody">
-      <!-- HERO：宝塔樱花实拍 + 衬线标题 + 印章 -->
-      <view class="hero">
+      <!-- HERO·宝塔：宝塔樱花实拍 + 衬线标题 + 印章（默认主题） -->
+      <view v-if="!isSunset" class="hero">
         <image class="himg" src="@/static/img/hero-kyoto.jpg" mode="aspectFill" />
         <view class="hwash"></view>
         <view class="hin">
@@ -39,6 +39,24 @@
           </view>
         </view>
         <view class="dots"><view class="dot on"></view><view class="dot"></view><view class="dot"></view></view>
+      </view>
+
+      <!-- HERO·日出：品牌主视觉原图 + 几何无衬线标语 -->
+      <view v-else class="hero-sun">
+        <image class="hsun-img" src="@/static/img/hero-sunset.jpg" mode="widthFix" />
+        <view class="hsun-body">
+          <text class="hsun-slogan">{{ $t('home.hero.slogan') }}</text>
+          <text class="hsun-slogan-en">SEE CLEARLY, SEE FURTHER.</text>
+          <view class="hsun-ctas">
+            <view class="cta" @click="nav('/pages/frames/index', true)">
+              <text>{{ $t('home.hero.cta') }}</text>
+              <view class="arr" v-html="icArrow"></view>
+            </view>
+            <view class="cta ghost" @click="nav('/pages/tryon/index?frame=arashiyama')">
+              <text>{{ $t('home.hero.ctaTryOn') }}</text>
+            </view>
+          </view>
+        </view>
       </view>
 
       <!-- QUICK SERVICES -->
@@ -102,6 +120,7 @@ import ProductCard from '@/components/ProductCard.vue';
 import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
 import { useAppStore } from '@/stores/app';
+import { useThemeStore } from '@/stores/theme';
 import { i18n } from '@/i18n';
 import type { Locale } from '@/models';
 import { isContactLensAvailable } from '@/config/launch-availability.config';
@@ -110,6 +129,11 @@ import { BRAND } from '@/config/brand-colors';
 const products = useProductStore();
 const cart = useCartStore();
 const app = useAppStore();
+const theme = useThemeStore();
+
+/* 外观主题：pagoda（默认）/ sunset 可切换，只影响视觉层 */
+const isSunset = computed(() => theme.name === 'sunset');
+const themeClass = computed(() => `theme-${theme.name}`);
 
 /* 汉堡菜单：5 个主页面 + 3 种语言 */
 const locales: { code: Locale; label: string; short: string }[] = [
@@ -287,6 +311,21 @@ const promoBg = `
 .dots{position:absolute;left:0;right:0;bottom:24rpx;display:flex;justify-content:center;gap:10rpx}
 .dot{width:10rpx;height:10rpx;border-radius:50%;background:rgba(20,27,61,.16)}
 .dot.on{width:38rpx;border-radius:6rpx;background:$ink}
+/* ---- 日出主题：品牌主视觉原图 + 几何无衬线标语 ---- */
+.hero-sun{border-radius:$r-lg;overflow:hidden;background:$card;border:1rpx solid $line;box-shadow:$shadow-soft}
+.hsun-img{width:100%;display:block}
+.hsun-body{padding:28rpx 28rpx 32rpx}
+.hsun-slogan{font-family:'Sora','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  font-weight:800;font-size:40rpx;color:$ink;line-height:1.35;display:block}
+.hsun-slogan-en{font-family:'Sora',sans-serif;font-weight:700;font-size:20rpx;
+  letter-spacing:.28em;color:$teal;margin-top:10rpx;display:block}
+.hsun-ctas{display:flex;gap:16rpx;margin-top:24rpx}
+.hsun-ctas .cta{margin-top:0}
+.cta.ghost{background:transparent;color:$ink;border:2rpx solid $ink;box-shadow:none}
+/* 日出主题下，展示标题从衬线(Cinzel)换成几何无衬线(Sora) */
+.theme-sunset .bname{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:.24em}
+.theme-sunset .h2{font-family:'Sora','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  font-weight:800;letter-spacing:.01em}
 /* sections */
 .sec{margin-top:42rpx}
 .sechd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18rpx}
