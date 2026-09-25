@@ -3,7 +3,7 @@
     <!-- 真机自拍 / 相册照片，全屏显示 -->
     <image v-if="photo" class="feed" :src="photo" mode="aspectFill"></image>
     <!-- top bar -->
-    <view class="top-bar">
+    <view class="try-topbar">
       <view class="cb" @click="exitCam">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </view>
@@ -29,7 +29,7 @@
     <view v-else>
       <!-- frame overlay（可拖动） -->
       <view class="overlay"
-        :style="{marginLeft:ox+'px',marginTop:oy+'px',width:(520*oscale)+'rpx'}"
+        :style="{marginLeft:ox+'px',marginTop:oy+'px',width:(700*oscale)+'rpx'}"
         @touchstart="onDragStart" @touchmove.stop.prevent="onDragMove">
         <FrameArt :art="selFrame?.art??'round'" :hex="selColor?.hex??'#0D1B2A'" style="width:100%;height:auto"/>
       </view>
@@ -214,7 +214,7 @@ async function snap(){
     ctx.drawImage(photo.value,(W-dw)/2,(H-dh)/2,dw,dh);
     // 眼镜位置：屏幕坐标 → canvas 坐标
     const kx=W/sys.windowWidth, ky=H/sys.windowHeight;
-    const owPx=(520*oscale.value)/750*sys.windowWidth;
+    const owPx=(700*oscale.value)/750*sys.windowWidth;
     const artW=owPx*0.72; // 与 FrameArt 内层 svg 的 72% 对齐
     drawFrameArt(ctx, selFrame.value?.art??'round', selColor.value?.hex??'#0D1B2A',
       (sys.windowWidth/2+ox.value)*kx, (sys.windowHeight*0.42+oy.value)*ky, artW*kx);
@@ -232,7 +232,7 @@ const permArt = `<svg viewBox="0 0 280 180" style="width:100%"><circle cx="140" 
 .cam{position:fixed;inset:0;background:#1a1714;color:#fff;overflow:hidden}
 .feed{position:absolute;inset:0;width:100%;height:100%}
 .feed.zoom{transform:scale(1.25) translateY(6%)}
-.top-bar{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 30rpx;z-index:10}
+.try-topbar{position:absolute;top:calc(24rpx + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 30rpx;z-index:10;background:transparent;margin:0}
 .tb-mid{display:flex;flex-direction:column;align-items:center;gap:6rpx}
 .cb{width:72rpx;height:72rpx;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:28rpx;color:#fff}
 .cb svg{width:36rpx;height:36rpx;stroke:currentColor;fill:none;stroke-width:2}.cb.on{background:$accent-strong}
