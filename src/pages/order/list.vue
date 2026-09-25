@@ -10,7 +10,7 @@
       <text class="ord-date">{{new Date(o.createdAt).toLocaleDateString()}}</text>
       <text class="ord-total">${{o.total}}</text>
     </view>
-    <KyotoBottomNav active="account"/>
+    <KyotoBottomNav active="orders"/>
   </view>
 </template>
 <script setup lang="ts">

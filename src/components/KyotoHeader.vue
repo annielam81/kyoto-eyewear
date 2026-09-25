@@ -14,7 +14,7 @@ defineProps<{ back?: boolean }>();
 const goBack = () => uni.navigateBack({ fail: () => uni.switchTab?.({ url: '/pages/home/index' }) });
 </script>
 <style lang="scss" scoped>
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:$sp-2 $sp-3;position:sticky;top:0;z-index:$z-nav;background:rgba(255,245,230,.95);backdrop-filter:blur(10px)}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:$sp-2 $sp-3;position:sticky;top:0;z-index:$z-nav;background:rgba($paper,.94);backdrop-filter:blur(10px);border-bottom:1rpx solid $line}
 .side{min-width:150rpx;display:flex;align-items:center}
 .side.r{justify-content:flex-end}
 .back{display:flex;align-items:center;gap:6rpx;color:$teal;font-size:$fs-sm;font-weight:$fw-semi}
