@@ -53,7 +53,7 @@ export default {
     email:'Email', password:'Password', forgot:'Forgot password?', signIn:'Sign in',
     orWith:'or continue with', apple:'Apple', google:'Google', xhs:'RED', create:'New here? Create an account',
     mockNote:'Mock sign-in (provider integration pending)' },
-  home: { hero:{ eyebrow:'🎉 Grand opening: $79.99', title:'Frames inspired by Kyoto.',
+  home: { hero:{ eyebrow:'GRAND OPENING · $79.99', title:'Frames inspired by Kyoto.',
       titleA:'See a', titleB:'Brighter You',
       subtitle:'A complete pair of prescription glasses from $79.99 (reg. $89.99).', cta:'Shop the Collection',
       motto:'SEE BEYOND TODAY' },

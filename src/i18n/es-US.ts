@@ -53,7 +53,7 @@ export default {
     email:'Correo electrónico', password:'Contraseña', forgot:'¿Olvidaste tu contraseña?', signIn:'Iniciar sesión',
     orWith:'o continúa con', apple:'Apple', google:'Google', xhs:'RED', create:'¿Nuevo aquí? Crea una cuenta',
     mockNote:'Inicio de sesión de prueba (integración pendiente)' },
-  home: { hero:{ eyebrow:'🎉 Apertura: $79.99', title:'Monturas inspiradas en Kioto.',
+  home: { hero:{ eyebrow:'APERTURA · $79.99', title:'Monturas inspiradas en Kioto.',
       titleA:'Mira', titleB:'un futuro más brillante',
       subtitle:'Un par completo con graduación desde $79.99 (antes $89.99).', cta:'Comprar la colección',
       motto:'SEE BEYOND TODAY' },

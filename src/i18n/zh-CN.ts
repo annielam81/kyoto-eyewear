@@ -53,7 +53,7 @@ export default {
     email:'邮箱', password:'密码', forgot:'忘记密码?', signIn:'登录',
     orWith:'或使用以下方式', apple:'Apple', google:'Google', xhs:'小红书', create:'新用户?创建账号',
     mockNote:'模拟登录(第三方登录待配置)' },
-  home: { hero:{ eyebrow:'🎉 开业限定价 $79.99', title:'灵感来自京都的镜框。',
+  home: { hero:{ eyebrow:'开业限定 · $79.99', title:'灵感来自京都的镜框。',
       titleA:'京都眼镜', titleB:'灵感来自京都的镜框。',
       subtitle:'一副完整处方眼镜，从 $79.99 起（原价 $89.99）。', cta:'选购镜框',
       motto:'SEE BEYOND TODAY' },
