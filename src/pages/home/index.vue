@@ -255,7 +255,7 @@ const promoBg = `
 .hwash{position:absolute;left:0;top:0;right:0;bottom:0;
   background:
     linear-gradient(90deg, rgba(250,247,242,.80) 0%, rgba(250,247,242,.32) 52%, rgba(250,247,242,0) 80%),
-    linear-gradient(180deg, rgba(250,247,242,.10) 0%, rgba(250,247,242,0) 45%, rgba(250,247,242,.55) 82%, $paper 100%)}
+    linear-gradient(180deg, rgba(250,247,242,.10) 0%, rgba(250,247,242,0) 45%, rgba(250,247,242,.38) 82%, $paper 100%)}
 .hin{position:relative;display:flex;justify-content:space-between;padding:46rpx 36rpx 64rpx}
 .hcopy{display:flex;flex-direction:column;max-width:66%}
 .ta{font-family:$font-serif;font-size:54rpx;font-weight:600;color:$ink;line-height:1.18}
