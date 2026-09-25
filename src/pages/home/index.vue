@@ -1,8 +1,8 @@
 <template>
   <view class="home">
-    <!-- HEADER：语言 | 品牌 | 搜索+购物袋 -->
+    <!-- HEADER：汉堡菜单 | 品牌 | 搜索+购物袋（对标参考稿） -->
     <view class="hdr">
-      <view class="hds"><LanguageSelector compact /></view>
+      <view class="hds"><view class="hbtn" @click="openMenu" v-html="icMenu"></view></view>
       <view class="brand">
         <KyotoWordmark :height="20" />
         <text class="des">EYEWEAR</text>
@@ -23,7 +23,7 @@
         <view class="hwash"></view>
         <view class="hin">
           <view class="hcopy">
-            <text class="ta">{{ $t('home.hero.titleA') }}</text>
+            <text class="ta" :class="{ 'ta-zh': $i18n.locale === 'zh-CN' }">{{ $t('home.hero.titleA') }}</text>
             <text class="tb">{{ $t('home.hero.titleB') }}</text>
             <text class="hsub">{{ $t('home.hero.subtitle') }}</text>
             <view class="cta" @click="nav('/pages/frames/index', true)">
@@ -95,17 +95,45 @@ import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 
 import KyotoWordmark from '@/components/KyotoWordmark.vue';
-import LanguageSelector from '@/components/LanguageSelector.vue';
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
 import ProductCard from '@/components/ProductCard.vue';
 
 import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
+import { useAppStore } from '@/stores/app';
+import { i18n } from '@/i18n';
+import type { Locale } from '@/models';
 import { isContactLensAvailable } from '@/config/launch-availability.config';
 import { BRAND } from '@/config/brand-colors';
 
 const products = useProductStore();
 const cart = useCartStore();
+const app = useAppStore();
+
+/* 汉堡菜单：5 个主页面 + 3 种语言（语言切换从 header 移到这里） */
+const openMenu = () => {
+  const t = i18n.global.t;
+  const navItems = [
+    { label: t('nav.home'), url: '/pages/home/index' },
+    { label: t('nav.shop'), url: '/pages/frames/index' },
+    { label: t('nav.tryOn'), url: '/pages/tryon/index' },
+    { label: t('nav.cart'), url: '/pages/cart/index' },
+    { label: t('nav.account'), url: '/pages/account/index' },
+  ];
+  const locales: { code: Locale; label: string }[] = [
+    { code: 'en-US', label: 'English' },
+    { code: 'zh-CN', label: '中文' },
+    { code: 'es-US', label: 'Español' },
+  ];
+  uni.showActionSheet({
+    itemList: [...navItems.map((n) => n.label), ...locales.map((l) => l.label)],
+    success: (res) => {
+      const i = res.tapIndex;
+      if (i < navItems.length) nav(navItems[i].url, true);
+      else app.setLocale(locales[i - navItems.length].code);
+    },
+  });
+};
 
 onShow(() => products.ensure());
 
@@ -130,12 +158,15 @@ const openDetail = (id: string) =>
   });
 
 /* -------------------------------------------------------
-   图标：v-html 运行时注入，webview 不认识 rpx，
-   尺寸一律不写在字符串里，由下面 CSS 的 :deep(svg) 决定。
+   图标：v-html 运行时注入；svg 自身不写宽高，
+   尺寸一律由下面 CSS 的 :deep(svg) 决定。
+   （之前内联写了 width/height:100%，会覆盖 CSS，
+   在没有固定尺寸的容器里把图标撑得巨大——已修复）
 ------------------------------------------------------- */
 const I = (d: string) =>
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;display:block">${d}</svg>`;
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block">${d}</svg>`;
 
+const icMenu = I('<path d="M4 7h16M4 12h16M4 17h16"/>');
 const icSearch = I('<circle cx="11" cy="11" r="7"/><path d="M20.5 20.5 16 16"/>');
 const icBag = I('<path d="M5.5 8h13l-1 12.5a1 1 0 0 1-1 .5h-11a1 1 0 0 1-1-.5z"/><path d="M9 10.5V6.8a3 3 0 0 1 6 0v3.7"/>');
 const icArrow = I('<path d="M4 12h15M13.5 6l6 6-6 6"/>');
@@ -226,6 +257,7 @@ const promoBg = `
 .hin{position:relative;display:flex;justify-content:space-between;padding:46rpx 36rpx 64rpx}
 .hcopy{display:flex;flex-direction:column;max-width:66%}
 .ta{font-family:$font-serif;font-size:54rpx;font-weight:600;color:$ink;line-height:1.18}
+.ta-zh{font-size:40rpx;letter-spacing:.04em}
 .tb{font-family:$font-serif;font-size:54rpx;font-weight:400;color:$ink;line-height:1.28}
 .hsub{font-size:$fs-xs;color:$muted;margin-top:16rpx;line-height:1.7;white-space:pre-line}
 .cta{margin-top:24rpx;align-self:flex-start;display:flex;align-items:center;gap:12rpx;
