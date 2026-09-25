@@ -238,8 +238,13 @@ function choose(src:'camera'|'album'){
   });
 }
 function addCart(){ cart.add(cur.value.id, { colorKey: curColor.value.key }, 1); uni.showToast({ title:'✓', icon:'none' }); }
-function goBack(){ uni.navigateBack(); }
-function close(){ photo.value=''; step.value='pick'; uni.navigateBack(); }
+function exitTryon(){
+  photo.value=''; step.value='pick'; comparing.value=false;
+  if (getCurrentPages().length > 1) uni.navigateBack();
+  else uni.reLaunch({ url:'/pages/home/index' });
+}
+function goBack(){ exitTryon(); }
+function close(){ exitTryon(); }
 
 onLoad(()=>{ store.ensure(); });
 onShow(()=>{ store.ensure(); });
