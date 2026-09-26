@@ -133,7 +133,7 @@ const clamp = (v:number,a:number,b:number)=>Math.max(a,Math.min(b,v));
 type Step = 'pick'|'cal'|'try';
 const step = ref<Step>('pick');
 const photo = ref('');
-const frames = computed(()=>((store.frames||[]) as any[]).filter(f=>f.prescriptionCompatible));
+const frames = computed(()=>((store.sellable||[]) as any[]).filter(f=>f.prescriptionCompatible));
 const cur = ref<any>({}); const ci = ref(0);
 const curColor = computed(()=>cur.value.colors?.[ci.value] ?? {hex:'#141B3D'});
 const seriesPrice = (f:any)=>frameSellPrice(f);

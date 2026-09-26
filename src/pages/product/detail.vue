@@ -162,7 +162,7 @@ const seriesName = computed(()=>frame.value?SERIES_INFO[frame.value.series].name
 const seriesTagline = computed(()=>frame.value?SERIES_INFO[frame.value.series].tagline[loc.value]:'');
 const selColor = computed(()=>frame.value?.colors[colorIdx.value]??{hex:'#0D1B2A',key:'night',name:{'en-US':'Night','zh-CN':'夜空蓝','es-US':'Noche'}});
 const selSize = computed(()=>frame.value?.sizes[sizeIdx.value]??{key:'M',lensWidth:49,bridge:20,temple:145});
-const related = computed(()=>products.frames.filter(f=>f.id!==frameId.value).slice(0,4));
+const related = computed(()=>products.sellable.filter(f=>f.id!==frameId.value).slice(0,4));
 const accs = [{k:'ship',title:'product.shippingTitle',body:'product.shipping'},{k:'war',title:'product.warrantyTitle',body:'product.warranty'}];
 const reviews = [{who:'Maya K. · M · Night',body:'Light as air, the keyhole bridge never slips. Got the 1.60 blue-light — zero glare on calls.'},{who:'Wen L. · S · Sakura',body:'Bought for my daughter. Fit guide was spot on. Love the sakura pink.'}];
 function initSize(){ const f=products.byId(frameId.value); if(f){ const i=f.sizes.findIndex(x=>x.key===f.defaultSize); sizeIdx.value=i>=0?i:0; } }

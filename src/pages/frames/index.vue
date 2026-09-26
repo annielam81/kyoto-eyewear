@@ -41,6 +41,7 @@ import { onShow } from '@dcloudio/uni-app';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { SERIES_INFO, SERIES_PRICE, OPENING_PROMO } from '@/config/pricing.config';
+import { isSunglassesAvailable } from '@/config/launch-availability.config';
 import type { FrameSeries, Locale } from '@/models';
 const products = useProductStore();
 const { locale } = useI18n();
@@ -52,10 +53,12 @@ const seriesChips = computed(() => (['essential', 'signature', 'atelier'] as Fra
 })));
 onShow(() => products.ensure());
 /* 分类与款式都写回同一个既有 filter 字段（store 的 filtered 同时匹配 category 与 frameShape），
-   因此这里只是把现有能力按母版的两行结构呈现，没有新增任何筛选逻辑。 */
-const cats = [
-  { k:'all', l:'frames.all' }, { k:'optical', l:'frames.optical' }, { k:'sun', l:'frames.sun' },
-];
+   因此这里只是把现有能力按母版的两行结构呈现，没有新增任何筛选逻辑。
+   太阳镜在发售期隐藏：tab 不渲染，store 的 sellable/filtered 也已过滤。 */
+const cats = computed(() => [
+  { k:'all', l:'frames.all' }, { k:'optical', l:'frames.optical' },
+  ...(isSunglassesAvailable() ? [{ k:'sun', l:'frames.sun' }] : []),
+]);
 const shapes = [
   { k:'round', l:'frames.round' }, { k:'square', l:'frames.square' }, { k:'cat-eye', l:'frames.catEye' },
 ];

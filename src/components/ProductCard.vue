@@ -13,8 +13,8 @@
       </view>
       <view v-if="mode==='best'" class="meta">
         <view class="sws">
-          <view v-for="c in frame.colors" :key="c.code" class="sw" :class="{ on: selKey===c.code }"
-            :style="{ background: c.hex }" @click.stop="selKey = c.code"></view>
+          <view v-for="c in frame.colors" :key="c.key" class="sw" :class="{ on: selKey===c.key }"
+            :style="{ background: c.hex }" @click.stop="selKey = c.key"></view>
         </view>
         <view class="rate"><view class="star" v-html="icStar"></view><text>{{ rate }}</text></view>
       </view>
@@ -40,8 +40,8 @@ const loc = computed(() => locale.value as Locale);
 const fav = useFavoritesStore();
 const cart = useCartStore();
 
-const selKey = ref(props.frame.colors[0]?.code ?? '');
-const selHex = computed(() => props.frame.colors.find(c => c.code === selKey.value)?.hex ?? '#141B3D');
+const selKey = ref(props.frame.colors[0]?.key ?? '');
+const selHex = computed(() => props.frame.colors.find(c => c.key === selKey.value)?.hex ?? '#141B3D');
 const rate = computed(() => `${props.frame.rating.toFixed(1)} (${props.frame.reviewCount})`);
 const sellPrice = computed(() => frameSellPrice(props.frame));
 const onPromo = computed(() => frameOnPromo(props.frame));

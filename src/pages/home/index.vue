@@ -59,11 +59,10 @@
         </view>
       </view>
 
-      <!-- QUICK SERVICES -->
+      <!-- QUICK SERVICES：服务项已全部展示，不需要“查看全部”（之前误跳到镜框页） -->
       <view class="sec">
         <view class="sechd">
           <text class="h2">{{ $t('home.servicesTitle') }}</text>
-          <text class="all" @click="nav('/pages/frames/index', true)">{{ $t('common.seeAll') }} ›</text>
         </view>
         <view class="qgrid">
           <view v-for="q in quick" :key="q.k" class="qcard" @click="q.go()">
@@ -107,14 +106,24 @@
     </view>
 
     <KyotoBottomNav active="home" />
+
+    <!-- FSA / HSA 说明弹窗 -->
+    <view v-if="showFsa" class="sheet-mask" @click="showFsa = false">
+      <view class="sheet" @click.stop>
+        <text class="sheet-t">{{ $t('home.fsaSheet.title') }}</text>
+        <text class="sheet-b">{{ $t('home.fsaSheet.body') }}</text>
+        <KyotoButton variant="night" @click="showFsa = false">{{ $t('common.done') }}</KyotoButton>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
+import KyotoButton from '@/components/KyotoButton.vue';
 import ProductCard from '@/components/ProductCard.vue';
 
 import { useProductStore } from '@/stores/product';
@@ -170,13 +179,13 @@ const openMenu = () => {
 onShow(() => products.ensure());
 
 const best = computed(() =>
-  products.frames.filter(
+  products.sellable.filter(
     f => f.bestSeller || ['gion', 'tasogare'].includes(f.id)
   )
 );
 
 const news = computed(() =>
-  products.frames.filter(f => f.newArrival).slice(0, 4)
+  products.sellable.filter(f => f.newArrival).slice(0, 4)
 );
 
 const nav = (url: string, relaunch = false) =>
@@ -222,9 +231,12 @@ const quick = [
   {
     k: 'fsa',
     icon: I('<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 14.5h4"/>'),
-    go: () => uni.showToast({ title: 'FSA / HSA', icon: 'none' }),
+    go: () => { showFsa.value = true; },
   },
 ];
+
+/* FSA / HSA 说明弹窗 */
+const showFsa = ref(false);
 
 const showContactLenses = isContactLensAvailable();
 
@@ -354,4 +366,11 @@ const promoBg = `
 .psb{font-size:$fs-xs;line-height:1.5;opacity:.8}
 .pcta{align-self:flex-start;margin-top:12rpx;padding:12rpx 24rpx;color:#fff;
   background:$accent-strong;border-radius:$r-sm;font-size:$fs-xs;font-weight:$fw-semi}
+/* FSA / HSA 说明弹窗 */
+.sheet-mask{position:fixed;inset:0;background:rgba(20,27,61,.45);display:flex;
+  align-items:flex-end;justify-content:center;z-index:60}
+.sheet{width:100%;background:$card;border-radius:$r-lg $r-lg 0 0;padding:40rpx 36rpx 48rpx;
+  display:flex;flex-direction:column;gap:18rpx}
+.sheet-t{font-size:$fs-md;font-weight:$fw-semi;color:$ink}
+.sheet-b{font-size:$fs-sm;line-height:1.65;color:$ink;opacity:.82}
 </style>

@@ -20,6 +20,9 @@ export const LAUNCH_AVAILABILITY = {
   } as Record<PrescriptionType, boolean>,
   /** 隐形眼镜（含订阅）——初始版本不对客户开放 */
   contactLenses: false,
+  /** 太阳镜——初始版本不对客户开放（只卖光学镜）。
+   *  数据、筛选、试戴、详情页全部保留，日后把这里改回 true 即可恢复在售。 */
+  sunglasses: false,
 } as const;
 
 /** 该镜片类型当前是否对客户开放。 */
@@ -40,6 +43,9 @@ export const soleLensType = (): PrescriptionType | null =>
 
 /** 隐形眼镜入口（首页订阅横幅等）当前是否对客户开放。 */
 export const isContactLensAvailable = (): boolean => LAUNCH_AVAILABILITY.contactLenses;
+
+/** 太阳镜当前是否对客户开放（初始版本只卖光学镜）。 */
+export const isSunglassesAvailable = (): boolean => LAUNCH_AVAILABILITY.sunglasses;
 
 /**
  * 发售期对**已存在**的镜片类型取值做收敛。

@@ -2,38 +2,68 @@
   <view class="page-pad login">
     <KyotoHeader back />
     <KyotoWordmark :height="24" style="margin:34rpx 0 30rpx" />
-    <text class="h1">{{ $t('auth.title') }}</text>
-    <text class="sub" style="margin:10rpx 0 34rpx;display:block">{{ $t('auth.subtitle') }}</text>
+    <text class="h1">{{ mode==='signin' ? $t('auth.title') : $t('auth.signupTitle') }}</text>
+    <text class="sub" style="margin:10rpx 0 34rpx;display:block">{{ mode==='signin' ? $t('auth.subtitle') : $t('auth.signupSubtitle') }}</text>
+
+    <view v-if="mode==='signup'" class="field"><text class="lb">{{ $t('auth.name') }}</text>
+      <input class="in" type="text" v-model="name" :placeholder="$t('auth.namePh')" /></view>
     <view class="field"><text class="lb">{{ $t('auth.email') }}</text>
       <input class="in" type="text" v-model="email" placeholder="you@example.com" /></view>
     <view class="field"><text class="lb">{{ $t('auth.password') }}</text>
       <input class="in" password v-model="pw" placeholder="••••••••" /></view>
-    <text class="forgot">{{ $t('auth.forgot') }}</text>
-    <KyotoButton variant="pink" :loading="busy" @click="doSignIn('email')">{{ $t('auth.signIn') }}</KyotoButton>
+    <view v-if="mode==='signup'" class="field"><text class="lb">{{ $t('auth.confirmPw') }}</text>
+      <input class="in" password v-model="pw2" placeholder="••••••••" /></view>
+
+    <text v-if="mode==='signin'" class="forgot" @click="forgotPw">{{ $t('auth.forgot') }}</text>
+    <KyotoButton variant="pink" :loading="busy" @click="submit">
+      {{ mode==='signin' ? $t('auth.signIn') : $t('auth.signUp') }}</KyotoButton>
+
     <text class="or">{{ $t('auth.orWith') }}</text>
     <view class="social">
-      <view class="sb" @click="doSignIn('apple')"> {{ $t('auth.apple') }}</view>
-      <view class="sb" @click="doSignIn('google')">G {{ $t('auth.google') }}</view>
-      <view class="sb" @click="doSignIn('xhs')">📕 {{ $t('auth.xhs') }}</view>
+      <view class="sb" @click="socialSoon">{{ $t('auth.apple') }}</view>
+      <view class="sb" @click="socialSoon">G {{ $t('auth.google') }}</view>
+      <view class="sb" @click="socialSoon">📕 {{ $t('auth.xhs') }}</view>
     </view>
-    <text class="create">{{ $t('auth.create') }}</text>
+    <text class="create" @click="mode = mode==='signin' ? 'signup' : 'signin'">
+      {{ mode==='signin' ? $t('auth.create') : $t('auth.switchToSignin') }}</text>
     <text class="mock">{{ $t('auth.mockNote') }}</text>
   </view>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoWordmark from '@/components/KyotoWordmark.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
 import { useUserStore } from '@/stores/user';
-const email = ref(''); const pw = ref(''); const busy = ref(false);
+const { t } = useI18n();
+const mode = ref<'signin'|'signup'>('signin');
+const name = ref(''); const email = ref(''); const pw = ref(''); const pw2 = ref('');
+const busy = ref(false);
 const user = useUserStore();
-async function doSignIn(p: any) {
-  busy.value = true;
-  await user.signIn(p, { email: email.value, password: pw.value });
-  busy.value = false;
-  uni.reLaunch({ url: '/pages/home/index' });
+const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+const fail = (msg: string) => { uni.showToast({ title: msg, icon: 'none' }); return false; };
+function validate(): boolean {
+  if (mode.value === 'signup' && !name.value.trim()) return fail(t('auth.errName'));
+  if (!emailOk(email.value)) return fail(t('auth.errEmail'));
+  if (!pw.value) return fail(t('auth.errPwEmpty'));
+  if (pw.value.length < 6) return fail(t('auth.errPwShort'));
+  if (mode.value === 'signup' && pw.value !== pw2.value) return fail(t('auth.errPwMatch'));
+  return true;
 }
+async function submit() {
+  if (!validate()) return;
+  busy.value = true;
+  const r = await user.signIn('email', { email: email.value.trim(), password: pw.value, name: name.value.trim() });
+  busy.value = false;
+  if (r.ok) uni.reLaunch({ url: '/pages/home/index' });
+  else fail(t('common.error'));
+}
+function forgotPw() {
+  if (!emailOk(email.value)) return fail(t('auth.errEmail'));
+  uni.showToast({ title: t('auth.forgotSent'), icon: 'none' });
+}
+function socialSoon() { uni.showToast({ title: t('auth.socialSoon'), icon: 'none' }); }
 </script>
 <style lang="scss" scoped>
 .field{display:flex;flex-direction:column;gap:10rpx;margin-bottom:24rpx}
@@ -43,6 +73,6 @@ async function doSignIn(p: any) {
 .or{display:block;text-align:center;font-size:$fs-xs;color:$muted;margin:30rpx 0 16rpx}
 .social{display:flex;gap:16rpx}
 .sb{flex:1;border:1rpx solid $line-strong;border-radius:$r-sm;padding:20rpx 10rpx;font-size:$fs-xs;font-weight:$fw-med;background:$card;color:$ink;display:flex;align-items:center;justify-content:center;gap:8rpx;min-height:78rpx;text-align:center;line-height:1.3}
-.create{display:block;text-align:center;font-size:$fs-sm;color:$muted;margin-top:36rpx}
+.create{display:block;text-align:center;font-size:$fs-sm;color:$ink;font-weight:$fw-semi;margin-top:36rpx;text-decoration:underline}
 .mock{display:block;text-align:center;font-size:$fs-xs;color:$muted;opacity:.6;margin-top:14rpx}
 </style>
