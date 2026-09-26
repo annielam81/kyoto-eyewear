@@ -7,6 +7,7 @@
       </view>
       <text class="h1">{{$t('tryon.permTitle')}}</text>
       <text class="sub perm-sub">{{$t('tryon.permBody')}}</text>
+      <text class="perm-note">{{$t('tryon.photoNote')}}</text>
       <view class="perm-cta">
         <view class="perm-btn primary" @tap="choose('camera')"><text class="pb-t">{{$t('tryon.takePhoto')}}</text></view>
         <view class="perm-btn" @tap="choose('album')"><text class="pb-t">{{$t('tryon.chooseAlbum')}}</text></view>
@@ -118,11 +119,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
+import { useI18n } from 'vue-i18n';
 import FrameArt from '@/components/FrameArt.vue';
 import KyotoWordmark from '@/components/KyotoWordmark.vue';
 import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
 import { frameSellPrice } from '@/config/pricing.config';
+import { trackEvent } from '@/utils/analytics';
+
+const { t } = useI18n();
 
 const store = useProductStore();
 const cart = useCartStore();
@@ -235,6 +240,7 @@ async function snap(){
     await new Promise<void>((res)=>ctx.draw(true,()=>res()));
     const tmp = await uni.canvasToTempFilePath({ canvasId:'snapCanvas' }) as any;
     await uni.saveImageToPhotosAlbum({ filePath: tmp.tempFilePath });
+    trackEvent('complete_virtual_tryon', { frame_id: cur.value?.id });
     snapSaved.value = true;
     clearTimeout(snapTimer); snapTimer = setTimeout(()=>snapSaved.value=false, 2200);
   }catch(e){ /* 保存失败保持静默 */ }
@@ -242,6 +248,7 @@ async function snap(){
 
 /* ---- 照片选择 / 购物车 / 返回 ---- */
 function choose(src:'camera'|'album'){
+  trackEvent('start_virtual_tryon', { source: src, frame_id: cur.value?.id });
   uni.chooseImage({ count:1, sizeType:['compressed'],
     sourceType: src==='camera' ? ['camera'] : ['album'],
     success:(r:any)=>{
@@ -252,7 +259,13 @@ function choose(src:'camera'|'album'){
     },
   });
 }
-function addCart(){ cart.add(cur.value.id, { colorKey: curColor.value.key }, 1); uni.showToast({ title:'✓', icon:'none' }); }
+function addCart(){
+  const f = cur.value;
+  if (!f?.id) return;
+  cart.addFrameOnly(f.id, f.sku, curColor.value.key, f.defaultSize ?? 'M', frameSellPrice(f));
+  trackEvent('add_to_cart', { frame_id: f.id, price: frameSellPrice(f), source: 'tryon' });
+  uni.showToast({ title: t('toast.addedCart'), icon:'none' });
+}
 function exitTryon(){
   photo.value=''; step.value='pick'; comparing.value=false;
   if (getCurrentPages().length > 1) uni.navigateBack();
@@ -289,6 +302,7 @@ onMounted(()=>{
 .pa-b{width:36rpx;height:20rpx;border-top:6rpx solid #B83227;border-radius:50%}
 .perm .h1{color:#FFF5E6;font-size:44rpx;margin:10rpx 0 18rpx}
 .perm-sub{color:rgba(255,245,230,.72);text-align:center;line-height:1.7}
+.perm-note{color:rgba(255,245,230,.55);font-size:24rpx;text-align:center;line-height:1.6;margin-top:16rpx;display:block}
 .perm-cta{display:flex;flex-direction:column;gap:22rpx;margin-top:44rpx;width:100%}
 .perm-btn{height:104rpx;border-radius:58rpx;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
 .perm-btn.primary{background:#B83227}

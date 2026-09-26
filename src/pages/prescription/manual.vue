@@ -19,6 +19,7 @@
     <view class="pdbox">
       <view class="pd-hd"><text class="pdlbl">{{$t('prescription.manual.pd')}}</text><text class="help-lnk" @click="showPd=!showPd">ⓘ {{$t('prescription.manual.pdHelp')}}</text></view>
       <view v-if="showPd" class="tip">{{$t('prescription.manual.pdTip')}}</view>
+      <view v-if="showPd" class="tip dim">{{$t('prescription.manual.pdMeasure')}}</view>
       <view class="pdtog">
         <text :class="['pdt',{on:pdMode==='single'}]" @click="pdMode='single'">{{$t('prescription.manual.pdSingle')}}</text>
         <text :class="['pdt',{on:pdMode==='dual'}]" @click="pdMode='dual'">{{$t('prescription.manual.pdDual')}}</text>
@@ -42,11 +43,14 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
+import { onLoad } from '@dcloudio/uni-app';
 import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
 import { useLensWizardStore, STEP, stepAfterRx } from '@/stores/lensWizard';
 import { PrescriptionService } from '@/services/PrescriptionService';
 import { usePrescriptionStore } from '@/stores/prescription';
+import { trackEvent } from '@/utils/analytics';
+onLoad(()=>trackEvent('start_prescription', { method: 'manual' }));
 import { useI18n } from 'vue-i18n';
 import type { Prescription } from '@/models';
 import { BRAND } from '@/config/brand-colors';
@@ -89,6 +93,7 @@ const use = ()=>{
     return;
   }
   rxStore.add(rx);
+  trackEvent('complete_prescription', { method: 'manual' });
   wizard.set('prescriptionMethod','manual');
   wizard.set('prescriptionId', rx.prescriptionId);
   wizard.setStrengthBand(PrescriptionService.strengthBand(rx));
@@ -98,6 +103,7 @@ const use = ()=>{
 <style lang="scss" scoped>
 .help-lnk{font-size:$fs-xs;color:$teal;font-weight:$fw-semi;display:inline-block;margin:6rpx 0 16rpx}
 .tip{background:$tint-teal2;border-radius:$r-sm;padding:20rpx;font-size:$fs-xs;color:$teal-deep;line-height:1.6;margin-bottom:16rpx}
+.tip.dim{background:$mist;color:$muted}
 .rxtbl{background:$card;border:1rpx solid $line;border-radius:$r-md;padding:18rpx;margin-top:14rpx}
 .rh{display:grid;grid-template-columns:80rpx repeat(4,1fr);gap:8rpx;margin-bottom:10rpx}
 .rc{text-align:center;font-size:18rpx;color:$muted;letter-spacing:.06em;font-weight:$fw-semi}

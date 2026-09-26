@@ -13,6 +13,7 @@
     <view v-if="w.step===STEP.rx&&w.use!=='nonrx'">
       <text class="h1">{{$t('wizard.s5.title')}}</text>
       <text class="sub" style="display:block;margin:10rpx 0 24rpx">{{$t('wizard.s5.subtitle')}}</text>
+      <text class="friendly">{{$t('wizard.s5.friendly')}}</text>
       <!-- 母版 04：竖排方式列表。四种方式与业务逻辑完全沿用代码，
            「拍照」入口保留在上传页内部（相机 / 相册两个按钮），未删除任何能力。 -->
       <view class="rxlist">
@@ -65,7 +66,7 @@
         :price-text="m.price?'+$'+m.price:$t('common.included')"
         :badge="m.id===wizard.recommendation?$t('common.recommended'):''"
         :selected="w.materialId===m.id" :disabled="!compat(m)"
-        @select="wizard.set('materialId',m.id)">
+        @select="pickMaterial(m)">
         <view v-if="m.badges.length" class="rec-badges">
           <text v-for="bg in m.badges" :key="bg" class="badge-pill">{{bg==='impact'?$t('wizard.s3.badgeImpact'):$t('wizard.s3.badgeLight')}}</text>
         </view>
@@ -86,7 +87,7 @@
       <view v-for="g in treatGroups" :key="g.k">
         <text class="grp">{{$t('wizard.s4.'+g.k)}}</text>
         <view v-for="tr in g.items" :key="tr.id" class="treat-row" :class="{incl:g.k==='groupIncluded'}"
-          @click="g.k!=='groupIncluded' && wizard.toggleTreatment(tr.id)">
+          @click="toggleTreat(g,tr)">
           <!-- Included 恒为已选且不可取消；Optional 默认关闭，必须客户主动勾选 -->
           <view class="tck" :class="{on:g.k==='groupIncluded'||w.treatmentIds.includes(tr.id), lock:g.k==='groupIncluded'}">
             <text v-if="g.k==='groupIncluded'||w.treatmentIds.includes(tr.id)">✓</text>
@@ -95,7 +96,7 @@
             <text class="treat-name">{{tr.name[loc]}}</text>
             <text class="treat-desc">{{tr.description[loc]}}</text>
           </view>
-          <text v-if="g.k==='groupIncluded'" class="treat-pr incl">$0</text>
+          <text v-if="g.k==='groupIncluded'" class="treat-pr incl">{{$t('common.included')}}</text>
           <text v-else class="treat-pr">{{tr.price?'+$'+tr.price:'$0'}}</text>
         </view>
       </view>
@@ -141,6 +142,7 @@ import { lensTypeAllowed, TYPES_REQUIRING_ADD } from '@/config/frame-lens-rules.
 import type { Locale, PrescriptionUse, PrescriptionType } from '@/models';
 import { BRAND } from '@/config/brand-colors';
 import { money } from '@/utils/format';
+import { trackEvent } from '@/utils/analytics';
 import { goBack as navBack, FALLBACK } from '@/utils/nav';
 const sp = (f: Frame) => frameSellPrice(f);
 const { locale,t } = useI18n(); const loc = computed(()=>locale.value as Locale);
@@ -231,6 +233,17 @@ const stepTitle = computed(()=> t(STEP_TITLE[w.value.step] ?? 'wizard.s5.short')
 const stepInFlow = (s:number)=> flowSteps.value.includes(s);
 const displayTotal = computed(()=> flowSteps.value.length);
 const displayStep  = computed(()=> Math.max(1, flowSteps.value.indexOf(w.value.step)+1));
+/* 镜片升级埋点：只有客户主动选中付费项才上报；Included 项与取消选择不上报 */
+function pickMaterial(m:any){
+  wizard.set('materialId', m.id);
+  if (m.price > 0) trackEvent('select_lens_upgrade', { upgrade: 'material:'+m.id, price: m.price });
+}
+function toggleTreat(g:any, tr:any){
+  if (g.k==='groupIncluded') return;
+  const wasOn = w.value.treatmentIds.includes(tr.id);
+  wizard.toggleTreatment(tr.id);
+  if (!wasOn && tr.price > 0) trackEvent('select_lens_upgrade', { upgrade: 'treatment:'+tr.id, price: tr.price });
+}
 function setType(k:string){
   wizard.set('type',k as PrescriptionType);
   // 用途由类型派生：选「老花镜」即 readers；改回其他类型时恢复入口派生值。
@@ -284,6 +297,7 @@ function advance(){
       prescriptionMethod:c.prescriptionMethod,prescriptionId:c.prescriptionId};
     if(c.editCartItemId) cart.replaceConfigured(c.editCartItemId,f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',sp(f),cfg);
     else cart.addConfigured(f.id,f.sku,c.colorKey??'night',c.sizeKey??'M',sp(f),cfg);
+    trackEvent('add_to_cart', { frame_id: f.id, price: sp(f)+wizard.lensPrice, source: 'lens_wizard' });
     wizard.reset();
     uni.navigateTo({url:'/pages/cart/index'});
     return;
@@ -302,6 +316,7 @@ function advance(){
 .ctx-n{font-size:$fs-xs;font-weight:$fw-semi;display:block}
 .ctx-p{font-size:$fs-sm;font-weight:$fw-bold;color:$accent-ink;display:block;margin-top:2rpx;font-variant-numeric:tabular-nums}
 .pick-hint{background:transparent;border:1rpx dashed $line-strong;border-radius:$r-sm;padding:22rpx;text-align:center;color:$muted;font-size:$fs-xs;line-height:1.6;margin-top:14rpx}
+.friendly{display:block;font-size:$fs-xs;color:$muted;line-height:1.6;margin:0 0 22rpx}
 .rec-badges{display:flex;gap:10rpx;flex-wrap:wrap;margin:8rpx 0}
 .incompat{font-size:$fs-xs;color:$sunrise;font-weight:$fw-semi;line-height:1.5}
 .badge-pill{font-size:16rpx;padding:4rpx 12rpx;border-radius:$r-xs;background:transparent;border:1rpx solid $line-strong;color:$muted;font-weight:$fw-semi;letter-spacing:.08em;text-transform:uppercase}

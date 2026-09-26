@@ -108,6 +108,7 @@ import { LENS_MATERIALS } from '@/config/lens-materials.config';
 import { TREATMENTS } from '@/config/treatments.config';
 import { isTreatmentVisible } from '@/config/launch-availability.config';
 import { money } from '@/utils/format';
+import { trackEvent } from '@/utils/analytics';
 import type { Locale, Address } from '@/models';
 import { onShow } from '@dcloudio/uni-app';
 
@@ -203,6 +204,7 @@ async function place(){
       d.value.payMethod, JSON.parse(JSON.stringify(activeAddr.value)), cart.rxNeeded, d.value.shippingMethodId, idemKey);
     orderStore.lastOrderId = order.orderId;
     idemKey = null;
+    trackEvent('purchase', { order_id: order.orderId, total: cart.subtotal+shipCost.value+tax.value, items: cart.items.length });
     cart.clear(); checkout.placeState='success'; checkout.reset();
     uni.reLaunch({ url:`/pages/order/confirmation?id=${order.orderId}` });
   } catch (e:any) {

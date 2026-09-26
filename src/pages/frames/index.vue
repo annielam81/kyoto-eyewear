@@ -25,7 +25,13 @@
     </view></scroll-view>
     <text class="count">{{ products.filtered.length }} {{ $t('frames.styles') }}</text>
 
-    <view class="grid">
+    <view v-if="!products.loaded" class="state"><text class="state-tx">{{ $t('common.loading') }}</text></view>
+    <view v-else-if="!products.filtered.length" class="state">
+      <EmptyState :text="$t('common.empty')" emoji="◯">
+        <KyotoButton variant="night" size="sm" @click="products.filter='all'">{{ $t('frames.all') }}</KyotoButton>
+      </EmptyState>
+    </view>
+    <view v-else class="grid">
       <ProductCard v-for="f in products.filtered" :key="f.id" :frame="f" @open="openDetail" />
     </view>
     <KyotoBottomNav active="shop" />
@@ -35,6 +41,8 @@
 import KyotoWordmark from '@/components/KyotoWordmark.vue';
 import LanguageSelector from '@/components/LanguageSelector.vue';
 import KyotoBottomNav from '@/components/KyotoBottomNav.vue';
+import KyotoButton from '@/components/KyotoButton.vue';
+import EmptyState from '@/components/EmptyState.vue';
 import ProductCard from '@/components/ProductCard.vue';
 import { useProductStore } from '@/stores/product';
 import { onShow } from '@dcloudio/uni-app';
@@ -65,11 +73,15 @@ const shapes = [
 const openDetail = (id: string) => uni.navigateTo({ url: `/pages/product/detail?id=${id}` });
 </script>
 <style lang="scss" scoped>
-/* 页头：左 wordmark、中标题、右语言。.top-bar 的 sticky/实底/safe-area 来自全局 */
+/* 页头：左右槽位等宽，标题才是真正的视觉居中；
+   标题放大 + 衬线（Cinzel 管拉丁，Songti SC 等管中文，不新增字体文件） */
 .fh{align-items:center}
-.fh-l,.fh-r{flex:0 0 auto;min-width:96rpx;display:flex;align-items:center}
+.fh-l,.fh-r{flex:0 0 150rpx;display:flex;align-items:center}
+.fh-l{justify-content:flex-start}
 .fh-r{justify-content:flex-end}
-.fh-t{flex:1;text-align:center;font-size:$fs-md;font-weight:$fw-semi;color:$ink;letter-spacing:.01em}
+.fh-t{flex:1;text-align:center;font-family:$font-serif;font-size:42rpx;font-weight:600;color:$ink;letter-spacing:.06em}
+.state{padding:80rpx 0;text-align:center}
+.state-tx{font-size:$fs-sm;color:$muted}
 
 /* 下划线 tabs */
 .tabs{white-space:nowrap;border-bottom:1rpx solid $line;margin-bottom:$sp-3}

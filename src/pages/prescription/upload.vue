@@ -46,6 +46,7 @@ import KyotoHeader from '@/components/KyotoHeader.vue';
 import KyotoButton from '@/components/KyotoButton.vue';
 import { useLensWizardStore, STEP, stepAfterRx } from '@/stores/lensWizard';
 import { UploadService } from '@/services/UploadService';
+import { trackEvent } from '@/utils/analytics';
 const wizard = useLensWizardStore();
 const uploaded = ref(false); const uploading = ref(false); const progress = ref(0);
 const fileMeta = ref<{name:string;ext:string;size:string;previewable:boolean}|null>(null);
@@ -55,6 +56,7 @@ const src = ref<'upload'|'photo'>('upload');
 onLoad((opts:any)=>{
   if(opts?.mock) mockExt = opts.mock;                       // QA hook: ?mock=heic
   if(opts?.src==='photo'||opts?.src==='upload') src.value = opts.src;
+  trackEvent('start_prescription', { method: 'upload' });
 });
 async function doUpload(source: 'camera' | 'library' = 'library'){
   uploading.value=true; progress.value=0;
@@ -70,6 +72,7 @@ import { goBack as navBack, FALLBACK } from '@/utils/nav';
 // 客户进来又退出时不写入，处方步仍会被视为未完成。
 const use = ()=>{
   if(!uploaded.value) return;
+  trackEvent('complete_prescription', { method: 'upload' });
   wizard.set('prescriptionMethod',src.value);
   // 上传的是文件，此处没有解析出结构化处方：断开旧关联，不设档位。
   // 因此镜片页不会假装知道推荐，双光也会因为读不到 ADD 而保持禁用。

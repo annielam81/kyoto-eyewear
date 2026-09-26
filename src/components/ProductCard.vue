@@ -3,12 +3,14 @@
     <view class="pv">
       <FrameArt :art="frame.art" :tint="frame.tint" :hex="selHex" />
       <text v-if="mode==='new'" class="newtag">{{ $t('home.newBadge') }}</text>
-      <view class="heart" :class="{ on: fav.has(frame.id) }" @click.stop="fav.toggle(frame.id)" v-html="icHeart"></view>
+      <view class="heart" :class="{ on: fav.has(frame.id) }" @click.stop="onFav" v-html="icHeart"></view>
     </view>
     <view class="b">
       <text class="n">{{ frame.name[loc] }}</text>
+      <text class="series">{{ seriesName }}</text>
       <view class="prow">
         <view class="pr"><text class="p">{{ money(sellPrice) }}</text><text v-if="onPromo" class="was">{{ money(frame.price) }}</text></view>
+        <text v-if="onPromo" class="promotag">{{ $t('product.promoTag') }}</text>
         <view v-if="mode==='new'" class="add" @click.stop="quickAdd" v-html="icPlus"></view>
       </view>
       <view v-if="mode==='best'" class="meta">
@@ -29,7 +31,8 @@ import FrameArt from './FrameArt.vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { money } from '@/utils/format';
-import { frameSellPrice, frameOnPromo } from '@/config/pricing.config';
+import { frameSellPrice, frameOnPromo, SERIES_INFO } from '@/config/pricing.config';
+import { trackEvent } from '@/utils/analytics';
 import type { Frame, Locale } from '@/models';
 
 const props = withDefaults(defineProps<{ frame: Frame; mode?: 'best' | 'new' }>(), { mode: 'best' });
@@ -45,10 +48,17 @@ const selHex = computed(() => props.frame.colors.find(c => c.key === selKey.valu
 const rate = computed(() => `${props.frame.rating.toFixed(1)} (${props.frame.reviewCount})`);
 const sellPrice = computed(() => frameSellPrice(props.frame));
 const onPromo = computed(() => frameOnPromo(props.frame));
+const seriesName = computed(() => SERIES_INFO[props.frame.series].name[loc.value]);
+
+const onFav = () => {
+  const added = fav.toggle(props.frame.id);
+  trackEvent('favorite_frame', { frame_id: props.frame.id, added });
+};
 
 const quickAdd = () => {
   const f = props.frame;
   cart.addFrameOnly(f.id, f.sku, selKey.value, f.defaultSize, sellPrice.value);
+  trackEvent('add_to_cart', { frame_id: f.id, price: sellPrice.value, source: 'product_card' });
   uni.showToast({ title: t('toast.addedCart'), icon: 'none' });
 };
 
@@ -75,6 +85,8 @@ const icStar = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:100%;h
 .heart.on :deep(svg){fill:$accent-strong}
 .b{padding:18rpx 20rpx 20rpx}
 .n{font-size:$fs-sm;font-weight:$fw-med;color:$ink;line-height:1.3}
+.series{font-size:18rpx;letter-spacing:.14em;text-transform:uppercase;color:$muted;font-weight:$fw-semi;margin-top:5rpx;display:block}
+.promotag{font-size:17rpx;letter-spacing:.1em;text-transform:uppercase;color:$accent-strong;font-weight:$fw-bold;white-space:nowrap}
 .prow{display:flex;align-items:center;justify-content:space-between;margin-top:6rpx;min-height:52rpx}
 /* 价格清楚但不像促销站：Ink 加粗，不用大红 */
 .p{font-size:$fs-sm;font-weight:$fw-semi;color:$ink;font-variant-numeric:tabular-nums}

@@ -59,6 +59,35 @@
         </view>
       </view>
 
+      <!-- FOUNDING OFFER：深靛底卡 + 象牙字，保持高级感；信息完整但不做成廉价促销横幅 -->
+      <view class="sec">
+        <view class="fo">
+          <text class="fo-eyebrow">{{ $t('home.foundingOffer.eyebrow') }}</text>
+          <view class="fo-price">
+            <text class="fo-p">${{ promoPrice }}</text>
+            <text class="fo-u">{{ $t('home.foundingOffer.unit') }}</text>
+          </view>
+          <text class="fo-reg">{{ $t('home.foundingOffer.regular') }} ${{ regularPrice }}</text>
+          <text class="fo-inc-t">{{ $t('home.foundingOffer.includesTitle') }}</text>
+          <view class="fo-inc">
+            <text class="fo-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc1') }}</text>
+            <text class="fo-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc2') }}</text>
+            <text class="fo-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc3') }}</text>
+            <text class="fo-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc4') }}</text>
+          </view>
+          <text class="fo-note">{{ $t('home.foundingOffer.note') }}</text>
+          <view class="fo-ctas">
+            <view class="cta" @click="nav('/pages/frames/index', true)">
+              <text>{{ $t('home.foundingOffer.ctaShop') }}</text>
+              <view class="arr" v-html="icArrow"></view>
+            </view>
+            <view class="cta ghost-ivory" @click="nav('/pages/tryon/index?frame=arashiyama')">
+              <text>{{ $t('home.foundingOffer.ctaTryOn') }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <!-- QUICK SERVICES：服务项已全部展示，不需要“查看全部”（之前误跳到镜框页） -->
       <view class="sec">
         <view class="sechd">
@@ -83,6 +112,44 @@
         </view></scroll-view>
       </view>
 
+      <!-- HOW IT WORKS：4 步极简说明，不做大面积教程 -->
+      <view class="sec">
+        <view class="sechd">
+          <text class="h2">{{ $t('home.howItWorks.title') }}</text>
+        </view>
+        <view class="hiw">
+          <view v-for="i in 4" :key="i" class="hiw-s">
+            <text class="hiw-n">{{ i }}</text>
+            <text class="hiw-t">{{ $t('home.howItWorks.s'+i+'t') }}</text>
+            <text class="hiw-d">{{ $t('home.howItWorks.s'+i+'s') }}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- SIGNATURE COLLECTION -->
+      <view v-if="signature.length" class="sec">
+        <view class="sechd">
+          <text class="h2">{{ seriesName('signature') }}</text>
+          <text class="all" @click="nav('/pages/frames/index', true)">{{ $t('common.seeAll') }} ›</text>
+        </view>
+        <text class="sec-sub">{{ seriesTagline('signature') }}</text>
+        <scroll-view scroll-x class="hs"><view class="hsin">
+          <view v-for="f in signature" :key="f.id" class="hcard"><ProductCard :frame="f" mode="best" @open="openDetail" /></view>
+        </view></scroll-view>
+      </view>
+
+      <!-- ATELIER COLLECTION -->
+      <view v-if="atelier.length" class="sec">
+        <view class="sechd">
+          <text class="h2">{{ seriesName('atelier') }}</text>
+          <text class="all" @click="nav('/pages/frames/index', true)">{{ $t('common.seeAll') }} ›</text>
+        </view>
+        <text class="sec-sub">{{ seriesTagline('atelier') }}</text>
+        <scroll-view scroll-x class="hs"><view class="hsin">
+          <view v-for="f in atelier" :key="f.id" class="hcard"><ProductCard :frame="f" mode="best" @open="openDetail" /></view>
+        </view></scroll-view>
+      </view>
+
       <!-- CONTACT LENS PROMO — launch 时隐藏 -->
       <view v-if="showContactLenses" class="promo">
         <view class="pbg" v-html="promoBg"></view>
@@ -101,6 +168,18 @@
         </view>
         <view class="ngrid">
           <view v-for="f in news" :key="f.id" class="ncard"><ProductCard :frame="f" mode="new" @open="openDetail" /></view>
+        </view>
+      </view>
+      <!-- TRUST：只写已有政策与事实，不编造承诺 -->
+      <view class="sec">
+        <view class="sechd">
+          <text class="h2">{{ $t('home.trust.title') }}</text>
+        </view>
+        <view class="trust">
+          <view v-for="i in 6" :key="i" class="tr">
+            <text class="tr-ck">✓</text>
+            <text class="tr-t">{{ $t('home.trust.i'+i) }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -131,8 +210,9 @@ import { useCartStore } from '@/stores/cart';
 import { useAppStore } from '@/stores/app';
 import { useThemeStore } from '@/stores/theme';
 import { i18n } from '@/i18n';
-import type { Locale } from '@/models';
+import type { FrameSeries, Locale } from '@/models';
 import { isContactLensAvailable } from '@/config/launch-availability.config';
+import { SERIES_INFO, SERIES_PRICE, OPENING_PROMO } from '@/config/pricing.config';
 import { BRAND } from '@/config/brand-colors';
 
 const products = useProductStore();
@@ -188,6 +268,15 @@ const news = computed(() =>
   products.sellable.filter(f => f.newArrival).slice(0, 4)
 );
 
+/* 系列板块：名称/标语走 pricing.config 的三语配置；价格数字走同一配置，保证一致 */
+const loc = computed(() => app.locale as Locale);
+const seriesName = (k: FrameSeries) => SERIES_INFO[k].name[loc.value];
+const seriesTagline = (k: FrameSeries) => SERIES_INFO[k].tagline[loc.value];
+const signature = computed(() => products.sellable.filter(f => f.series === 'signature'));
+const atelier = computed(() => products.sellable.filter(f => f.series === 'atelier'));
+const promoPrice = OPENING_PROMO.promoPrice;
+const regularPrice = SERIES_PRICE.essential;
+
 const nav = (url: string, relaunch = false) =>
   relaunch
     ? uni.reLaunch({ url })
@@ -214,9 +303,9 @@ const icArrow = I('<path d="M4 12h15M13.5 6l6 6-6 6"/>');
 
 const quick = [
   {
-    k: 'shopEyeglasses',
-    icon: I('<circle cx="7" cy="15" r="3.4"/><circle cx="17" cy="15" r="3.4"/><path d="M10.4 15h3.2M3.6 14.2 2 12.5M20.4 14.2 22 12.5"/>'),
-    go: () => uni.reLaunch({ url: '/pages/frames/index' }),
+    k: 'virtualTryOn',
+    icon: I('<rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13" r="3.4"/><path d="M8.6 7l1.3-2.2h4.2L15.4 7"/>'),
+    go: () => uni.navigateTo({ url: '/pages/tryon/index?frame=arashiyama' }),
   },
   {
     k: 'uploadRx',
@@ -224,9 +313,9 @@ const quick = [
     go: () => uni.navigateTo({ url: '/pages/prescription/upload' }),
   },
   {
-    k: 'virtualTryOn',
-    icon: I('<rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13" r="3.4"/><path d="M8.6 7l1.3-2.2h4.2L15.4 7"/>'),
-    go: () => uni.navigateTo({ url: '/pages/tryon/index?frame=arashiyama' }),
+    k: 'shopEyeglasses',
+    icon: I('<circle cx="7" cy="15" r="3.4"/><circle cx="17" cy="15" r="3.4"/><path d="M10.4 15h3.2M3.6 14.2 2 12.5M20.4 14.2 22 12.5"/>'),
+    go: () => uni.reLaunch({ url: '/pages/frames/index' }),
   },
   {
     k: 'fsa',
@@ -366,6 +455,34 @@ const promoBg = `
 .psb{font-size:$fs-xs;line-height:1.5;opacity:.8}
 .pcta{align-self:flex-start;margin-top:12rpx;padding:12rpx 24rpx;color:#fff;
   background:$accent-strong;border-radius:$r-sm;font-size:$fs-xs;font-weight:$fw-semi}
+/* ---- FOUNDING OFFER：深靛底卡 + 象牙字，金色眉题；信息完整但不做成廉价促销横幅 ---- */
+.fo{background:$ink;border-radius:$r-lg;padding:44rpx 38rpx;color:$paper;position:relative;overflow:hidden}
+.fo-eyebrow{font-size:20rpx;font-weight:$fw-bold;letter-spacing:.32em;color:$gold;display:block;margin-bottom:20rpx}
+.fo-price{display:flex;align-items:baseline;gap:16rpx}
+.fo-p{font-family:'Sora',sans-serif;font-weight:800;font-size:88rpx;color:#fff;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.fo-u{font-size:22rpx;font-weight:$fw-bold;letter-spacing:.24em;color:rgba(255,245,230,.85)}
+.fo-reg{font-size:$fs-xs;color:rgba(255,245,230,.55);margin-top:10rpx;display:block;font-variant-numeric:tabular-nums}
+.fo-inc-t{font-size:18rpx;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,245,230,.6);font-weight:$fw-semi;margin:28rpx 0 12rpx;display:block}
+.fo-inc{display:flex;flex-direction:column;gap:8rpx}
+.fo-li{font-size:$fs-sm;color:$paper;line-height:1.5;display:block}
+.fo-li .ck{color:$gold;font-weight:$fw-bold}
+.fo-note{font-size:$fs-xs;color:rgba(255,245,230,.62);line-height:1.65;margin-top:22rpx;display:block}
+.fo-ctas{display:flex;gap:16rpx;margin-top:28rpx}
+.fo-ctas .cta{margin-top:0}
+.cta.ghost-ivory{background:transparent;color:$paper;border:2rpx solid rgba(255,245,230,.7);box-shadow:none}
+/* ---- HOW IT WORKS：4 步极简 ---- */
+.hiw{display:flex;gap:12rpx}
+.hiw-s{flex:1;min-width:0;background:$card;border:1rpx solid $line;border-radius:$r-md;padding:24rpx 10rpx;text-align:center}
+.hiw-n{font-family:$font-serif;font-size:44rpx;font-weight:600;color:$accent-strong;display:block;line-height:1}
+.hiw-t{font-size:22rpx;font-weight:$fw-semi;color:$ink;display:block;margin-top:12rpx}
+.hiw-d{font-size:17rpx;color:$muted;line-height:1.5;display:block;margin-top:6rpx}
+/* ---- 系列副标题 ---- */
+.sec-sub{font-size:$fs-xs;color:$muted;margin:-6rpx 0 16rpx;display:block;line-height:1.6}
+/* ---- TRUST：只写已有政策与事实 ---- */
+.trust{display:grid;grid-template-columns:1fr 1fr;gap:12rpx}
+.tr{display:flex;align-items:flex-start;gap:12rpx;background:$card;border:1rpx solid $line;border-radius:$r-sm;padding:18rpx}
+.tr-ck{color:$teal;font-weight:$fw-bold;font-size:24rpx;line-height:1.4;flex-shrink:0}
+.tr-t{font-size:20rpx;color:$ink;line-height:1.5;font-weight:$fw-med}
 /* FSA / HSA 说明弹窗 */
 .sheet-mask{position:fixed;inset:0;background:rgba(20,27,61,.45);display:flex;
   align-items:flex-end;justify-content:center;z-index:60}

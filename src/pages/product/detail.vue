@@ -31,8 +31,16 @@
           <text class="pname">{{frame.name[loc]}}</text>
           <text class="zhname">{{frame.nameZH}}</text>
           <text class="seriesline">{{ seriesName }} · {{ seriesTagline }}</text>
-          <text class="pr">${{sellPrice}}<text v-if="onPromo" class="was"> ${{frame.price}}</text></text>
+          <text class="pr"><text v-if="onPromo" class="ptag">{{ $t('product.promoTag') }} · </text>${{sellPrice}}<text v-if="onPromo" class="was"> ${{frame.price}}</text></text>
           <text class="pairline">{{ $t('product.completePair') }}</text>
+          <!-- Complete Pair 包含清单：让用户一眼看懂 $79.99 是整副价格 -->
+          <view class="incl">
+            <text class="incl-t">{{ $t('home.foundingOffer.includesTitle') }}</text>
+            <text class="incl-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc1') }}</text>
+            <text class="incl-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc2') }}</text>
+            <text class="incl-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc3') }}</text>
+            <text class="incl-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc4') }}</text>
+          </view>
           <view class="rate">
             <text class="stars">★★★★★</text>
             <text class="rnum">{{frame.rating}}</text>
@@ -143,6 +151,7 @@ import { useCartStore } from '@/stores/cart';
 import { useLensWizardStore } from '@/stores/lensWizard';
 import type { Locale } from '@/models';
 import { frameSellPrice, frameOnPromo, SERIES_INFO } from '@/config/pricing.config';
+import { trackEvent } from '@/utils/analytics';
 const { locale } = useI18n();
 const loc = computed(()=>locale.value as Locale);
 const products = useProductStore(); const fav = useFavoritesStore();
@@ -166,11 +175,16 @@ const related = computed(()=>products.sellable.filter(f=>f.id!==frameId.value).s
 const accs = [{k:'ship',title:'product.shippingTitle',body:'product.shipping'},{k:'war',title:'product.warrantyTitle',body:'product.warranty'}];
 const reviews = [{who:'Maya K. · M · Night',body:'Light as air, the keyhole bridge never slips. Got the 1.60 blue-light — zero glare on calls.'},{who:'Wen L. · S · Sakura',body:'Bought for my daughter. Fit guide was spot on. Love the sakura pink.'}];
 function initSize(){ const f=products.byId(frameId.value); if(f){ const i=f.sizes.findIndex(x=>x.key===f.defaultSize); sizeIdx.value=i>=0?i:0; } }
-onLoad(async (opts:any)=>{ if(opts?.id) frameId.value=opts.id; await products.ensure(); initSize(); });
-const toggleFav = ()=>{ const added=fav.toggle(frame.value?.id??''); uni.showToast({title:added?'Saved':'Removed',icon:'none'}); };
+onLoad(async (opts:any)=>{ if(opts?.id) frameId.value=opts.id; await products.ensure(); initSize();
+  trackEvent('view_product', { frame_id: frameId.value, price: sellPrice.value }); });
+const toggleFav = ()=>{ const added=fav.toggle(frame.value?.id??'');
+  trackEvent('favorite_frame', { frame_id: frame.value?.id ?? '', added });
+  uni.showToast({title:added?'Saved':'Removed',icon:'none'}); };
 const goTryOn = ()=>uni.navigateTo({url:`/pages/tryon/index?frame=${frameId.value}`});
 const switchFrame = (id:string)=>{ frameId.value=id; colorIdx.value=0; viewIdx.value=0; initSize(); };
-const addFrameOnly = ()=>{ if(!frame.value) return; cart.addFrameOnly(frame.value.id,frame.value.sku,selColor.value.key,selSize.value.key,sellPrice.value); uni.showToast({title:'Added to cart',icon:'none'}); };
+const addFrameOnly = ()=>{ if(!frame.value) return; cart.addFrameOnly(frame.value.id,frame.value.sku,selColor.value.key,selSize.value.key,sellPrice.value);
+  trackEvent('add_to_cart', { frame_id: frame.value.id, price: sellPrice.value, source: 'product_detail' });
+  uni.showToast({title:'Added to cart',icon:'none'}); };
 // 「配处方镜片」已表达处方意图，不再让客户再选一次用途；
 // 用途从镜框自身派生：太阳镜镜框 → 'sun'（触发 SUN_PREFERS_IMPACT 推荐分支），其余 → 'rx'。
 const startWizard = ()=>{ if(!frame.value) return;
@@ -196,6 +210,11 @@ const startWizard = ()=>{ if(!frame.value) return;
 .zhname{font-family:'Noto Sans SC',sans-serif;font-size:$fs-xs;color:$muted;letter-spacing:.16em;display:block;margin-top:6rpx}
 .pr{font-size:36rpx;font-weight:$fw-bold;color:$ink;display:block;line-height:1.2;margin-top:6rpx;font-variant-numeric:tabular-nums}
 .pr .was{font-size:24rpx;color:$muted;font-weight:$fw-reg;text-decoration:line-through;margin-left:10rpx}
+.pr .ptag{font-size:22rpx;color:$accent-strong;font-weight:$fw-bold;letter-spacing:.08em}
+.incl{margin-top:18rpx;background:$card;border:1rpx solid $line;border-radius:$r-md;padding:22rpx 24rpx}
+.incl-t{font-size:18rpx;letter-spacing:.12em;text-transform:uppercase;color:$muted;font-weight:$fw-semi;display:block;margin-bottom:10rpx}
+.incl-li{font-size:$fs-xs;color:$ink;line-height:1.7;display:block}
+.incl-li .ck{color:$teal;font-weight:$fw-bold}
 .seriesline{font-size:22rpx;color:$accent-strong;font-weight:$fw-semi;letter-spacing:.08em;margin-top:10rpx;display:block}
 .pairline{font-size:22rpx;color:$muted;line-height:1.6;margin-top:8rpx;display:block}
 .rate{display:flex;align-items:baseline;gap:8rpx;margin-top:4rpx}

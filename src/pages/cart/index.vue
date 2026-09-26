@@ -64,6 +64,7 @@ import { applePayUiAllowed } from '@/utils/platform';
 import { useProductStore } from '@/stores/product';
 import { LENS_MATERIALS } from '@/config/lens-materials.config';
 import { useLensWizardStore } from '@/stores/lensWizard';
+import { trackEvent } from '@/utils/analytics';
 import type { CartItem, Locale } from '@/models';
 import { onShow } from '@dcloudio/uni-app';
 const { locale } = useI18n(); const loc = computed(()=>locale.value as Locale);
@@ -76,7 +77,8 @@ const frameOf = (i:CartItem)=>products.byId(i.frameId);
 const colorOf = (i:CartItem)=>frameOf(i)?.colors.find(c=>c.key===i.colorKey);
 const matName = (id:string)=>LENS_MATERIALS.find(m=>m.id===id)?.name[loc.value]??id;
 const goShop=()=>uni.reLaunch({url:'/pages/frames/index'});
-const goCheckout=()=>uni.navigateTo({url:'/pages/checkout/index'});
+const goCheckout=()=>{ trackEvent('begin_checkout', { items: cart.count, subtotal: cart.subtotal });
+  uni.navigateTo({url:'/pages/checkout/index'}); };
 const editItem = (i:CartItem)=>{
   if(!i.config){ uni.navigateTo({url:`/pages/product/detail?id=${i.frameId}`}); return; }
   wizard.startFromCartItem(i);
