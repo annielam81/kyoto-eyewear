@@ -1,6 +1,6 @@
 /**
  * 认证与角色 helper。
- * 后台是独立账号体系（admin_profiles），没有"顾客"概念。
+ * 后台账号体系是 Supabase auth 用户 + public.profiles 表（不是顾客概念）。
  */
 import { getProvider } from './provider';
 import type { AdminProfile } from '../../../supabase/kyoto';
