@@ -80,8 +80,8 @@ create policy ai_jobs_staff_insert
 drop policy if exists ai_jobs_staff_update_own on public.ai_jobs;
 create policy ai_jobs_staff_update_own
   on public.ai_jobs for update to authenticated
-  using (public.is_staff_role() and created_by = auth.uid()::text)
-  with check (public.is_staff_role() and created_by = auth.uid()::text);
+  using (public.is_staff_role() and created_by = auth.uid())
+  with check (public.is_staff_role() and created_by = auth.uid());
 
 -- ==================================================================
 -- 4. audit_log：staff 可 INSERT（自己的操作被审计），读仍只有 admin
