@@ -161,7 +161,7 @@ export default {
     rxNeededNote:'此订单仍需你提供处方。' },
   account: { title:'你好,{name}', member:'2026 年加入', profile:'个人资料', orders:'我的订单', prescriptions:'我的处方',
     favorites:'收藏', addresses:'收货地址', payment:'支付与 FSA/HSA', help:'帮助与退换',
-    language:'语言', logout:'退出登录', guest:'游客',
+    language:'语言', logout:'退出登录', guest:'游客', signInUp:'登录 / 注册',
     theme:'外观主题', themePagoda:'宝塔 · 经典', themeSunset:'日出 · 品牌' },
   favorites: { title:'收藏', empty:'还没有收藏。点击任意镜框上的爱心。' },
   myrx: { title:'我的处方', addNew:'上传新处方', useForOrder:'用于新订单',

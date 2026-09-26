@@ -161,7 +161,7 @@ export default {
     rxNeededNote:'Aún necesitamos tu receta para este pedido.' },
   account: { title:'Hola, {name}', member:'Miembro desde 2026', profile:'Perfil', orders:'Mis pedidos', prescriptions:'Mis recetas',
     favorites:'Favoritos', addresses:'Direcciones', payment:'Pago y FSA/HSA', help:'Ayuda y devoluciones',
-    language:'Idioma', logout:'Cerrar sesión', guest:'Invitado',
+    language:'Idioma', logout:'Cerrar sesión', guest:'Invitado', signInUp:'Iniciar sesión / Registrarse',
     theme:'Apariencia', themePagoda:'Pagoda · Clásico', themeSunset:'Amanecer · Marca' },
   favorites: { title:'Favoritos', empty:'Aún no tienes favoritos. Toca el corazón en cualquier montura.' },
   myrx: { title:'Mis recetas', addNew:'Subir nueva', useForOrder:'Usar en nuevo pedido',

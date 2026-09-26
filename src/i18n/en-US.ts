@@ -161,7 +161,7 @@ export default {
     rxNeededNote:'We still need your prescription for this order.' },
   account: { title:'Hi, {name}', member:'Member since 2026', profile:'Profile', orders:'My orders', prescriptions:'My prescriptions',
     favorites:'Favorites', addresses:'Addresses', payment:'Payment & FSA/HSA', help:'Help & returns',
-    language:'Language', logout:'Sign out', guest:'Guest',
+    language:'Language', logout:'Sign out', guest:'Guest', signInUp:'Sign in / Register',
     theme:'Appearance', themePagoda:'Pagoda · Classic', themeSunset:'Sunrise · Brand' },
   favorites: { title:'Favorites', empty:'No favorites yet. Tap the heart on any frame.' },
   myrx: { title:'My prescriptions', addNew:'Upload new', useForOrder:'Use for new order',

@@ -8,6 +8,10 @@
         <text class="since">{{$t('account.member')}}</text>
       </view>
     </view>
+    <!-- 游客在这里登录/注册 -->
+    <view v-if="!user.signedIn" class="signin-cta">
+      <KyotoButton variant="pink" @click="goLogin">{{$t('account.signInUp')}}</KyotoButton>
+    </view>
     <view class="menu">
       <view v-for="m in items" :key="m.k" class="mi" @click="go(m)">
         <view class="mi-ic" v-html="m.ic"></view>
@@ -65,6 +69,7 @@ const items=[
   {k:'help',ic:A('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.8-.9 1.4v.4"/><path d="M12 17h.01"/>'),url:null},
 ];
 const go=(m:any)=>{ if(m.url) uni.navigateTo({url:m.url}); else uni.showToast({title:'Coming soon',icon:'none'}); };
+const goLogin=()=>uni.navigateTo({url:'/pages/login/index'});
 // 浏览/购物不需要登录，退出后回首页而不是 Welcome 落地页
 const signOut=async()=>{ await user.signOut(); uni.reLaunch({url:'/pages/home/index'}); };
 </script>
@@ -75,6 +80,7 @@ const signOut=async()=>{ await user.signOut(); uni.reLaunch({url:'/pages/home/in
 .p-tx{flex:1;min-width:0}
 .name{font-size:$fs-lg;font-weight:$fw-bold;color:$ink;display:block;line-height:1.25}
 .since{font-size:18rpx;color:$muted;display:block;margin-top:4rpx}
+.signin-cta{margin-bottom:$sp-3}
 .menu{background:$card;border:1rpx solid $line;border-radius:$r-md;overflow:hidden;margin-bottom:$sp-3;box-shadow:$shadow-soft}
 .mi{display:flex;align-items:center;gap:20rpx;padding:24rpx;border-bottom:1rpx solid $line}
 .mi:last-child{border:none}

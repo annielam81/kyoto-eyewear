@@ -3,13 +3,13 @@
     <KyotoHeader back />
     <text class="h1">{{$t('prescription.upload.title')}}</text>
     <text class="sub" style="display:block;margin:10rpx 0 24rpx">{{$t('prescription.upload.subtitle')}}</text>
-    <view v-if="!uploaded" class="drop" @click="doUpload">
+    <view v-if="!uploaded" class="drop" @click="doUpload('library')">
       <text class="drop-ic">📄</text>
       <text class="drop-tx">{{$t('prescription.upload.drop')}}</text>
       <text class="drop-s">PDF · JPG · PNG · HEIC</text>
       <view class="drop-acts">
-        <KyotoButton variant="night" size="sm" @click.stop="doUpload">{{$t('prescription.upload.camera')}}</KyotoButton>
-        <KyotoButton variant="ghost" size="sm" @click.stop="doUpload">{{$t('prescription.upload.library')}}</KyotoButton>
+        <KyotoButton variant="night" size="sm" @click.stop="doUpload('camera')">{{$t('prescription.upload.camera')}}</KyotoButton>
+        <KyotoButton variant="ghost" size="sm" @click.stop="doUpload('library')">{{$t('prescription.upload.library')}}</KyotoButton>
       </view>
     </view>
     <view v-if="uploading" class="prog-box">
@@ -56,11 +56,11 @@ onLoad((opts:any)=>{
   if(opts?.mock) mockExt = opts.mock;                       // QA hook: ?mock=heic
   if(opts?.src==='photo'||opts?.src==='upload') src.value = opts.src;
 });
-async function doUpload(){
+async function doUpload(source: 'camera' | 'library' = 'library'){
   uploading.value=true; progress.value=0;
   const t=setInterval(()=>{ progress.value=Math.min(95,progress.value+15); if(progress.value>=95) clearInterval(t); },150);
   try {
-    const r = await UploadService.upload('file', mockExt);
+    const r = await UploadService.upload(source, mockExt);
     fileMeta.value = { name:r.name, ext:r.ext, size:r.size, previewable:r.previewable };
     clearInterval(t); progress.value=100; uploading.value=false; uploaded.value=true;
   } catch { clearInterval(t); uploading.value=false; }   // cancelled: keep prior state
