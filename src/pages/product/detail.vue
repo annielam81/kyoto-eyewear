@@ -17,7 +17,9 @@
     <view v-if="frame">
       <!-- gallery -->
       <view :class="['gal', frame.tint]">
-        <FrameArt :art="frame.art" :hex="selColor.hex" :view="views[viewIdx]" style="height:560rpx"/>
+        <!-- 有后端真图时优先显示真图，无则保持现有 art 线稿（视觉冻结） -->
+        <image v-if="frame.photoUrl" class="galphoto" :src="frame.photoUrl" mode="aspectFit" style="height:560rpx"/>
+        <FrameArt v-else :art="frame.art" :hex="selColor.hex" :view="views[viewIdx]" style="height:560rpx"/>
         <view class="vtabs">
           <text v-for="(v,i) in viewLabels" :key="v" :class="['vt',{on:viewIdx===i}]" @click="viewIdx=i">{{v}}</text>
         </view>
@@ -31,7 +33,7 @@
           <text class="pname">{{frame.name[loc]}}</text>
           <text class="zhname">{{frame.nameZH}}</text>
           <text class="seriesline">{{ seriesName }} · {{ seriesTagline }}</text>
-          <text class="pr"><text v-if="onPromo" class="ptag">{{ $t('product.promoTag') }} · </text>${{sellPrice}}<text v-if="onPromo" class="was"> ${{frame.price}}</text></text>
+          <text class="pr"><text v-if="onPromo" class="ptag">{{ $t('product.promoTag') }} · </text>${{sellPrice}}<text v-if="onPromo" class="was"> ${{wasPrice}}</text></text>
           <text class="pairline">{{ $t('product.completePair') }}</text>
           <!-- Complete Pair 包含清单：让用户一眼看懂 $79.99 是整副价格 -->
           <view class="incl">
@@ -166,6 +168,8 @@ const views = ['front','side','deg'] as const;
 const viewLabels = computed(()=>['Front','Side','45°']);
 const frame = computed(()=>products.byId(frameId.value));
 const sellPrice = computed(()=>frame.value?frameSellPrice(frame.value):0);
+/** 删除线用 regularPrice（后端行保留）；静态数据无此字段时回退 price，行为不变 */
+const wasPrice = computed(()=>frame.value?(frame.value.regularPrice ?? frame.value.price):0);
 const onPromo = computed(()=>!!frame.value&&frameOnPromo(frame.value));
 const seriesName = computed(()=>frame.value?SERIES_INFO[frame.value.series].name[loc.value]:'');
 const seriesTagline = computed(()=>frame.value?SERIES_INFO[frame.value.series].tagline[loc.value]:'');
@@ -198,6 +202,8 @@ const startWizard = ()=>{ if(!frame.value) return;
 .ib svg{width:36rpx;height:36rpx}.ib.on{background:$accent-strong;color:#fff;border-color:$accent-strong}
 /* 产品图区域拿最大视觉权重；底色只做极浅承托，不抢镜 */
 .gal{padding-top:calc(104rpx + env(safe-area-inset-top));position:relative}
+/* 后端真图：占位与 FrameArt 线稿一致，不重新设计 */
+.galphoto{width:100%;display:block}
 .vtabs{position:absolute;top:calc(120rpx + env(safe-area-inset-top));left:$sp-3;display:flex;gap:10rpx}
 .vt{font-size:18rpx;letter-spacing:.06em;padding:7rpx 16rpx;border-radius:$r-xs;background:rgba(255,255,255,.72);color:$muted;font-weight:$fw-med;backdrop-filter:blur(6px)}
 .vt.on{background:$ink;color:$paper;font-weight:$fw-semi}

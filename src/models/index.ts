@@ -19,6 +19,10 @@ export interface Frame {
   tags: string[]; inventoryStatus: 'in_stock' | 'low' | 'out';
   featured?: boolean; newArrival?: boolean; bestSeller?: boolean;
   fsaEligible: boolean; rating: number; reviewCount: number;
+  /** 后端真图（api_published_products 第一张非 original 图）；无则用 art 线稿渲染 */
+  photoUrl?: string;
+  /** 后端 regularPrice（删除线用）；静态数据无此字段时回退 price */
+  regularPrice?: number;
 }
 export type PrescriptionUse = 'rx' | 'readers' | 'nonrx' | 'sun';
 /** 镜片类型。bifocal（双光）与 progressive 一样需要处方里的 ADD 加光度。 */

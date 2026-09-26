@@ -1,7 +1,9 @@
 <template>
   <view class="pc" @click="$emit('open', frame.id)">
     <view class="pv">
-      <FrameArt :art="frame.art" :tint="frame.tint" :hex="selHex" />
+      <!-- 有后端真图时优先显示真图，无则保持现有 art 线稿（视觉冻结） -->
+      <image v-if="frame.photoUrl" class="pimg" :src="frame.photoUrl" mode="aspectFit" />
+      <FrameArt v-else :art="frame.art" :tint="frame.tint" :hex="selHex" />
       <text v-if="mode==='new'" class="newtag">{{ $t('home.newBadge') }}</text>
       <view class="heart" :class="{ on: fav.has(frame.id) }" @click.stop="onFav" v-html="icHeart"></view>
     </view>
@@ -9,7 +11,7 @@
       <text class="n">{{ frame.name[loc] }}</text>
       <text class="series">{{ seriesName }}</text>
       <view class="prow">
-        <view class="pr"><text class="p">{{ money(sellPrice) }}</text><text v-if="onPromo" class="was">{{ money(frame.price) }}</text></view>
+        <view class="pr"><text class="p">{{ money(sellPrice) }}</text><text v-if="onPromo" class="was">{{ money(wasPrice) }}</text></view>
         <text v-if="onPromo" class="promotag">{{ $t('product.promoTag') }}</text>
         <view v-if="mode==='new'" class="add" @click.stop="quickAdd" v-html="icPlus"></view>
       </view>
@@ -47,6 +49,8 @@ const selKey = ref(props.frame.colors[0]?.key ?? '');
 const selHex = computed(() => props.frame.colors.find(c => c.key === selKey.value)?.hex ?? '#141B3D');
 const rate = computed(() => `${props.frame.rating.toFixed(1)} (${props.frame.reviewCount})`);
 const sellPrice = computed(() => frameSellPrice(props.frame));
+/** 删除线用 regularPrice（后端行保留）；静态数据无此字段时回退 price，行为不变 */
+const wasPrice = computed(() => props.frame.regularPrice ?? props.frame.price);
 const onPromo = computed(() => frameOnPromo(props.frame));
 const seriesName = computed(() => SERIES_INFO[props.frame.series].name[loc.value]);
 
@@ -76,6 +80,8 @@ const icStar = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:100%;h
  * 将来把 FrameArt 换成真实商品摄影时，卡片结构不需要重新设计。 */
 .pc{background:$card;border:1rpx solid $line;border-radius:$r-md;overflow:hidden;box-shadow:$shadow-soft}
 .pv{position:relative;height:236rpx;display:flex;align-items:center;justify-content:center}
+/* 后端真图：尺寸与 FrameArt 线稿保持一致，不重新设计 */
+.pimg{width:72%;height:100%}
 /* NEW 角标：左上，和纸金底 */
 .newtag{position:absolute;top:14rpx;left:14rpx;background:$gold-soft;color:$ink;font-size:15rpx;font-weight:$fw-semi;letter-spacing:.18em;padding:7rpx 14rpx 7rpx 18rpx;border-radius:$r-pill}
 /* 收藏心形：静态时接近隐形，选中才用 Vermilion */

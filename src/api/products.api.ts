@@ -1,14 +1,19 @@
 import { request } from './client';
 import type { PageRequest, PageResult, ProductFilter, ProductSort } from './types';
 import type { Frame } from '@/models';
-import { FRAMES } from '@/services/ProductService';
+import { customerProductToFrame, getCatalog, getCatalogItem } from '@/services/catalog';
 import { toCents } from '@/utils/money';
 
-/** Mock product repository. Live impl will hit GET /products with same contracts. */
+/**
+ * Backend-first 商品仓库：Supabase 已发布商品优先，失败时静态兜底。
+ * filter / sort / 分页仍在内存里做，签名与行为与之前一致。
+ * 发售期的太阳镜过滤仍在 product store（sellableOnly）里，不在这里。
+ */
 export const ProductsApi = {
   list(page: PageRequest = {}, filter: ProductFilter = {}, sort: ProductSort = 'featured'): Promise<PageResult<Frame>> {
-    return request('/products', () => {
-      let items = [...FRAMES];
+    return request('/products', async () => {
+      const catalog = await getCatalog();
+      let items = catalog.map(customerProductToFrame);
       if (filter.shape) items = items.filter(f => f.frameShape === filter.shape);
       if (filter.fsaEligible != null) items = items.filter(f => f.fsaEligible === filter.fsaEligible);
       if (filter.priceMinCents != null) items = items.filter(f => toCents(f.price) >= filter.priceMinCents!);
@@ -23,6 +28,9 @@ export const ProductsApi = {
     });
   },
   byId(id: string): Promise<Frame | null> {
-    return request(`/products/${id}`, () => FRAMES.find(f => f.id === id) ?? null);
+    return request(`/products/${id}`, async () => {
+      const cp = await getCatalogItem(id);
+      return cp ? customerProductToFrame(cp) : null;
+    });
   },
 };
