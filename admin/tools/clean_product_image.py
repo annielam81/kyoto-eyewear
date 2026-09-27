@@ -29,19 +29,20 @@ except ImportError:
     sys.exit("缺少 pillow：先跑  pip3 install pillow")
 
 try:
-    from rembg import remove
+    from rembg import remove, new_session
 except ImportError:
     sys.exit("缺少 rembg：先跑  pip3 install rembg")
 
 SIZE = 1200          # 输出正方形边长
 PAD_RATIO = 0.08     # 主体四周留白比例
 BG = (255, 255, 255) # 白底（顾客端卡片底色一致）
+SESSION = None       # rembg session，main() 里按 --model 初始化
 
 
 def clean_one(src: Path, out_dir: Path) -> Path:
     img = Image.open(src).convert("RGBA")
     # 1. 去背
-    no_bg = remove(img)
+    no_bg = remove(img, session=SESSION)
     # 2. 取有效像素包围盒
     bbox = no_bg.getbbox()
     if not bbox:
@@ -68,7 +69,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="KYOTO 商品图去背标准化（免费本地版）")
     ap.add_argument("input", help="单张图片或文件夹")
     ap.add_argument("-o", "--out", default=None, help="输出目录（默认 input 同级的 cleaned/）")
+    ap.add_argument("--model", default="u2net",
+                    help="去背模型：u2net（默认，质量好，需约 170MB 内存）/ u2netp（轻量，低内存机器用）")
     args = ap.parse_args()
+
+    global SESSION
+    SESSION = new_session(args.model)
 
     src = Path(args.input).expanduser()
     if not src.exists():
