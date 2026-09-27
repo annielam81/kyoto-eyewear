@@ -40,8 +40,12 @@
                 </div>
               </div>
               <div v-if="imagesByKind(kind).length === 0" class="small muted">暂无</div>
+              <label v-if="kind === 'cleaned'" class="btn btn-sm" style="margin-top:6px; cursor:pointer; display:inline-block">
+                上传 cleaned 图
+                <input type="file" accept="image/*" style="display:none" @change="uploadCleaned" />
+              </label>
             </div>
-            <div class="hint small muted">图片上传/替换在「批量上传」中完成，此处仅管理。</div>
+            <div class="hint small muted">原图上传在「批量上传」中完成；cleaned 图用本地去背脚本处理后在此上传，顾客端自动显示。</div>
           </div>
         </details>
 
@@ -477,6 +481,37 @@ async function removeImage(id: string) {
   if (!confirm('确定删除这张图片？')) return;
   await getProvider().removeImage(id, actor());
   images.value = images.value.filter(i => i.id !== id);
+}
+
+async function uploadCleaned(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file || !form.id) return;
+  try {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = () => reject(new Error('读取文件失败'));
+      r.readAsDataURL(file);
+    });
+    const { width, height } = await new Promise<{ width: number; height: number }>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve({ width: 0, height: 0 });
+      img.src = dataUrl;
+    });
+    const row = await getProvider().addImage(
+      form.id,
+      { name: file.name, dataUrl, bytes: file.size, width: width || undefined, height: height || undefined },
+      { kind: 'cleaned', role: 'primary', provenance: 'MANUAL' },
+      actor(),
+    );
+    images.value = [...images.value, row];
+    alert('cleaned 图已上传并入库，顾客端将自动显示');
+  } catch (err) {
+    alert(err instanceof Error ? err.message : '上传失败');
+  }
 }
 
 async function restoreOriginal(id: string) {
