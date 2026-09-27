@@ -73,7 +73,7 @@
           <div class="body">
             <div class="field">
               <label class="label">SKU *</label>
-              <input v-model="form.sku" class="input mono" :disabled="!isNew" />
+              <input v-model="form.sku" class="input mono" :disabled="!isNew && form.status !== 'draft'" />
             </div>
             <div class="field">
               <label class="label">系列名（英文） <ProvBadge field="collectionName" /></label>
