@@ -376,7 +376,7 @@ const LocaleField = defineComponent({
   },
 });
 
-const actor = () => session.profile?.email ?? 'unknown';
+const actor = () => session.session?.userId ?? 'unknown';
 
 async function load() {
   loading.value = true;

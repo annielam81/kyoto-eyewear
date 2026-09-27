@@ -254,7 +254,7 @@ function toggleAll() {
 }
 function openProduct(id: string) { router.push(`/products/${id}`); }
 
-const actor = () => session.profile?.email ?? 'unknown';
+const actor = () => session.session?.userId ?? 'unknown';
 
 async function quickStatus(id: string, status: ProductStatus) {
   await getProvider().setProductStatus(id, status, actor());
