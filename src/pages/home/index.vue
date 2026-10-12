@@ -112,6 +112,18 @@
         </view></scroll-view>
       </view>
 
+      <!-- BRAND DEALS 名牌特价：有已发布特价商品才显示；品牌/款数由后台数据动态决定 -->
+      <view v-if="brandDeals.length" class="sec">
+        <view class="sechd">
+          <text class="h2">{{ $t('home.brandDeals') }}</text>
+          <text class="all" @click="goBrandDeals">{{ $t('common.seeAll') }} ›</text>
+        </view>
+        <text class="sec-sub">{{ $t('home.brandDealsSub') }}</text>
+        <scroll-view scroll-x class="hs"><view class="hsin">
+          <view v-for="f in brandDeals" :key="f.id" class="hcard"><ProductCard :frame="f" mode="best" @open="openDetail" /></view>
+        </view></scroll-view>
+      </view>
+
       <!-- HOW IT WORKS：4 步极简说明，不做大面积教程 -->
       <view class="sec">
         <view class="sechd">
@@ -212,7 +224,7 @@ import { useThemeStore } from '@/stores/theme';
 import { i18n } from '@/i18n';
 import type { FrameSeries, Locale } from '@/models';
 import { isContactLensAvailable } from '@/config/launch-availability.config';
-import { SERIES_INFO, SERIES_PRICE, OPENING_PROMO } from '@/config/pricing.config';
+import { SERIES_INFO, SERIES_PRICE, OPENING_PROMO, isBrandDeal } from '@/config/pricing.config';
 import { BRAND } from '@/config/brand-colors';
 
 const products = useProductStore();
@@ -272,8 +284,12 @@ const news = computed(() =>
 const loc = computed(() => app.locale as Locale);
 const seriesName = (k: FrameSeries) => SERIES_INFO[k].name[loc.value];
 const seriesTagline = (k: FrameSeries) => SERIES_INFO[k].tagline[loc.value];
-const signature = computed(() => products.sellable.filter(f => f.series === 'signature'));
-const atelier = computed(() => products.sellable.filter(f => f.series === 'atelier'));
+/* 自有系列区不混入品牌特价商品（它们有自己的专区） */
+const signature = computed(() => products.sellable.filter(f => f.series === 'signature' && !isBrandDeal(f)));
+const atelier = computed(() => products.sellable.filter(f => f.series === 'atelier' && !isBrandDeal(f)));
+/* 名牌特价专区：横滑先露前 12 款，全部在商品页的「名牌特价」筛选中 */
+const brandDeals = computed(() => products.brandDeals.slice(0, 12));
+const goBrandDeals = () => { products.filter = 'brand-deal'; nav('/pages/frames/index', true); };
 const promoPrice = OPENING_PROMO.promoPrice;
 const regularPrice = SERIES_PRICE.essential;
 

@@ -197,6 +197,12 @@
               <label class="row small"><input type="checkbox" v-model="form.fsaEligible" /> FSA</label>
               <label class="row small"><input type="checkbox" v-model="form.prescriptionCompatible" /> 可配镜</label>
             </div>
+            <div class="row" style="margin-top:8px">
+              <label class="row small"><input type="checkbox" :checked="isBrandDeal" @change="toggleBrandDeal" /> <strong>名牌特价</strong>（进入顾客端「名牌特价」专区）</label>
+            </div>
+            <div v-if="isBrandDeal" class="hint small muted" style="margin-top:4px">
+              上架约定：品牌名填上方「系列名（英文）」栏（如 Ray-Ban）；regularPrice 填品牌零售价（顾客端显示删除线），launchPrice 填特价（顾客实付）；标价不含镜片——光学款保持「可配镜」勾选，太阳镜请取消「可配镜」（暂不配处方镜片，勾选太阳镜类目时会自动取消）。
+            </div>
             <div class="field" style="margin-top:8px">
               <label class="label">处方范围 rxRange</label>
               <input v-model="form.rxRange" class="input mono" />
@@ -283,10 +289,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, onMounted, reactive, ref } from 'vue';
+import { computed, defineComponent, h, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getProvider } from '@/lib/provider';
 import { useSessionStore } from '@/stores/session';
+import { BRAND_DEAL_TAG } from '../../../supabase/kyoto';
 import type {
   ImageKind, LocalizedText, ProductImageRow, ProductRow, ProductStatus,
 } from '../../../supabase/kyoto';
@@ -381,6 +388,18 @@ const LocaleField = defineComponent({
 });
 
 const actor = () => session.session?.userId ?? 'unknown';
+
+/* 名牌特价：tags 含 brand-deal 即进入顾客端专区（约定见 supabase/kyoto.ts）。 */
+const isBrandDeal = computed(() => form.tags.includes(BRAND_DEAL_TAG));
+function toggleBrandDeal(e: Event) {
+  const on = (e.target as HTMLInputElement).checked;
+  form.tags = on ? [...form.tags, BRAND_DEAL_TAG] : form.tags.filter(t => t !== BRAND_DEAL_TAG);
+  if (on && form.category === 'sun') form.prescriptionCompatible = false;
+}
+/* 品牌太阳镜暂不配处方：名牌特价 + 太阳镜类目时强制关掉「可配镜」。 */
+watch(() => form.category, (cat) => {
+  if (cat === 'sun' && form.tags.includes(BRAND_DEAL_TAG)) form.prescriptionCompatible = false;
+});
 
 async function load() {
   loading.value = true;
@@ -504,7 +523,7 @@ async function uploadCleaned(e: Event) {
     const row = await getProvider().addImage(
       form.id,
       { name: file.name, dataUrl, bytes: file.size, width: width || undefined, height: height || undefined },
-      { kind: 'cleaned', role: 'primary', provenance: 'MANUAL' },
+      { kind: 'cleaned', role: 'front', provenance: 'MANUAL' },
       actor(),
     );
     images.value = [...images.value, row];

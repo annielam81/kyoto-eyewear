@@ -12,7 +12,7 @@
       <text class="series">{{ seriesName }}</text>
       <view class="prow">
         <view class="pr"><text class="p">{{ money(sellPrice) }}</text><text v-if="onPromo" class="was">{{ money(wasPrice) }}</text></view>
-        <text v-if="onPromo" class="promotag">{{ $t('product.promoTag') }}</text>
+        <text v-if="onPromo" class="promotag">{{ promoLabel }}</text>
         <view v-if="mode==='new'" class="add" @click.stop="quickAdd" v-html="icPlus"></view>
       </view>
       <view v-if="mode==='best'" class="meta">
@@ -33,7 +33,7 @@ import FrameArt from './FrameArt.vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { money } from '@/utils/format';
-import { frameSellPrice, frameOnPromo, SERIES_INFO } from '@/config/pricing.config';
+import { frameSellPrice, frameOnPromo, isBrandDeal, brandDiscountPct, SERIES_INFO } from '@/config/pricing.config';
 import { trackEvent } from '@/utils/analytics';
 import type { Frame, Locale } from '@/models';
 
@@ -52,7 +52,19 @@ const sellPrice = computed(() => frameSellPrice(props.frame));
 /** 删除线用 regularPrice（后端行保留）；静态数据无此字段时回退 price，行为不变 */
 const wasPrice = computed(() => props.frame.regularPrice ?? props.frame.price);
 const onPromo = computed(() => frameOnPromo(props.frame));
-const seriesName = computed(() => SERIES_INFO[props.frame.series].name[loc.value]);
+/** 名牌特价：系列行显示品牌名（collectionName）；自有商品行为不变 */
+const seriesName = computed(() =>
+  isBrandDeal(props.frame) && props.frame.collectionName?.trim()
+    ? props.frame.collectionName
+    : SERIES_INFO[props.frame.series].name[loc.value]);
+/** 名牌特价的促销标签显示折扣（-38%），自有商品仍用 promoTag 文案 */
+const promoLabel = computed(() => {
+  if (isBrandDeal(props.frame)) {
+    const pct = brandDiscountPct(props.frame);
+    if (pct > 0) return `-${pct}%`;
+  }
+  return t('product.promoTag');
+});
 
 const onFav = () => {
   const added = fav.toggle(props.frame.id);

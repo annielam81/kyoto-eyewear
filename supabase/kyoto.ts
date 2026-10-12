@@ -32,6 +32,20 @@ export type OrderStatus =
   | 'new' | 'prescription_review' | 'processing' | 'lab'
   | 'ready' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
 
+/**
+ * 名牌特价区标记：商品 tags 含此值即进入「名牌特价」专区（2026-10-11 用户定版）。
+ * 约定（后台上架时遵守，顾客端/后台共同依赖，不得另 invent 第二套标记）：
+ *  - 品牌名写 collectionName（自由文本，品牌随时增减，不写死清单）；
+ *  - regularPrice = 品牌零售价（删除线），launchPrice = 特价（顾客实付）；
+ *  - 标价为不含镜片的镜架价；光学款 prescriptionCompatible 按可否配镜设置，
+ *    太阳镜款一律 prescriptionCompatible = false（暂不配处方镜片）。
+ */
+export const BRAND_DEAL_TAG = 'brand-deal';
+
+/** tags 是否标记为名牌特价商品。 */
+export const isBrandDealTags = (tags: readonly string[] | null | undefined): boolean =>
+  !!tags && tags.includes(BRAND_DEAL_TAG);
+
 /** 字段级来源：值 + 从哪来 + 置信度。Low 置信度不许自动 confirm。 */
 export interface FieldMeta {
   provenance: Provenance;

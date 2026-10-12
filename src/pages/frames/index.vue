@@ -9,7 +9,7 @@
 
     <!-- 分类：母版的下划线 tabs。取值仍是项目既有的 filter 状态 -->
     <scroll-view scroll-x class="tabs"><view class="tabs-in">
-      <text v-for="t in cats" :key="t.k" class="tb" :class="{ on: products.filter===t.k }"
+      <text v-for="t in cats" :key="t.k" class="tb" :class="{ on: t.k==='brand-deal' ? brandTabOn : products.filter===t.k }"
         @click="products.filter = t.k">{{ $t(t.l) }}</text>
     </view></scroll-view>
 
@@ -22,6 +22,13 @@
     <scroll-view scroll-x class="shapes"><view class="shapes-in">
       <text v-for="c in seriesChips" :key="c.k" class="fchip" :class="{ on: products.filter===c.k }"
         @click="products.filter = c.k">{{ c.label }}</text>
+    </view></scroll-view>
+    <!-- 品牌：名牌特价激活时出现，品牌清单由已发布商品动态生成 -->
+    <scroll-view v-if="brandTabOn && products.brands.length" scroll-x class="shapes"><view class="shapes-in">
+      <text class="fchip" :class="{ on: products.filter==='brand-deal' }"
+        @click="products.filter = 'brand-deal'">{{ $t('frames.allBrands') }}</text>
+      <text v-for="b in products.brands" :key="b" class="fchip" :class="{ on: products.filter==='brand:'+b }"
+        @click="products.filter = 'brand:'+b">{{ b }}</text>
     </view></scroll-view>
     <text class="count">{{ products.filtered.length }} {{ $t('frames.styles') }}</text>
 
@@ -62,10 +69,13 @@ const seriesChips = computed(() => (['essential', 'signature', 'atelier'] as Fra
 onShow(() => products.ensure());
 /* 分类与款式都写回同一个既有 filter 字段（store 的 filtered 同时匹配 category 与 frameShape），
    因此这里只是把现有能力按母版的两行结构呈现，没有新增任何筛选逻辑。
-   太阳镜在发售期隐藏：tab 不渲染，store 的 sellable/filtered 也已过滤。 */
+   太阳镜在发售期隐藏：tab 不渲染，store 的 sellable/filtered 也已过滤。
+   名牌特价 tab 是例外：有已发布特价商品才渲染，特价区含品牌太阳镜（店主明确要在特价区卖）。 */
+const brandTabOn = computed(() => products.filter === 'brand-deal' || products.filter.startsWith('brand:'));
 const cats = computed(() => [
   { k:'all', l:'frames.all' }, { k:'optical', l:'frames.optical' },
   ...(isSunglassesAvailable() ? [{ k:'sun', l:'frames.sun' }] : []),
+  ...(products.brandDeals.length ? [{ k:'brand-deal', l:'frames.brandDeals' }] : []),
 ]);
 const shapes = [
   { k:'round', l:'frames.round' }, { k:'square', l:'frames.square' }, { k:'cat-eye', l:'frames.catEye' },

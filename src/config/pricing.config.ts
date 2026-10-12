@@ -1,4 +1,5 @@
 import type { Frame, FrameSeries, LocalizedText } from '@/models';
+import { isBrandDealTags } from '../../supabase/kyoto';
 
 /** 三档价格体系：镜架系列等级定价；镜片升级独立加价（见 lens-materials.config / treatments.config）。 */
 export const SERIES_PRICE: Record<FrameSeries, number> = {
@@ -39,13 +40,26 @@ export const COMPLETE_PAIR_INCLUDES: LocalizedText = {
   'es-US': 'Montura + lentes monofocales CR-39 1.50 + antirreflejo + envío gratis',
 };
 
+/** 名牌特价商品（tags 含 brand-deal）：价格完全以商品自身为准，
+ *  不参与开业优惠改价——特价就是后台填的 launchPrice。 */
+export const isBrandDeal = (f: Pick<Frame, 'tags'>): boolean => isBrandDealTags(f.tags);
+
 /** 当前实际售价（含开业优惠）。 */
-export function frameSellPrice(f: Pick<Frame, 'series' | 'price'>): number {
+export function frameSellPrice(f: Pick<Frame, 'series' | 'price' | 'tags'>): number {
+  if (isBrandDeal(f)) return f.price;
   if (OPENING_PROMO.active && f.series === OPENING_PROMO.series) return OPENING_PROMO.promoPrice;
   return f.price;
 }
 
 /** 是否处于优惠价（用于显示划线原价）。 */
-export function frameOnPromo(f: Pick<Frame, 'series' | 'price'>): boolean {
+export function frameOnPromo(f: Pick<Frame, 'series' | 'price' | 'tags'> & { regularPrice?: number }): boolean {
+  if (isBrandDeal(f)) return (f.regularPrice ?? f.price) > f.price;
   return OPENING_PROMO.active && f.series === OPENING_PROMO.series && OPENING_PROMO.promoPrice < f.price;
+}
+
+/** 名牌特价折扣百分比（如 38 表示 -38%）；非品牌特价或无折扣时为 0。 */
+export function brandDiscountPct(f: Pick<Frame, 'price' | 'tags'> & { regularPrice?: number }): number {
+  if (!isBrandDeal(f)) return 0;
+  const was = f.regularPrice ?? f.price;
+  return was > f.price ? Math.round((1 - f.price / was) * 100) : 0;
 }

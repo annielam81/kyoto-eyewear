@@ -32,11 +32,14 @@
         <view class="np">
           <text class="pname">{{frame.name[loc]}}</text>
           <text class="zhname">{{frame.nameZH}}</text>
-          <text class="seriesline">{{ seriesName }} · {{ seriesTagline }}</text>
-          <text class="pr"><text v-if="onPromo" class="ptag">{{ $t('product.promoTag') }} · </text>${{sellPrice}}<text v-if="onPromo" class="was"> ${{wasPrice}}</text></text>
-          <text class="pairline">{{ $t('product.completePair') }}</text>
+          <text v-if="isBrand" class="seriesline">{{ brandName }} · {{ $t('product.brandDealTag') }}</text>
+          <text v-else class="seriesline">{{ seriesName }} · {{ seriesTagline }}</text>
+          <text class="pr"><text v-if="onPromo" class="ptag">{{ isBrand && discountPct ? '-'+discountPct+'%' : $t('product.promoTag') }} · </text>${{sellPrice}}<text v-if="onPromo" class="was"> ${{wasPrice}}</text></text>
+          <text v-if="!isBrand" class="pairline">{{ $t('product.completePair') }}</text>
+          <!-- 名牌特价：标价口径与自有款不同（不含镜片 / 太阳镜含原装片），单独说明 -->
+          <text v-if="isBrand" class="pairline">{{ $t(frame.category==='sun' ? 'product.brandNoteSun' : 'product.brandNoteOptical') }}</text>
           <!-- Complete Pair 包含清单：让用户一眼看懂 $79.99 是整副价格 -->
-          <view class="incl">
+          <view v-if="!isBrand" class="incl">
             <text class="incl-t">{{ $t('home.foundingOffer.includesTitle') }}</text>
             <text class="incl-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc1') }}</text>
             <text class="incl-li"><text class="ck">✓ </text>{{ $t('home.foundingOffer.inc2') }}</text>
@@ -52,7 +55,7 @@
         </view>
         <view class="badges">
           <text class="btag">{{$t('product.fsa')}}</text>
-          <text class="btag">{{$t('product.freeLens')}}</text>
+          <text v-if="!isBrand" class="btag">{{$t('product.freeLens')}}</text>
           <text class="btag">{{$t('product.returns')}}</text>
         </view>
         <!-- color -->
@@ -132,8 +135,9 @@
     <view class="sticky-cta">
       <view class="cta2">
         <!-- 母版 03 的层级：主操作 Vermilion 在上，次操作 Indigo 在下。
-             业务流程仍以代码为准 —— 主 CTA 是「配处方镜片」，不是母版示意的 Try On。 -->
-        <KyotoButton variant="pink" :class="{long:$t('product.addLenses').length>22}" @click="startWizard">{{$t('product.addLenses')}}</KyotoButton>
+             业务流程仍以代码为准 —— 主 CTA 是「配处方镜片」，不是母版示意的 Try On。
+             不可配镜的商品（如品牌太阳镜）不渲染配镜 CTA，只保留「仅镜框」。 -->
+        <KyotoButton v-if="frame?.prescriptionCompatible" variant="pink" :class="{long:$t('product.addLenses').length>22}" @click="startWizard">{{$t('product.addLenses')}}</KyotoButton>
         <KyotoButton variant="night" @click="addFrameOnly">{{$t('product.frameOnly')}} · ${{sellPrice ?? frame?.price}}</KyotoButton>
       </view>
     </view>
@@ -152,7 +156,7 @@ import { useFavoritesStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 import { useLensWizardStore } from '@/stores/lensWizard';
 import type { Locale } from '@/models';
-import { frameSellPrice, frameOnPromo, SERIES_INFO } from '@/config/pricing.config';
+import { frameSellPrice, frameOnPromo, isBrandDeal, brandDiscountPct, SERIES_INFO } from '@/config/pricing.config';
 import { trackEvent } from '@/utils/analytics';
 const { locale } = useI18n();
 const loc = computed(()=>locale.value as Locale);
@@ -171,6 +175,10 @@ const sellPrice = computed(()=>frame.value?frameSellPrice(frame.value):0);
 /** 删除线用 regularPrice（后端行保留）；静态数据无此字段时回退 price，行为不变 */
 const wasPrice = computed(()=>frame.value?(frame.value.regularPrice ?? frame.value.price):0);
 const onPromo = computed(()=>!!frame.value&&frameOnPromo(frame.value));
+/** 名牌特价：标题行/价格口径/CTA 都与自有款不同（见模板分支） */
+const isBrand = computed(()=>!!frame.value && isBrandDeal(frame.value));
+const brandName = computed(()=>frame.value?.collectionName?.trim() || '');
+const discountPct = computed(()=>frame.value ? brandDiscountPct(frame.value) : 0);
 const seriesName = computed(()=>frame.value?SERIES_INFO[frame.value.series].name[loc.value]:'');
 const seriesTagline = computed(()=>frame.value?SERIES_INFO[frame.value.series].tagline[loc.value]:'');
 const selColor = computed(()=>frame.value?.colors[colorIdx.value]??{hex:'#0D1B2A',key:'night',name:{'en-US':'Night','zh-CN':'夜空蓝','es-US':'Noche'}});
