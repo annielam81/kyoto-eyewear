@@ -35,6 +35,7 @@
                     <a v-if="img.publicUrl" class="btn btn-sm" :href="img.publicUrl" target="_blank" rel="noopener">查看</a>
                     <a v-if="img.publicUrl" class="btn btn-sm" :href="img.publicUrl" :download="img.storagePath.split('/').pop()">下载</a>
                     <button v-if="kind === 'original'" class="btn btn-sm" @click="restoreOriginal(img.id)">恢复</button>
+                    <button v-if="kind === 'original'" class="btn btn-sm" :disabled="cleaningId === img.id" @click="aiClean(img)">{{ cleaningId === img.id ? '去背中…' : 'AI 去背' }}</button>
                     <button class="btn btn-sm btn-danger" @click="removeImage(img.id)">删除</button>
                   </div>
                 </div>
@@ -46,6 +47,7 @@
               </label>
             </div>
             <div class="hint small muted">原图上传在「批量上传」中完成；cleaned 图用本地去背脚本处理后在此上传，顾客端自动显示。</div>
+            <div class="hint small muted">也可以点原图上的「AI 去背」，自动生成 cleaned 图并打 AI 生成标记，不用再跑本地脚本。</div>
           </div>
         </details>
 
@@ -292,6 +294,7 @@
 import { computed, defineComponent, h, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getProvider } from '@/lib/provider';
+import { removeBackground } from '@/services/AiCleanService';
 import { useSessionStore } from '@/stores/session';
 import { BRAND_DEAL_TAG } from '../../../supabase/kyoto';
 import type {
@@ -306,6 +309,7 @@ const isNew = computed(() => route.params.id === 'new' || route.path.endsWith('/
 const loading = ref(true);
 const saving = ref(false);
 const images = ref<ProductImageRow[]>([]);
+const cleaningId = ref<string | null>(null);
 const inv = ref<{ onHand: number; reserved: number; lowStockThreshold: number } | null>(null);
 const adjQty = ref<number | null>(null);
 const adjReason = ref('');
@@ -530,6 +534,49 @@ async function uploadCleaned(e: Event) {
     alert('cleaned 图已上传并入库，顾客端将自动显示');
   } catch (err) {
     alert(err instanceof Error ? err.message : '上传失败');
+  }
+}
+
+const aiCleanErrorText = (code: string): string => {
+  switch (code) {
+    case 'ai_not_configured': return 'AI 去背未配置：请确认 Supabase Secrets 已贴 OPENAI_API_KEY，且后台已配置 Supabase 地址';
+    case 'ai_busy': return 'AI 繁忙，请稍后再试';
+    case 'original_unreachable': return '原图链接已失效（原图查看链接 7 天有效），请重新上传原图后再试';
+    case 'invalid_image': return '原图格式不支持，请换一张 jpg/png/webp 原图';
+    case 'network': return '网络失败，请检查网络后重试';
+    default: return 'AI 去背失败，请重试';
+  }
+};
+
+/** 原图 → AI 去背 → 存为 cleaned 图（AI_SUGGESTED + AI 生成标记）。 */
+async function aiClean(img: ProductImageRow) {
+  if (!form.id || !img.publicUrl || cleaningId.value) return;
+  cleaningId.value = img.id;
+  try {
+    const input = img.publicUrl.startsWith('data:')
+      ? { imageDataUrl: img.publicUrl }
+      : { imageUrl: img.publicUrl };
+    const dataUrl = await removeBackground(input);
+    const { width, height } = await new Promise<{ width: number; height: number }>((resolve) => {
+      const image = new Image();
+      image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+      image.onerror = () => resolve({ width: 0, height: 0 });
+      image.src = dataUrl;
+    });
+    const bytes = Math.floor(((dataUrl.split(',')[1]?.length ?? 0) * 3) / 4);
+    const base = (img.storagePath.split('/').pop() || 'frame').replace(/\.[^.]+$/, '');
+    const row = await getProvider().addImage(
+      form.id,
+      { name: `${base}-cleaned.png`, dataUrl, bytes, width: width || undefined, height: height || undefined },
+      { kind: 'cleaned', role: 'front', provenance: 'AI_SUGGESTED', aiGenerated: true },
+      actor(),
+    );
+    images.value = [...images.value, row];
+    alert('AI 去背完成，已存为 cleaned 图，顾客端将自动显示');
+  } catch (err) {
+    alert(aiCleanErrorText(err instanceof Error ? err.message : ''));
+  } finally {
+    cleaningId.value = null;
   }
 }
 
