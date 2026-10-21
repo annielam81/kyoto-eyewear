@@ -11,6 +11,7 @@
       <view class="perm-cta">
         <view class="perm-btn primary" @tap="choose('camera')"><text class="pb-t">{{$t('tryon.takePhoto')}}</text></view>
         <view class="perm-btn" @tap="choose('album')"><text class="pb-t">{{$t('tryon.chooseAlbum')}}</text></view>
+        <view class="perm-btn ai" @tap="enterAi"><text class="pb-t">{{$t('tryon.aiMode')}}</text></view>
       </view>
       <text class="perm-back" @tap="goBack">‹ {{$t('common.back')}}</text>
     </view>
@@ -41,6 +42,47 @@
         <text class="cl-t" @tap="step='pick'">{{$t('tryon.calRetake')}}</text>
         <text class="cl-dot">·</text>
         <text class="cl-t" @tap="skipCal">{{$t('tryon.calSkip')}}</text>
+      </view>
+    </view>
+
+    <!-- ============ AI TRY-ON ============ -->
+    <!-- 与校准试戴并存的新模式：自拍只发给生成接口，不存档；结果图打 AI 生成标注 -->
+    <view v-else-if="step==='ai'" class="ai">
+      <view class="try-topbar">
+        <view class="cb" @tap="exitAi"><text class="cb-t">✕</text></view>
+        <view class="tb-mid"><KyotoWordmark :size="14"/></view>
+        <view style="width:72rpx"></view>
+      </view>
+      <view v-if="!aiPhoto" class="ai-pick">
+        <text class="h1">{{$t('tryon.aiMode')}}</text>
+        <text class="sub ai-sub">{{$t('tryon.aiIntro')}}</text>
+        <text class="perm-note">{{$t('tryon.aiNoCard')}}</text>
+        <view class="perm-cta">
+          <view class="perm-btn primary" @tap="chooseAi('camera')"><text class="pb-t">{{$t('tryon.takePhoto')}}</text></view>
+          <view class="perm-btn" @tap="chooseAi('album')"><text class="pb-t">{{$t('tryon.chooseAlbum')}}</text></view>
+        </view>
+        <text class="perm-back" @tap="exitAi">‹ {{$t('common.back')}}</text>
+      </view>
+      <view v-else class="ai-gen">
+        <view class="ai-photo-wrap">
+          <image class="ai-photo" :src="aiResult || aiPhoto" mode="aspectFit"></image>
+          <view v-if="aiResult" class="ai-badge"><text class="ai-badge-t">{{$t('tryon.aiGeneratedLabel')}}</text></view>
+        </view>
+        <view class="ai-panel">
+          <view v-if="aiResult" class="ai-disclaimer"><text class="ai-dis-t">{{$t('tryon.aiDisclaimer')}}</text></view>
+          <view v-if="aiError" class="ai-err"><text class="ai-err-t">{{ aiErrorText }}</text></view>
+          <scroll-view class="frame-row" scroll-x>
+            <view v-for="f in frames" :key="f.id" class="fbt" :class="{on:f.id===cur.id}" @tap="pickAiFrame(f)">
+              <FrameArt :art="f.art" hex="#8a8f98"/>
+              <text class="fbt-pr">${{ seriesPrice(f) }}</text>
+            </view>
+          </scroll-view>
+          <view class="ai-btns">
+            <view class="perm-btn primary" :class="{disabled: aiLoading}" @tap="runAi"><text class="pb-t">{{ aiLoading ? $t('tryon.aiGenerating') : (aiResult ? $t('tryon.aiRegenerate') : $t('tryon.aiGenerate')) }}</text></view>
+            <view class="perm-btn" @tap="aiRetake"><text class="pb-t">{{$t('tryon.aiRetake')}}</text></view>
+            <view class="perm-btn" @tap="exitAi"><text class="pb-t">{{$t('tryon.aiBackToReal')}}</text></view>
+          </view>
+        </view>
       </view>
     </view>
 
@@ -126,6 +168,7 @@ import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
 import { frameSellPrice } from '@/config/pricing.config';
 import { trackEvent } from '@/utils/analytics';
+import { generateAiTryOn } from '@/services/AiTryOnService';
 
 const { t } = useI18n();
 
@@ -135,7 +178,7 @@ const sys = uni.getSystemInfoSync();
 const winW = sys.windowWidth, winH = sys.windowHeight;
 const clamp = (v:number,a:number,b:number)=>Math.max(a,Math.min(b,v));
 
-type Step = 'pick'|'cal'|'try';
+type Step = 'pick'|'cal'|'try'|'ai';
 const step = ref<Step>('pick');
 const photo = ref('');
 const frames = computed(()=>((store.sellable||[]) as any[]).filter(f=>f.prescriptionCompatible));
@@ -244,6 +287,43 @@ async function snap(){
     snapSaved.value = true;
     clearTimeout(snapTimer); snapTimer = setTimeout(()=>snapSaved.value=false, 2200);
   }catch(e){ /* 保存失败保持静默 */ }
+}
+
+/* ---- AI 试戴（与校准试戴并存；自拍只发给生成接口，不存档） ---- */
+const aiPhoto = ref('');
+const aiResult = ref('');
+const aiLoading = ref(false);
+const aiError = ref('');
+const aiErrorText = computed(()=>{
+  if (aiError.value === 'ai_busy') return t('tryon.aiBusy');
+  if (aiError.value === 'no_frame_image') return t('tryon.aiNoFrameImage');
+  return t('tryon.aiFailed');
+});
+function resetAi(){ aiPhoto.value=''; aiResult.value=''; aiLoading.value=false; aiError.value=''; }
+function enterAi(){ resetAi(); step.value='ai'; }
+function exitAi(){ resetAi(); step.value='pick'; }
+function chooseAi(src:'camera'|'album'){
+  uni.chooseImage({ count:1, sizeType:['compressed'],
+    sourceType: src==='camera' ? ['camera'] : ['album'],
+    success:(r:any)=>{ aiPhoto.value = r.tempFilePaths[0]; aiResult.value=''; aiError.value=''; },
+  });
+}
+function frameImageUrl(f:any): string | undefined {
+  const imgs = f?.images as Array<{ url?: string }> | undefined;
+  return imgs?.find(i=>i?.url)?.url;
+}
+function pickAiFrame(f:any){ pickFrame(f); aiResult.value=''; }
+function aiRetake(){ aiPhoto.value=''; aiResult.value=''; aiError.value=''; }
+async function runAi(){
+  if (aiLoading.value || !aiPhoto.value) return;
+  const url = frameImageUrl(cur.value);
+  if (!url) { aiError.value='no_frame_image'; return; }
+  aiLoading.value = true; aiError.value='';
+  try {
+    aiResult.value = await generateAiTryOn(aiPhoto.value, url);
+  } catch(e:any) {
+    aiError.value = e?.message || 'generation_failed';
+  } finally { aiLoading.value = false; }
 }
 
 /* ---- 照片选择 / 购物车 / 返回 ---- */
@@ -365,4 +445,22 @@ onMounted(()=>{
 .cmp-pick.on{border-color:#FF6A3D;background:rgba(255,106,61,.25)}
 .cp-t{color:#fff;font-size:28rpx;font-weight:600}
 .cmp-close{position:absolute;right:30rpx;top:calc(20rpx + env(safe-area-inset-top));z-index:31}
+/* AI 试戴（新模式，与校准试戴并存） */
+.ai{position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;background:#1a1714;display:flex;flex-direction:column;overflow:hidden}
+.ai .h1{color:#FFF5E6;font-size:44rpx;margin:10rpx 0 18rpx}
+.ai-pick{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 60rpx}
+.ai-sub{color:rgba(255,245,230,.72);text-align:center;line-height:1.7}
+.perm-btn.ai{background:rgba(255,255,255,.08);border:1rpx solid rgba(255,255,255,.35)}
+.perm-btn.disabled{opacity:.45}
+.ai-gen{flex:1;display:flex;flex-direction:column;min-height:0;padding-top:calc(110rpx + env(safe-area-inset-top))}
+.ai-photo-wrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.ai-photo{width:100%;height:100%}
+.ai-badge{position:absolute;left:30rpx;top:20rpx;background:#B83227;border-radius:32rpx;padding:10rpx 24rpx;z-index:2}
+.ai-badge-t{color:#fff;font-size:26rpx;font-weight:700}
+.ai-panel{padding:20rpx 30rpx calc(30rpx + env(safe-area-inset-bottom));background:rgba(20,16,13,.88)}
+.ai-disclaimer{margin-bottom:16rpx}
+.ai-dis-t{color:rgba(255,245,230,.75);font-size:24rpx;line-height:1.6;display:block}
+.ai-err{margin-bottom:16rpx}
+.ai-err-t{color:#FF6A3D;font-size:26rpx;display:block}
+.ai-btns{display:flex;flex-direction:column;gap:18rpx;margin-top:18rpx}
 </style>
