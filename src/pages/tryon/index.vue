@@ -159,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { useI18n } from 'vue-i18n';
 import FrameArt from '@/components/FrameArt.vue';
@@ -183,6 +183,16 @@ const step = ref<Step>('pick');
 const photo = ref('');
 const frames = computed(()=>((store.sellable||[]) as any[]).filter(f=>f.prescriptionCompatible));
 const cur = ref<any>({}); const ci = ref(0);
+/* 商品页带 frame=<id> 进来时优先选中该镜架（原来直接取 list[0]，参数被忽略） */
+const paramFrameId = ref('');
+watch([frames, paramFrameId], ([list])=>{
+  if (!list.length) return;
+  if (paramFrameId.value) {
+    const hit = list.find((f:any)=>f.id===paramFrameId.value);
+    if (hit) { cur.value = hit; ci.value = 0; paramFrameId.value = ''; return; }
+  }
+  if (!cur.value?.id) { cur.value = list[0]; ci.value = 0; }
+}, { immediate: true });
 const curColor = computed(()=>cur.value.colors?.[ci.value] ?? {hex:'#141B3D'});
 const seriesPrice = (f:any)=>frameSellPrice(f);
 
@@ -240,7 +250,7 @@ let oSX=0, oSY=0, oOX=0, oOY=0;
 function oTS(e:any){ const t=e.touches[0]; oSX=t.clientX; oSY=t.clientY; oOX=ox.value; oOY=oy.value; }
 function oTM(e:any){ const t=e.touches[0]; ox.value=oOX+(t.clientX-oSX); oy.value=oOY+(t.clientY-oSY); }
 function oTE(){}
-function pickFrame(f:any){ cur.value=f; ci.value=0; }
+function pickFrame(f:any){ paramFrameId.value=''; cur.value=f; ci.value=0; }
 
 /* ---- 对比 ---- */
 const comparing = ref(false);
@@ -354,12 +364,10 @@ function exitTryon(){
 function goBack(){ exitTryon(); }
 function close(){ exitTryon(); }
 
-onLoad(()=>{ store.ensure(); });
+onLoad((options:any)=>{ store.ensure(); if (options?.frame) paramFrameId.value = String(options.frame); });
 onShow(()=>{ store.ensure(); });
 onMounted(()=>{
   store.ensure();
-  const list = frames.value;
-  cur.value = list[0] || {};
 });
 </script>
 
