@@ -72,7 +72,7 @@
           <view v-if="aiResult" class="ai-disclaimer"><text class="ai-dis-t">{{$t('tryon.aiDisclaimer')}}</text></view>
           <view v-if="aiError" class="ai-err"><text class="ai-err-t">{{ aiErrorText }}</text></view>
           <scroll-view class="frame-row" scroll-x>
-            <view v-for="f in frames" :key="f.id" class="fbt" :class="{on:f.id===cur.id}" @tap="pickAiFrame(f)">
+            <view v-for="f in rowFrames" :key="f.id" class="fbt" :class="{on:f.id===cur.id}" @tap="pickAiFrame(f)">
               <FrameArt :art="f.art" hex="#8a8f98"/>
               <text class="fbt-pr">${{ seriesPrice(f) }}</text>
             </view>
@@ -114,7 +114,7 @@
       <view v-if="!showAdj" class="hint"><text class="hint-tx">{{$t('tryon.dragHint')}}</text></view>
       <view class="bottom">
         <scroll-view class="frame-row" scroll-x>
-          <view v-for="f in frames" :key="f.id" class="fbt" :class="{on:f.id===cur.id}" @tap="pickFrame(f)">
+          <view v-for="f in rowFrames" :key="f.id" class="fbt" :class="{on:f.id===cur.id}" @tap="pickFrame(f)">
             <FrameArt :art="f.art" hex="#8a8f98"/>
             <text class="fbt-pr">${{ seriesPrice(f) }}</text>
           </view>
@@ -185,11 +185,14 @@ const frames = computed(()=>((store.sellable||[]) as any[]).filter(f=>f.prescrip
 const cur = ref<any>({}); const ci = ref(0);
 /* 商品页带 frame=<id> 进来时优先选中该镜架（原来直接取 list[0]，参数被忽略） */
 const paramFrameId = ref('');
+/* 带 frame 参数进来时，行里只显示该镜架（避免一排相似款分不清） */
+const lockedFrame = ref<any|null>(null);
+const rowFrames = computed(()=> lockedFrame.value ? [lockedFrame.value] : frames.value);
 watch([frames, paramFrameId], ([list])=>{
   if (!list.length) return;
   if (paramFrameId.value) {
     const hit = list.find((f:any)=>f.id===paramFrameId.value);
-    if (hit) { cur.value = hit; ci.value = 0; paramFrameId.value = ''; return; }
+    if (hit) { cur.value = hit; ci.value = 0; lockedFrame.value = hit; paramFrameId.value = ''; return; }
   }
   if (!cur.value?.id) { cur.value = list[0]; ci.value = 0; }
 }, { immediate: true });
@@ -319,6 +322,8 @@ function chooseAi(src:'camera'|'album'){
   });
 }
 function frameImageUrl(f:any): string | undefined {
+  /* 顾客端 Frame 没有 images 字段，真照片在 photoUrl（首张非原图）里 */
+  if (typeof f?.photoUrl === 'string' && f.photoUrl) return f.photoUrl;
   const imgs = f?.images as Array<{ url?: string }> | undefined;
   return imgs?.find(i=>i?.url)?.url;
 }
